@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: litellm-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-litellm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-litellm_password}
+      POSTGRES_DB: ${POSTGRES_DB:-litellm}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB:-litellm} -U ${POSTGRES_USER:-litellm}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    networks:
+      - litellm-network
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: litellm-proxy
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-litellm}:${POSTGRES_PASSWORD:-litellm_password}@postgres:5432/${POSTGRES_DB:-litellm}
+      - STORE_MODEL_IN_DB=True
+      # Retry configuration (configurable, delayed retries)
+      - LITELLM_NUM_RETRIES=3  # Number of retries for failed requests
+      - LITELLM_TIMEOUT=600  # Request timeout in seconds (10 minutes for retries with delays)
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - litellm-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:4000/health/liveliness || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    environment:
+      - OPENAI_API_BASE_URL=http://litellm:4000
+      # Virtual Key is required - created via setup_virtual_key.py
+      # Falls back to Master Key if Virtual Key not set (for backward compatibility)
+      - OPENAI_API_KEY=${VIRTUAL_KEY:-${LITELLM_MASTER_KEY}}
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - litellm
+    networks:
+      - litellm-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: litellm-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_data:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - litellm
+      - open-webui
+    networks:
+      - litellm-network
+    # Memory limit for nginx (Tier 2 optimized: 3M buffer × 4 workers = ~12MB per worker worst case)
+    # Typical usage: ~5-20MB, peak with Tier 2: ~50-100MB
+    # Uncomment if you want to enforce memory limits:
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 200M
+    #     reservations:
+    #       memory: 50M
+
+volumes:
+  postgres_data:
+    driver: local
+  open-webui-data:
+    driver: local
+  certbot_data:
+    driver: local
+  certbot_www:
+    driver: local
+
+networks:
+  litellm-network:
+    driver: bridge
+

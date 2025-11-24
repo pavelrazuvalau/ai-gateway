@@ -12,6 +12,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.2] - 2025-11-24
+
+### Fixed
+- Updated memory calculations based on real measurements from production deployment
+- Corrected worker memory usage from 400MB to 460MB per worker
+- Updated system overhead estimates from ~1GB to ~1.2GB
+- Fixed SMALL_VPS profile calculations (actual usage ~2.3-2.5GB, not 2.8GB)
+
+### Added
+- Memory limits for all Docker containers to prevent unbounded growth
+- Request buffer calculations in all resource profiles
+- Comprehensive memory troubleshooting section in README
+- Lightweight Linux distribution recommendations for Small VPS users
+- Memory configuration documentation section
+
+### Changed
+- Updated all resource profile memory calculations with verified measurements
+- Improved SMALL_VPS documentation with accurate usage numbers
+- Enhanced memory requirements documentation with request buffer details
+- Updated minimum RAM recommendation from 2GB to 3GB (with warnings for 2GB systems)
+
+### Documentation
+- Added detailed memory breakdown per service
+- Updated Resource Profiles section with real measurements (2025-11-24)
+- Added memory limit configuration guide
+- Added troubleshooting section for OOM errors
+
+---
+
 ## [0.0.1] - 2025-11-24
 
 ### Added
@@ -43,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Anthropic API Tier 1 has strict rate limits
 - Not fully production-ready, more testing needed
 
-[Unreleased]: https://github.com/pavelrazuvalau/ai-gateway/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/pavelrazuvalau/ai-gateway/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/pavelrazuvalau/ai-gateway/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/pavelrazuvalau/ai-gateway/releases/tag/v0.0.1
 

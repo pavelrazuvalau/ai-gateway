@@ -6,7 +6,7 @@
 
 **AI Gateway** - prototype bundled solution for working with language models through a unified interface. Similar to LAMP/XAMPP stacks, AI Gateway bundles LiteLLM, Open WebUI, PostgreSQL, and Nginx into a single, easy-to-configure package. All configuration is done through LiteLLM Admin UI.
 
-**Version:** 0.0.1 (Prototype)
+**Version:** 0.0.2 (Prototype)
 
 ⚠️ **Note:** This is a **prototype** with known limitations. Not production-ready.
 

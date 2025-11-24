@@ -35,7 +35,7 @@
 ### Minimum Requirements
 - **Python**: 3.8 or higher
 - **Docker**: 20.10 or higher (Docker Compose v2 recommended)
-- **RAM**: 2GB minimum (4GB recommended)
+- **RAM**: 3GB minimum (4GB recommended) ⚠️ **Note**: Small VPS (2GB) profile uses ~2.8GB on typical Linux, or ~2.3GB with lightweight distro - see [Resource Profiles](#resource-profiles-explained) below
 - **CPU**: 2 cores minimum (4 cores recommended)
 - **Disk**: 10GB minimum (see [Disk Space Requirements](#-disk-space-requirements) below for details)
 - **OS**: Linux (tested), macOS (experimental, not fully tested), Windows with WSL2 (experimental, not fully tested)
@@ -54,13 +54,46 @@ For more details, see the [Installation Guide](INSTALL.md#proxmox-lxc-containers
 - **CPU**: 4+ cores for better performance
 - **Network**: Stable internet connection for API calls to LLM providers
 
-### Resource Profiles Explained
-Each profile sets Docker container resource limits. The host system should have:
-- **Small VPS**: 2GB RAM, 2 CPU cores (containers use ~1.6GB, ~1.9 CPU)
-- **Medium VPS**: 4GB RAM, 4 CPU cores (containers use ~3.2GB, ~3.7 CPU)
-- **Large VPS**: 8GB+ RAM, 8 CPU cores (containers use ~6.3GB, ~7.3 CPU)
+### 💡 Tips for Small VPS (2GB) Users
 
-**Note:** Resource limits are optimized based on PostgreSQL best practices and container memory constraints. PostgreSQL settings (`shared_buffers`, `effective_cache_size`, `work_mem`) are calculated based on container RAM limits, not host RAM.
+If you're using a Small VPS with 2GB RAM, consider using a **lightweight Linux distribution** to reduce system overhead:
+
+- **Lightweight options**: Alpine Linux, Debian minimal, Ubuntu Server minimal
+- **System overhead reduction**: From ~1.2GB (typical Linux) to ~600-800MB (lightweight distro)
+- **Total usage with lightweight distro**: ~2.3GB (still tight but more feasible than ~2.8GB)
+- **Note**: Even with a lightweight distro, 2GB is still tight. Medium VPS (4GB) is recommended for better performance and safety.
+
+### Resource Profiles Explained
+Each profile sets Docker container resource limits. **Memory usage is based on real measurements (2025-11-24)**. The host system should have:
+
+- **Small VPS**: 2GB RAM, 2 CPU cores
+  - ⚠️ **WARNING**: Actual usage is ~2.8GB on typical Linux distributions (exceeds 2GB by 40%)
+  - Containers: ~1.6GB (LiteLLM: 780MB, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - System overhead: ~1.2GB (typical Linux) or ~600-800MB (lightweight distro)
+  - **Recommendations**:
+    - **Option 1**: Use Medium VPS (4GB) for safety ⭐ **Recommended**
+    - **Option 2**: Use lightweight Linux distribution (Alpine, Debian minimal, Ubuntu Server minimal) to reduce system overhead to ~600-800MB, bringing total to ~2.3GB (still tight but more feasible)
+- **Medium VPS**: 4GB RAM, 4 CPU cores ⭐ **Recommended**
+  - Actual usage: ~3.3GB (safe with ~700MB buffer)
+  - Containers: ~2.1GB (LiteLLM: 1.24GB with 2 workers, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - System overhead: ~1.2GB
+- **Large VPS**: 8GB+ RAM, 8 CPU cores
+  - Actual usage: ~5.1GB (leaves ~3GB buffer)
+  - Containers: ~3.9GB (LiteLLM: 3.08GB with 6 workers, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - System overhead: ~1.2GB
+
+**Memory Details:**
+- Each LiteLLM worker uses ~460MB RAM (measured, not estimated)
+- LiteLLM base process: ~320MB
+- Open WebUI: ~602MB
+- PostgreSQL: ~48MB (idle, can grow with usage)
+- Nginx: ~6MB
+- System overhead: 
+  - ~1.2GB on typical Linux distributions (Ubuntu, Debian with desktop, Fedora)
+  - ~600-800MB on lightweight distributions (Alpine, Debian minimal, Ubuntu Server minimal)
+  - Includes OS, Docker daemons, and other system services
+
+**Note:** Resource limits are optimized based on PostgreSQL best practices and container memory constraints. PostgreSQL settings (`shared_buffers`, `effective_cache_size`, `work_mem`) are calculated based on container RAM limits, not host RAM. Memory limits are configured in `docker-compose.yml` to prevent unbounded growth.
 
 ### 💾 Disk Space Requirements
 
@@ -161,9 +194,9 @@ setup.bat
 3. **Interactive Configuration** (you'll be asked):
    - **Resource Profile** - Choose based on your system:
      - `[1] Desktop` - Local development (no limits)
-     - `[2] Small VPS` - 2GB RAM, 2 CPU cores (1-2 users)
-     - `[3] Medium VPS` - 4GB RAM, 4 CPU cores (3-5 users) ⭐ Recommended
-     - `[4] Large VPS` - 8GB+ RAM, 8 CPU cores (10+ users)
+     - `[2] Small VPS` - 2GB RAM, 2 CPU cores (1-2 users) ⚠️ **Warning**: Actual usage ~2.8GB - consider Medium VPS
+     - `[3] Medium VPS` - 4GB RAM, 4 CPU cores (3-5 users) ⭐ **Recommended** - Actual usage ~3.3GB
+     - `[4] Large VPS` - 8GB+ RAM, 8 CPU cores (10+ users) - Actual usage ~5.1GB
      - `[5] Don't configure workers` - Use LiteLLM defaults
    
    - **Budget Profile** - Spending limits for API calls:
@@ -329,11 +362,11 @@ docker compose logs # Show logs
 | Profile | RAM | CPU | Users | Description |
 |---------|-----|-----|-------|-------------|
 | **Local** | No limits | No limits | - | Local development |
-| **Small VPS** | 2GB | 2 CPU | 1-2 | Budget option |
-| **Medium VPS** | 4GB | 4 CPU | 3-5 | Recommended |
-| **Large VPS** | 8GB+ | 8 CPU | 10+ | For teams |
+| **Small VPS** | 2GB | 2 CPU | 1-2 | ⚠️ **Warning**: Actual usage ~2.8GB (exceeds 2GB) |
+| **Medium VPS** | 4GB | 4 CPU | 3-5 | ⭐ **Recommended** - Actual usage ~3.3GB |
+| **Large VPS** | 8GB+ | 8 CPU | 10+ | For teams - Actual usage ~5.1GB |
 
-**Note:** Resource limits are optimized for containers. Actual usage may vary based on workload. The system should have additional resources for the host OS and Docker overhead (~500MB-1GB RAM, ~0.5-1 CPU).
+**Note:** Memory usage is based on real measurements (2025-11-24). Each LiteLLM worker uses ~460MB RAM. The system includes memory limits in `docker-compose.yml` to prevent unbounded growth. See [Resource Profiles Explained](#resource-profiles-explained) above for detailed breakdown.
 
 ## 💰 Budget Profiles
 
@@ -412,6 +445,49 @@ systemctl --user disable ai-gateway.service    # Disable
 
 See [SYSTEMD.md](SYSTEMD.md) for detailed documentation.
 
+## 💾 Memory Configuration
+
+### Memory Limits
+
+Memory limits are configured in `docker-compose.yml` to prevent containers from consuming unbounded memory. These limits are based on real measurements and allow for growth while preventing OOM (Out of Memory) kills.
+
+**Current Memory Limits:**
+- **litellm**: 1.5G limit, 1.2G reservation
+  - Current usage: ~1.177 GiB (with 2 workers)
+  - Allows growth for additional workers or increased load
+- **open-webui**: 800M limit, 600M reservation
+  - Current usage: ~602 MB
+  - Allows growth for chat history and file uploads
+- **postgres**: 200M limit, 100M reservation
+  - Current usage: ~48 MB (idle)
+  - Allows growth for database size and query cache
+- **nginx**: 100M limit, 50M reservation
+  - Current usage: ~6 MB
+  - Allows growth for high traffic
+
+**To adjust memory limits:**
+
+Edit `docker-compose.yml` and modify the `deploy.resources.limits.memory` values:
+
+```yaml
+services:
+  litellm:
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G  # Adjust as needed
+        reservations:
+          memory: 1.2G  # Adjust as needed
+```
+
+**After changing limits:**
+```bash
+docker compose down
+docker compose up -d
+```
+
+**Note:** If you increase limits significantly, ensure your host system has enough RAM. See [Resource Profiles Explained](#resource-profiles-explained) for total system requirements.
+
 ## 🔧 Port Configuration
 
 ### Default Configuration (with Nginx - Enabled by Default)
@@ -485,6 +561,54 @@ If password was changed, remove the volume:
 docker compose down -v
 docker compose up -d
 ```
+
+### Memory Issues / Out of Memory (OOM) Errors?
+
+**Check current memory usage:**
+```bash
+# Check container memory usage
+docker stats --no-stream
+
+# Check system memory
+free -h
+
+# Check for OOM kills
+dmesg | grep -i "out of memory"
+journalctl -k | grep -i "out of memory"
+```
+
+**Memory limits are configured** in `docker-compose.yml` to prevent unbounded growth:
+- `litellm`: 1.5G limit (current: ~1.177 GiB with 2 workers)
+- `open-webui`: 800M limit (current: ~602 MB)
+- `postgres`: 200M limit (current: ~48 MB)
+- `nginx`: 100M limit (current: ~6 MB)
+
+**If containers are being killed due to memory limits:**
+
+1. **Check actual usage**:
+   ```bash
+   docker stats --no-stream
+   ```
+
+2. **If limits are too low**, edit `docker-compose.yml` and increase the `deploy.resources.limits.memory` values
+
+3. **If system is running out of memory**:
+   - Consider upgrading to a larger VPS (Medium VPS recommended for 4GB systems)
+   - Reduce number of LiteLLM workers (edit `docker-compose.override.yml`, change `--num_workers`)
+   - Monitor with: `docker stats` and `free -h`
+
+4. **For Small VPS (2GB) users**:
+   - ⚠️ Small VPS profile actually uses ~2.8GB on typical Linux distributions, exceeding 2GB by 40%
+   - **Recommendations**:
+     - **Best option**: Upgrade to Medium VPS (4GB) for safety ⭐
+     - **Alternative 1**: Use lightweight Linux distribution (Alpine, Debian minimal, Ubuntu Server minimal) to reduce system overhead from ~1.2GB to ~600-800MB, bringing total to ~2.3GB (still tight but more feasible)
+     - **Alternative 2**: If you must use 2GB with typical Linux, consider reducing to 1 worker (but performance will be limited)
+
+**Memory usage details:**
+- Each LiteLLM worker uses ~460MB RAM (measured)
+- LiteLLM base process: ~320MB
+- System overhead: ~1.2GB (OS, Docker daemons)
+- See [Resource Profiles Explained](#resource-profiles-explained) for full breakdown
 
 ## 📚 Project Structure
 

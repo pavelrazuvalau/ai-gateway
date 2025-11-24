@@ -652,7 +652,6 @@ class SetupService:
                 
                 # Check if this is first run and Virtual Key needs to be created
                 virtual_key = env_vars.get("VIRTUAL_KEY", "").strip()
-                first_run = env_vars.get("FIRST_RUN", "no").lower() in ("yes", "true", "1")
                 
                 if not virtual_key and first_run:
                     # Wait for LiteLLM to be ready, then create Virtual Key automatically

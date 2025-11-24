@@ -35,7 +35,7 @@ RESOURCE_PROFILES = {
         "ram": "2GB",
         "workers": "1",
         "recommended_for": "1-2 users, occasional use",
-        "note": "1 worker - fits in 2GB RAM (uses ~2.0-2.2GB). Medium VPS (4GB) uses 2 workers for better performance. Monitor with: docker stats",
+        "note": "1 worker - WARNING: Actual usage is ~2.3-2.5GB (exceeds 2GB by 15-25% on typical Linux, fits with lightweight distro). Consider upgrading to Medium VPS (4GB) for safety. Medium VPS uses 2 workers for better performance. Monitor with: docker stats",
     },
     ResourceProfile.MEDIUM_VPS: {
         "name": "Medium VPS",
@@ -44,7 +44,7 @@ RESOURCE_PROFILES = {
         "ram": "4GB",
         "workers": "2",
         "recommended_for": "3-5 users",
-        "note": "2 workers - safe on 4GB RAM (uses ~2.9GB, leaves ~1.1GB buffer). Monitor with: docker stats",
+        "note": "2 workers - safe on 4GB RAM (uses ~3.3GB, leaves ~700MB buffer). Monitor with: docker stats",
     },
     ResourceProfile.LARGE_VPS: {
         "name": "Large VPS",
@@ -53,7 +53,7 @@ RESOURCE_PROFILES = {
         "ram": "8GB+",
         "workers": "6",
         "recommended_for": "10+ users, active use",
-        "note": "6 workers - safe for 8GB+ RAM (uses ~4.5-5GB, leaves ~3-3.5GB buffer). Monitor with: docker stats",
+        "note": "6 workers - safe for 8GB+ RAM (uses ~5.1GB, leaves ~3GB buffer). Monitor with: docker stats",
     },
 }
 
@@ -72,7 +72,7 @@ def select_resource_profile() -> Optional[ResourceProfile]:
     print_info("What are workers?")
     print_info("Workers are separate processes that handle API requests in parallel.")
     print_info("More workers = better performance under load, but more RAM usage.")
-    print_info("IMPORTANT: Real measurements show each worker uses ~400MB RAM (not 100-200MB).")
+    print_info("IMPORTANT: Real measurements show each worker uses ~460MB RAM (not 100-200MB).")
     print_info("This is due to LiteLLM's model loading, caching, and Python 3.13 overhead.")
     print_info("LiteLLM uses Gunicorn to manage workers.")
     print_info("")

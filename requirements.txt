@@ -1,0 +1,8 @@
+# Production dependencies for ai-gateway setup script
+# Python 3.8+ required
+
+# Core dependencies
+pyyaml>=6.0.1
+colorama>=0.4.6
+requests>=2.31.0
+

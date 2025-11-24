@@ -1,0 +1,40 @@
+[Unit]
+Description=AI Gateway - LiteLLM, Open WebUI, PostgreSQL, Nginx
+Documentation=https://github.com/pavelrazuvalau/ai-gateway
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=aigateway
+Group=aigateway
+WorkingDirectory=/opt/ai-gateway
+
+# Environment
+Environment="HOME=/opt/ai-gateway"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="NON_INTERACTIVE=1"
+
+# Start command
+ExecStart=/opt/ai-gateway/start.sh
+
+# Stop command
+ExecStop=/opt/ai-gateway/stop.sh
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ai-gateway
+
+[Install]
+WantedBy=multi-user.target
+

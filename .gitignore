@@ -1,0 +1,85 @@
+# Environment variables (содержат секретные ключи)
+.env
+.env.*
+!env.example
+!env.simple.example
+
+# Docker Compose override файлы (пользовательские настройки)
+docker-compose.override.yml
+docker-compose.override.*.yml
+
+# Автоматически генерируемые конфигурационные файлы
+config.yaml
+nginx/conf.d/litellm.conf
+nginx/conf.d/litellm-admin-ui.conf
+
+# Continue.dev config files (may contain API keys)
+continue-dev-config.yaml
+*continue-dev-config*.yaml
+continue-dev-config-generated.yaml
+
+# Continue.dev generated prompts (in project .continue/prompts/ directory)
+.continue/prompts/
+
+# Backup файлы
+*.backup.*
+
+# Docker volumes (данные)
+postgres_data/
+open-webui-data/
+
+# Логи
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Python IDEs
+.spyderproject
+.spyproject
+.ropeproject
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+
+# Python installers (downloaded by setup scripts)
+python-*.exe
+python-*.pkg
+python-*.dmg

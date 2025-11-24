@@ -82,6 +82,9 @@ def run_start() -> int:
         # Check for first run and show Virtual Key setup instructions
         service.show_first_run_instructions()
         
+        # Check if models are available and suggest Continue.dev setup
+        service.check_models_and_suggest_continue_dev()
+        
         return 0
     except KeyboardInterrupt:
         print("\n\n❌ Start cancelled by user")
@@ -108,6 +111,23 @@ def run_stop() -> int:
         return 1
     except Exception as e:
         print(f"\n❌ Error: {e}")
+        return 1
+
+
+def run_continue_dev() -> int:
+    """Run Continue.dev configuration command"""
+    from src.application.continue_dev_service import ContinueDevService
+    
+    try:
+        service = ContinueDevService(PROJECT_ROOT)
+        return service.run_setup_interactive()
+    except KeyboardInterrupt:
+        print("\n\n❌ Continue.dev setup cancelled by user")
+        return 1
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
 
 
@@ -141,6 +161,7 @@ def show_help() -> None:
     print("  setup              Run interactive setup")
     print("  start              Start Docker containers")
     print("  stop               Stop Docker containers")
+    print("  continue-dev       Generate Continue.dev configuration")
     print("  update [args...]   Update application files")
     print("                     (optional: SOURCE_DIR APP_DIR USERNAME)")
     print("  --help, -h         Show this help message")
@@ -149,6 +170,7 @@ def show_help() -> None:
     print("  ./ai-gateway setup")
     print("  ./ai-gateway start")
     print("  ./ai-gateway stop")
+    print("  ./ai-gateway continue-dev")
     print("  ./ai-gateway update")
     print("  ./ai-gateway update /path/to/source /opt/ai-gateway aigateway")
     print()
@@ -179,6 +201,8 @@ def main() -> int:
         return run_start()
     elif command == "stop":
         return run_stop()
+    elif command == "continue-dev":
+        return run_continue_dev()
     elif command == "update":
         # Pass remaining args to update script
         update_args = sys.argv[2:] if len(sys.argv) > 2 else []

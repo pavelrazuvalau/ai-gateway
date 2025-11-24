@@ -69,7 +69,7 @@ def create_virtual_key_via_api(
             "team_id": team_name.lower().replace(" ", "-"),
             "key_alias": key_name,
             "models": [],  # Empty = access to all models
-            "metadata": {"created_by": "setup_virtual_key.py"}
+            "metadata": {"created_by": "virtual-key.py"}
         }
         
         try:
@@ -307,7 +307,7 @@ key_data = {{
     "team_id": "open-webui-team",
     "key_alias": "Open WebUI Key",
     "models": [],
-    "metadata": {{"created_by": "setup_virtual_key.py"}}
+    "metadata": {{"created_by": "virtual-key.py"}}
 }}
 
 try:
@@ -526,7 +526,7 @@ def main() -> int:
                     for i, line in enumerate(new_lines):
                         if line.startswith("FIRST_RUN="):
                             new_lines.insert(i + 1, "")
-                            new_lines.insert(i + 2, "# Virtual Key for Open WebUI (created via setup_virtual_key.py)")
+                            new_lines.insert(i + 2, "# Virtual Key for Open WebUI (created via virtual-key.py)")
                             new_lines.insert(i + 3, f"VIRTUAL_KEY={virtual_key}")
                             added = True
                             break
@@ -534,7 +534,7 @@ def main() -> int:
                     if not added:
                         # If FIRST_RUN not found, append at end
                         new_lines.append("")
-                        new_lines.append("# Virtual Key for Open WebUI (created via setup_virtual_key.py)")
+                        new_lines.append("# Virtual Key for Open WebUI (created via virtual-key.py)")
                         new_lines.append(f"VIRTUAL_KEY={virtual_key}")
                     
                     content = '\n'.join(new_lines)

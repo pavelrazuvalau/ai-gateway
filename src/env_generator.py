@@ -199,7 +199,7 @@ def generate_env_file(
         env_content.append("# First run flag (set to 'no' after Virtual Key setup)")
         env_content.append("FIRST_RUN=yes")
         env_content.append("")
-        env_content.append("# Virtual Key for Open WebUI (REQUIRED - created via setup_virtual_key.py)")
+        env_content.append("# Virtual Key for Open WebUI (REQUIRED - created via virtual-key.py)")
         env_content.append("# System will not start without Virtual Key")
         env_content.append("VIRTUAL_KEY=")
     env_content.append("")

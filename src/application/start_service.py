@@ -74,10 +74,10 @@ class StartService:
                     self.utils.print_info("To create Virtual Key:")
                     import sys
                     if sys.platform == "win32":
-                        self.utils.print_info("   python setup_virtual_key.py")
+                        self.utils.print_info("   python virtual-key.py")
                     else:
-                        self.utils.print_info("   python3 setup_virtual_key.py")
-                        self.utils.print_info("   # Or: ./setup_virtual_key.sh")
+                        self.utils.print_info("   python3 virtual-key.py")
+                        self.utils.print_info("   # Or: ./virtual-key.sh")
                     print()
                     self.utils.print_info("After creating Virtual Key, it will be saved to .env automatically")
                     print()
@@ -378,18 +378,18 @@ class StartService:
                 api_url = f"http://{local_ip}:{nginx_http_port}/api/litellm/v1"
                 
                 if virtual_key:
-                    print(f"  • LiteLLM API (OpenAI-compatible): {api_url}")
+                    print(f"  • LiteLLM API: {api_url}")
                     print(f"    API Key: {virtual_key}")
                     print()
                     self.utils.print_info("💡 Use this API Key for external clients (agents, scripts, etc.)")
                     self.utils.print_info("   ✅ Open WebUI is configured to use Virtual Key automatically")
                     print()
                 else:
-                    print(f"  • LiteLLM API (OpenAI-compatible): {api_url}")
-                    print(f"    API Key: Use Master Key or run ./setup_virtual_key.py to create Virtual Key")
+                    print(f"  • LiteLLM API: {api_url}")
+                    print(f"    API Key: Use Master Key or run ./virtual-key.py to create Virtual Key")
                     print()
                     self.utils.print_warning("⚠️  Virtual Key not configured - Open WebUI uses Master Key")
-                    self.utils.print_info("   Run ./setup_virtual_key.py to create Virtual Key for better security")
+                    self.utils.print_info("   Run ./virtual-key.py to create Virtual Key for better security")
                     print()
                 
                 if litellm_external_port:
@@ -452,11 +452,11 @@ class StartService:
                     self.utils.print_info("You can run the setup script later:")
                     import sys
                     if sys.platform == "win32":
-                        self.utils.print_info("   python setup_virtual_key.py")
-                        self.utils.print_info("   # Or: setup_virtual_key.bat")
+                        self.utils.print_info("   python virtual-key.py")
+                        self.utils.print_info("   # Or: virtual-key.bat")
                     else:
-                        self.utils.print_info("   python3 setup_virtual_key.py")
-                        self.utils.print_info("   # Or: ./setup_virtual_key.sh")
+                        self.utils.print_info("   python3 virtual-key.py")
+                        self.utils.print_info("   # Or: ./virtual-key.sh")
                     print()
                     return
                 
@@ -469,7 +469,7 @@ class StartService:
                 import sys
                 
                 # Try to run the universal Python script
-                setup_script = self.project_root / "setup_virtual_key.py"
+                setup_script = self.project_root / "virtual-key.py"
                 if setup_script.exists():
                     # Run as script
                     if sys.platform == "win32":
@@ -487,7 +487,7 @@ class StartService:
                 else:
                     # Fallback to module import
                     result = subprocess.run(
-                        [sys.executable, "-m", "src.setup_virtual_key"],
+                        [sys.executable, "-m", "src.virtual_key"],
                         cwd=str(self.project_root),
                         check=False
                     )
@@ -506,9 +506,9 @@ class StartService:
                     self.utils.print_warning("⚠️  Setup script exited with errors")
                     self.utils.print_info("You can run it manually later:")
                     if sys.platform == "win32":
-                        self.utils.print_info("   python setup_virtual_key.py")
+                        self.utils.print_info("   python virtual-key.py")
                     else:
-                        self.utils.print_info("   python3 setup_virtual_key.py")
+                        self.utils.print_info("   python3 virtual-key.py")
                     print()
                     
             except KeyboardInterrupt:
@@ -521,11 +521,85 @@ class StartService:
                 self.utils.print_info("You can run it manually:")
                 import sys
                 if sys.platform == "win32":
-                    self.utils.print_info("   python setup_virtual_key.py")
+                    self.utils.print_info("   python virtual-key.py")
                 else:
-                    self.utils.print_info("   python3 setup_virtual_key.py")
+                    self.utils.print_info("   python3 virtual-key.py")
                 print()
             
         except Exception as e:
             logger.warning(f"Error showing first run instructions: {e}")
+    
+    def check_models_and_suggest_continue_dev(self) -> None:
+        """
+        Check if models are available via Virtual Key and suggest Continue.dev setup
+        """
+        try:
+            from .continue_dev_service import ContinueDevService
+            
+            env_vars = self.utils.read_env_file(self.project_root / ".env")
+            virtual_key = env_vars.get("VIRTUAL_KEY", "").strip()
+            
+            if not virtual_key:
+                # No Virtual Key - can't check models
+                return
+            
+            # Get API configuration
+            continue_service = ContinueDevService(self.project_root)
+            api_base, _, _ = continue_service.get_api_config_from_env()
+            
+            if not api_base:
+                # Can't determine API base URL
+                return
+            
+            # Check if models are available
+            print()
+            self.utils.print_info("🔍 Checking if models are configured...")
+            has_models, model_count = continue_service.check_models_available(api_base, virtual_key)
+            
+            if has_models:
+                print()
+                self.utils.print_success(f"✅ Found {model_count} model(s) configured in LiteLLM")
+                print()
+                self.utils.print_info("💡 Continue.dev Integration Available")
+                self.utils.print_info("   You can generate Continue.dev configuration for VS Code extension")
+                print()
+                
+                try:
+                    response = input("Would you like to configure Continue.dev now? [y/N]: ").strip().lower()
+                    if response in ('y', 'yes'):
+                        print()
+                        self.utils.print_info("🚀 Starting Continue.dev configuration...")
+                        print()
+                        
+                        # Run Continue.dev setup
+                        result = continue_service.run_setup_interactive()
+                        if result == 0:
+                            print()
+                            self.utils.print_success("✅ Continue.dev configuration completed!")
+                            print()
+                        else:
+                            print()
+                            self.utils.print_warning("⚠️  Continue.dev setup had some issues")
+                            self.utils.print_info("You can run it manually later:")
+                            self.utils.print_info("   ./ai-gateway continue-dev")
+                            print()
+                    else:
+                        print()
+                        self.utils.print_info("You can configure Continue.dev later:")
+                        self.utils.print_info("   ./ai-gateway continue-dev")
+                        print()
+                except KeyboardInterrupt:
+                    print()
+                    self.utils.print_warning("Continue.dev setup cancelled")
+                    print()
+            else:
+                # Models not configured yet
+                print()
+                self.utils.print_info("ℹ️  No models found yet")
+                self.utils.print_info("   Configure models in LiteLLM Admin UI first")
+                self.utils.print_info("   Then run: ./ai-gateway continue-dev")
+                print()
+                
+        except Exception as e:
+            logger.warning(f"Error checking models for Continue.dev: {e}")
 

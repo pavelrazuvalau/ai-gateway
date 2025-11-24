@@ -7,8 +7,14 @@
 The project uses a layered architecture (Layered Architecture) with clear separation of concerns. The codebase consists of:
 
 - **Python modules**: Layered architecture for business logic and configuration
-- **Bash scripts**: Entry points and automation tools
+- **Bash scripts**: Wrapper scripts that set up environment and call Python modules
 - **Docker configuration**: Container orchestration
+
+**Key Principle**: Bash scripts are **wrappers only**. They:
+1. Set up Python virtual environment (using `venv.sh`)
+2. Activate virtual environment
+3. Call Python CLI (`./ai-gateway <command>`) which executes Python services
+4. All business logic is in Python modules following layered architecture
 
 ## Project Structure
 
@@ -45,11 +51,16 @@ src/
 │   ├── docker_client.py    # Docker operations
 │   └── security.py         # Password and key generation
 ├── application/       # Application layer (business logic)
-│   └── services.py    # Application services
+│   ├── services.py    # Application services
+│   ├── setup_service.py    # Setup service
+│   ├── start_service.py    # Start service
+│   └── continue_dev_service.py  # Continue.dev configuration service
 └── [legacy modules]   # Old modules (for backward compatibility)
 ```
 
 ## Bash Scripts Architecture
+
+**Important**: Bash scripts are **wrappers** that set up the environment and call Python modules. All business logic is in Python.
 
 ### Core Scripts (Required)
 
@@ -58,7 +69,7 @@ src/
   - Works from current directory (no automatic file copying)
   - Ensures virtual environment
   - Checks dependencies (Python + Bash fallback)
-  - Starts Docker containers
+  - Calls `./ai-gateway start` (Python module: `StartService`)
 
 - **`stop.sh`**: Stop containers
   - Checks dependencies
@@ -66,7 +77,12 @@ src/
 
 - **`setup.sh`**: Setup wrapper
   - Calls `venv.sh` to avoid code duplication
-  - Runs `setup.py` for interactive configuration
+  - Calls `./ai-gateway setup` (Python module: `SetupService`)
+  - Optionally offers Continue.dev setup
+
+- **`continue-dev.sh`**: Continue.dev configuration wrapper
+  - Sets up virtual environment
+  - Calls `./ai-gateway continue-dev` (Python module: `ContinueDevService`)
 
 - **`venv.sh`**: Virtual environment management
   - Creates/updates Python venv
@@ -193,13 +209,24 @@ The architecture allows easy testing:
    - Primary: Python `check_dependencies.py`
    - Fallback: Bash `run_standard_checks()` from `script_init_bash.sh`
 4. **Docker check**: `check_docker()` handles rootless Docker initialization/startup
-5. **Container start**: Docker Compose up
+5. **Call Python service**: `./ai-gateway start` → `StartService.start_containers()`
+6. **Check models**: `StartService.check_models_and_suggest_continue_dev()` (if models available via Virtual Key)
 
 ### Setup Flow (`setup.sh`)
 
 1. **Venv setup**: Calls `venv.sh` (no code duplication)
 2. **Activate venv**: Sources activation script
-3. **Run setup**: Executes `setup.py` for interactive configuration
+3. **Run setup**: Calls `./ai-gateway setup` → `SetupService.run_setup()`
+4. **Optional Continue.dev**: Offers to run `./continue-dev.sh` → `ContinueDevService.run_setup_interactive()`
+
+### Continue.dev Setup Flow (`continue-dev.sh`)
+
+1. **Venv setup**: Calls `venv.sh` (no code duplication)
+2. **Activate venv**: Sources activation script
+3. **Run Continue.dev setup**: Calls `./ai-gateway continue-dev` → `ContinueDevService.run_setup_interactive()`
+   - Fetches models from LiteLLM API via Virtual Key
+   - Generates Continue.dev configuration YAML
+   - Generates system prompt markdown
 
 ## Design Principles
 
@@ -228,6 +255,39 @@ To add new functionality:
 
 1. **Domain logic** → `core/`
 2. **External dependencies** → `infrastructure/`
-3. **Business logic** → `application/`
-4. **New scripts** → Use `script_init_bash.sh` for common functions
-5. **Use existing abstractions**: Repository, Logger, ConfigService
+3. **Business logic** → `application/` (create new service class)
+4. **CLI command** → Add to `src/cli.py` (e.g., `run_continue_dev()`)
+5. **Bash wrapper** → Create wrapper script that:
+   - Sets up venv (uses `venv.sh`)
+   - Activates venv
+   - Calls `./ai-gateway <command>` (Python module)
+6. **Use existing abstractions**: Repository, Logger, ConfigService
+
+### Example: Adding New Service
+
+1. Create service in `src/application/my_service.py`:
+   ```python
+   class MyService:
+       def __init__(self, project_root: Path):
+           self.project_root = project_root
+       
+       def run(self) -> int:
+           # Business logic here
+           return 0
+   ```
+
+2. Add CLI command in `src/cli.py`:
+   ```python
+   def run_my_service() -> int:
+       from src.application.my_service import MyService
+       service = MyService(PROJECT_ROOT)
+       return service.run()
+   ```
+
+3. Create bash wrapper `my_service.sh`:
+   ```bash
+   #!/bin/bash
+   # Setup venv (use venv.sh)
+   # Activate venv
+   # Call: ./ai-gateway my-service
+   ```

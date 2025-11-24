@@ -96,7 +96,7 @@ fi
 # Ask about Continue.dev setup
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Continue.dev Setup (Optional)                          ║${NC}"
+echo -e "${BLUE}║  Continue.dev Setup (Optional)                           ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${BLUE}💡 Continue.dev is a VS Code extension for AI-powered coding${NC}"
@@ -110,19 +110,32 @@ read -p "Setup Continue.dev? [y/N]: " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if [ -f "$SCRIPT_DIR/scripts/setup_continue_dev.sh" ]; then
-        if bash "$SCRIPT_DIR/scripts/setup_continue_dev.sh"; then
+    # Try to use setup script first, fallback to direct CLI call
+    if [ -f "$SCRIPT_DIR/continue-dev.sh" ]; then
+        if bash "$SCRIPT_DIR/continue-dev.sh"; then
             echo ""
             echo -e "${GREEN}✅ Continue.dev setup completed!${NC}"
         else
             echo ""
             echo -e "${YELLOW}⚠️  Continue.dev setup had some issues, but you can run it manually:${NC}"
-            echo -e "   ${GREEN}bash scripts/setup_continue_dev.sh${NC}"
+            echo -e "   ${GREEN}./ai-gateway continue-dev${NC}"
+            echo -e "   ${GREEN}# Or: ./continue-dev.sh${NC}"
+        fi
+    elif [ -f "$SCRIPT_DIR/ai-gateway" ]; then
+        # Fallback: direct CLI call
+        if "$SCRIPT_DIR/ai-gateway" continue-dev; then
+            echo ""
+            echo -e "${GREEN}✅ Continue.dev setup completed!${NC}"
+        else
+            echo ""
+            echo -e "${YELLOW}⚠️  Continue.dev setup had some issues, but you can run it manually:${NC}"
+            echo -e "   ${GREEN}./ai-gateway continue-dev${NC}"
         fi
     else
         echo -e "${YELLOW}⚠️  Continue.dev setup script not found${NC}"
     fi
 else
     echo -e "${BLUE}💡 You can setup Continue.dev later by running:${NC}"
-    echo -e "   ${GREEN}bash scripts/setup_continue_dev.sh${NC}"
+    echo -e "   ${GREEN}./ai-gateway continue-dev${NC}"
+    echo -e "   ${GREEN}# Or: ./continue-dev.sh${NC}"
 fi

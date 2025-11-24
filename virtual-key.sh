@@ -15,10 +15,10 @@ if [ ! -f ".env" ]; then
 fi
 
 # Run the universal Python script
-if [ -f "setup_virtual_key.py" ]; then
-    python3 setup_virtual_key.py
+if [ -f "virtual-key.py" ]; then
+    python3 virtual-key.py
 else
     # Fallback to module import
-    python3 -m src.setup_virtual_key
+    python3 -m src.virtual_key
 fi
 

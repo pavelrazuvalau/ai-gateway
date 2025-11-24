@@ -13,11 +13,11 @@ if not exist ".env" (
 )
 
 REM Run the universal Python script
-if exist "setup_virtual_key.py" (
-    python setup_virtual_key.py
+if exist "virtual-key.py" (
+    python virtual-key.py
 ) else (
     REM Fallback to module import
-    python -m src.setup_virtual_key
+    python -m src.virtual_key
 )
 
 pause

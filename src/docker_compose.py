@@ -195,7 +195,7 @@ def generate_docker_compose_override(
             f"OPENAI_API_BASE_URL=http://litellm:{litellm_internal_port}/v1",
             f"WEBUI_API_BASE_URL=http://litellm:{litellm_internal_port}/v1",
             # Use Virtual Key instead of Master Key for security
-            # Virtual Key is created via setup_virtual_key.py and stored in .env
+            # Virtual Key is created via virtual-key.py and stored in .env
             # Falls back to Master Key if Virtual Key not set (for first run)
             "OPENAI_API_KEY=${VIRTUAL_KEY:-${LITELLM_MASTER_KEY}}",
         ])

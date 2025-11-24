@@ -616,7 +616,7 @@ class SetupService:
                     time.sleep(45)  # Wait for LiteLLM to fully start
                     
                     # Try to create Virtual Key
-                    from ..setup_virtual_key import run_inside_docker_container
+                    from ..virtual_key import run_inside_docker_container
                     master_key = env_vars.get("LITELLM_MASTER_KEY", "").strip()
                     
                     if master_key:
@@ -666,7 +666,7 @@ class SetupService:
                         else:
                             self.utils.print_warning("⚠️  Could not create Virtual Key automatically")
                             self.utils.print_info("   You can create it manually later:")
-                            self.utils.print_info("   python3 setup_virtual_key.py")
+                            self.utils.print_info("   python3 virtual-key.py")
                             print()
                 
                 # Re-read .env to get updated Virtual Key if it was just created
@@ -699,7 +699,7 @@ class SetupService:
                     self.utils.print_info("   • Copy the Virtual Key")
                     print()
                     self.utils.print_info("   Or run setup script for interactive setup:")
-                    self.utils.print_info("   python3 -m src.setup_virtual_key")
+                    self.utils.print_info("   python3 -m src.virtual_key")
                     print()
             else:
                 self.utils.print_header("🚀 Starting System")

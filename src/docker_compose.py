@@ -12,14 +12,14 @@ from .utils import print_success, set_file_permissions
 # To check real memory usage after deployment, run:
 #   docker stats --no-stream
 # 
-# Memory estimates based on REAL measurements (2024):
-#   - LiteLLM base: ~300MB (main process, dependencies)
-#   - LiteLLM worker: ~400-500MB each (measured: 2 workers = ~900MB, 3 workers = ~1500MB)
+# Memory estimates based on REAL measurements (2025-11-24):
+#   - LiteLLM base: ~300-320MB (main process, dependencies)
+#   - LiteLLM worker: ~460MB each (measured: 2 workers = 1.177 GiB total, avg 460MB per worker)
 #   - PostgreSQL 16: ~20-60MB (idle, can grow with usage)
 #   - Open WebUI: ~600MB (Python web app with dependencies)
 #   - Nginx Alpine: ~5MB (very lightweight)
-#   - Docker overhead: ~100-200MB (container runtime)
-#   - OS: ~500MB-1GB (varies by Linux distribution)
+#   - Docker overhead: ~200MB (container runtime)
+#   - OS/system overhead: ~1.2GB (varies by Linux distribution and system services)
 # 
 # IMPORTANT: Real worker memory usage is 2-3x higher than Gunicorn docs suggest.
 # This is due to LiteLLM's model loading, caching, and Python 3.13 overhead.
@@ -30,14 +30,14 @@ PROFILE_TEMPLATES = {
         "postgres": {},
         "litellm": {
             # Desktop: unlimited resources, can use more workers
-            # Calculation based on REAL measurements:
-            #   Base: PostgreSQL (~20-60MB) + Open WebUI (~600MB) + Nginx (~5MB) + Docker (~200MB) = ~825MB
-            #   LiteLLM: 4 workers × 400MB (real avg) + base 300MB = ~1900MB
-            #   Total containers: ~2.7GB
-            #   OS: ~1-1.5GB (typical Linux)
-            #   Total: ~3.7-4.2GB - safe for 8GB+ systems
-            # NOTE: Reduced from 6 to 4 workers based on real memory measurements
-            # 6 workers would use ~2700MB for LiteLLM alone
+            # Calculation based on REAL measurements (2025-11-24):
+            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
+            #   LiteLLM: 4 workers × 460MB (real avg) + base 320MB = ~2160MB
+            #   Total containers: ~3.0GB
+            #   OS/system overhead: ~1.2GB (typical Linux)
+            #   Total: ~4.2GB - safe for 8GB+ systems
+            # NOTE: Based on real measurements from production deployment
+            # 6 workers would use ~3080MB for LiteLLM alone (total ~5.1GB)
             "num_workers": 4,
         },
         "open_webui": {},
@@ -46,14 +46,15 @@ PROFILE_TEMPLATES = {
         "postgres": {},
         "litellm": {
             # Small VPS: 2GB RAM total
-            # Calculation based on REAL measurements:
-            #   Base: PostgreSQL (~20-60MB) + Open WebUI (~600MB) + Nginx (~5MB) + Docker (~200MB) = ~825MB
-            #   LiteLLM: 1 worker × 400MB (real avg) + base 300MB = ~700MB
-            #   Total containers: ~1.5GB
-            #   OS: ~500MB-700MB (minimal Linux)
-            #   Total: ~2.0-2.2GB (fits in 2GB with small buffer)
-            # WARNING: 2GB RAM is TIGHT. Consider upgrading to Medium VPS (4GB) for better performance.
-            # Medium VPS uses 2 workers for better concurrency.
+            # Calculation based on REAL measurements (2025-11-24):
+            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
+            #   LiteLLM: 1 worker × 460MB (real avg) + base 320MB = ~780MB
+            #   Total containers: ~1.6GB
+            #   OS/system overhead: ~1.2GB (minimal Linux)
+            #   Total: ~2.8GB (EXCEEDS 2GB by ~40%)
+            # WARNING: 2GB RAM is INSUFFICIENT for this profile. Actual usage is ~2.8GB.
+            # Consider upgrading to Medium VPS (4GB) for better performance and safety.
+            # Medium VPS uses 2 workers for better concurrency and fits comfortably in 4GB.
             "num_workers": 1,
         },
         "open_webui": {},
@@ -62,14 +63,14 @@ PROFILE_TEMPLATES = {
         "postgres": {},
         "litellm": {
             # Medium VPS: 4GB RAM total
-            # Calculation based on REAL measurements:
-            #   Base: PostgreSQL (~20-60MB) + Open WebUI (~600MB) + Nginx (~5MB) + Docker (~200MB) = ~825MB
-            #   LiteLLM: 2 workers × 400MB (real avg) + base 300MB = ~1100MB
-            #   Total containers: ~1.9GB
-            #   OS: ~1GB (typical Linux)
-            #   Total: ~2.9GB, leaves ~1.1GB buffer - safe
-            # NOTE: Reduced from 3 to 2 workers based on real memory measurements
-            # 3 workers would use ~1500MB for LiteLLM alone, leaving only ~600MB buffer
+            # Calculation based on REAL measurements (2025-11-24):
+            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
+            #   LiteLLM: 2 workers × 460MB (real avg) + base 320MB = ~1240MB
+            #   Total containers: ~2.1GB
+            #   OS/system overhead: ~1.2GB (typical Linux)
+            #   Total: ~3.3GB, leaves ~700MB buffer - safe
+            # NOTE: Based on real measurements from production deployment
+            # 3 workers would use ~1700MB for LiteLLM alone, leaving only ~200MB buffer (too tight)
             # Monitor with: docker stats
             "num_workers": 2,
         },
@@ -79,14 +80,14 @@ PROFILE_TEMPLATES = {
         "postgres": {},
         "litellm": {
             # Large VPS: 8GB+ RAM total
-            # Calculation based on REAL measurements:
-            #   Base: PostgreSQL (~20-60MB) + Open WebUI (~600MB) + Nginx (~5MB) + Docker (~200MB) = ~825MB
-            #   LiteLLM: 6 workers × 400MB (real avg) + base 300MB = ~2700MB
-            #   Total containers: ~3.5GB
-            #   OS: ~1-1.5GB (typical Linux)
-            #   Total: ~4.5-5GB, leaves ~3-3.5GB buffer - very safe
-            # NOTE: Reduced from 8 to 6 workers based on real memory measurements
-            # 8 workers would use ~3500MB for LiteLLM alone, leaving less buffer
+            # Calculation based on REAL measurements (2025-11-24):
+            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
+            #   LiteLLM: 6 workers × 460MB (real avg) + base 320MB = ~3080MB
+            #   Total containers: ~3.9GB
+            #   OS/system overhead: ~1.2GB (typical Linux)
+            #   Total: ~5.1GB, leaves ~3GB buffer for 8GB system - very safe
+            # NOTE: Based on real measurements from production deployment
+            # 8 workers would use ~4000MB for LiteLLM alone (total ~6.1GB), leaving less buffer
             # Monitor with: docker stats
             "num_workers": 6,
         },

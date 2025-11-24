@@ -15,12 +15,6 @@ services:
       retries: 10
     networks:
       - litellm-network
-    deploy:
-      resources:
-        limits:
-          memory: 200M
-        reservations:
-          memory: 100M
 
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
@@ -45,12 +39,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    deploy:
-      resources:
-        limits:
-          memory: 1.5G  # Base + 2 workers + buffer (current: 1.177 GiB, allows growth)
-        reservations:
-          memory: 1.2G  # Reserve space for base + 2 workers
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -66,12 +54,6 @@ services:
       - litellm
     networks:
       - litellm-network
-    deploy:
-      resources:
-        limits:
-          memory: 800M  # Current: 602 MB, allows growth
-        reservations:
-          memory: 600M  # Reserve space for base usage
 
   nginx:
     image: nginx:alpine
@@ -88,13 +70,13 @@ services:
       - litellm-network
     # Memory limit for nginx (Tier 2 optimized: 3M buffer × 4 workers = ~12MB per worker worst case)
     # Typical usage: ~5-20MB, peak with Tier 2: ~50-100MB
-    # Current: 6 MB, limit allows growth
-    deploy:
-      resources:
-        limits:
-          memory: 100M
-        reservations:
-          memory: 50M
+    # Uncomment if you want to enforce memory limits:
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 200M
+    #     reservations:
+    #       memory: 50M
 
 volumes:
   postgres_data:

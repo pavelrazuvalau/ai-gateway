@@ -14,16 +14,18 @@ else
     AUTO_YES=""
 fi
 
+# Colors (always define, even if module is loaded)
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;93m'
+BLUE='\033[1;36m'
+NC='\033[0m'
+
 # Load common initialization module
 if [ -f "src/script_init_bash.sh" ]; then
     source src/script_init_bash.sh
 else
     # Fallback if module not found
-    RED='\033[0;31m'
-    GREEN='\033[1;32m'
-    YELLOW='\033[1;93m'
-    BLUE='\033[1;36m'
-    NC='\033[0m'
     print_banner() {
         echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
         echo -e "${BLUE}║  $1${NC}"

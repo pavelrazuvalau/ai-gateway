@@ -60,27 +60,32 @@ If you're using a Small VPS with 2GB RAM, consider using a **lightweight Linux d
 
 - **Lightweight options**: Alpine Linux, Debian minimal, Ubuntu Server minimal
 - **System overhead reduction**: From ~1.2GB (typical Linux) to ~600-800MB (lightweight distro)
-- **Total usage with lightweight distro**: ~2.3GB (still tight but more feasible than ~2.8GB)
+- **Total usage with lightweight distro (with request buffer)**: ~2.0GB (fits in 2GB, tight)
 - **Note**: Even with a lightweight distro, 2GB is still tight. Medium VPS (4GB) is recommended for better performance and safety.
 
 ### Resource Profiles Explained
 Each profile sets Docker container resource limits. **Memory usage is based on real measurements (2025-11-24)**. The host system should have:
 
 - **Small VPS**: 2GB RAM, 2 CPU cores
-  - ⚠️ **WARNING**: Actual usage is ~2.8GB on typical Linux distributions (exceeds 2GB by 40%)
-  - Containers: ~1.6GB (LiteLLM: 780MB, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
-  - System overhead: ~1.2GB (typical Linux) or ~600-800MB (lightweight distro)
+  - ⚠️ **WARNING**: Actual usage is ~2.3-2.5GB on typical Linux distributions (exceeds 2GB by 15-25%)
+  - Containers (idle): ~1.063 GiB (LiteLLM: 426.5MB with 1 worker, Open WebUI: 603MB, PostgreSQL: 27MB, Nginx: 6MB)
+  - Containers (with request buffer): ~1.3 GiB (+200-300MB for active requests)
+  - System overhead: ~1.2GB (typical Linux) or ~0.7GB (lightweight distro)
+  - **Total (typical Linux, with buffer)**: ~2.5GB (exceeds 2GB by 25%) ⚠️
+  - **Total (lightweight distro, with buffer)**: ~2.0GB (fits in 2GB, tight) ⚠️
   - **Recommendations**:
     - **Option 1**: Use Medium VPS (4GB) for safety ⭐ **Recommended**
-    - **Option 2**: Use lightweight Linux distribution (Alpine, Debian minimal, Ubuntu Server minimal) to reduce system overhead to ~600-800MB, bringing total to ~2.3GB (still tight but more feasible)
+    - **Option 2**: Use lightweight Linux distribution (Alpine, Debian minimal, Ubuntu Server minimal) to reduce system overhead, bringing total to ~2.0GB (tight but feasible)
 - **Medium VPS**: 4GB RAM, 4 CPU cores ⭐ **Recommended**
-  - Actual usage: ~3.3GB (safe with ~700MB buffer)
-  - Containers: ~2.1GB (LiteLLM: 1.24GB with 2 workers, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - Containers (idle): ~1.8 GiB (LiteLLM: 1.177 GiB with 2 workers, Open WebUI: 603MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - Containers (with request buffer): ~2.1-2.2 GiB (+300-400MB for active requests)
   - System overhead: ~1.2GB
+  - **Total (with buffer)**: ~3.3-3.4GB (safe with ~600-700MB buffer) ✓
 - **Large VPS**: 8GB+ RAM, 8 CPU cores
-  - Actual usage: ~5.1GB (leaves ~3GB buffer)
-  - Containers: ~3.9GB (LiteLLM: 3.08GB with 6 workers, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - Containers (idle): ~3.9 GiB (LiteLLM: 3.08GB with 6 workers, Open WebUI: 602MB, PostgreSQL: 48MB, Nginx: 6MB)
+  - Containers (with request buffer): ~4.5-4.7 GiB (+600-800MB for high concurrency)
   - System overhead: ~1.2GB
+  - **Total (with buffer)**: ~5.7-5.9GB (leaves ~2.1-2.3GB buffer) ✓
 
 **Memory Details:**
 - Each LiteLLM worker uses ~460MB RAM (measured, not estimated)
@@ -88,10 +93,16 @@ Each profile sets Docker container resource limits. **Memory usage is based on r
 - Open WebUI: ~602MB
 - PostgreSQL: ~48MB (idle, can grow with usage)
 - Nginx: ~6MB
+- **Request buffers** (memory increases during active API calls):
+  - LiteLLM: +200-400MB per worker during active requests
+  - Open WebUI: +100-200MB during active chat sessions
+  - PostgreSQL: +50-100MB during queries
 - System overhead: 
   - ~1.2GB on typical Linux distributions (Ubuntu, Debian with desktop, Fedora)
-  - ~600-800MB on lightweight distributions (Alpine, Debian minimal, Ubuntu Server minimal)
+  - ~0.7GB on lightweight distributions (Alpine, Debian minimal, Ubuntu Server minimal)
   - Includes OS, Docker daemons, and other system services
+
+**Note**: All usage numbers above include buffers for active requests. Idle usage is lower, but you should plan for peak usage during active API calls.
 
 **Note:** Resource limits are optimized based on PostgreSQL best practices and container memory constraints. PostgreSQL settings (`shared_buffers`, `effective_cache_size`, `work_mem`) are calculated based on container RAM limits, not host RAM. Memory limits are configured in `docker-compose.yml` to prevent unbounded growth.
 

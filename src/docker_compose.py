@@ -47,14 +47,17 @@ PROFILE_TEMPLATES = {
         "litellm": {
             # Small VPS: 2GB RAM total
             # Calculation based on REAL measurements (2025-11-24):
-            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
-            #   LiteLLM: 1 worker × 460MB (real avg) + base 320MB = ~780MB
-            #   Total containers: ~1.6GB
-            #   OS/system overhead: ~1.2GB (minimal Linux)
-            #   Total: ~2.8GB (EXCEEDS 2GB by ~40%)
-            # WARNING: 2GB RAM is INSUFFICIENT for this profile. Actual usage is ~2.8GB.
+            #   Base services: PostgreSQL (~27MB) + Open WebUI (~603MB) + Nginx (~6MB) = ~636MB
+            #   LiteLLM: 1 worker × 460MB (real avg) + base 320MB = ~780MB (measured: 426.5MB in container)
+            #   Total containers (idle): ~1.063 GiB (measured)
+            #   Total containers (with request buffer): ~1.3 GiB
+            #   OS/system overhead: ~1.2GB (typical Linux) or ~0.7GB (lightweight distro)
+            #   Total (typical Linux, with buffer): ~2.5GB (exceeds 2GB by 25%) ⚠️
+            #   Total (lightweight distro, with buffer): ~2.0GB (fits in 2GB, tight) ⚠️
+            # WARNING: 2GB RAM is TIGHT for this profile. Actual usage is ~2.3-2.5GB on typical Linux.
             # Consider upgrading to Medium VPS (4GB) for better performance and safety.
             # Medium VPS uses 2 workers for better concurrency and fits comfortably in 4GB.
+            # Lightweight Linux distributions (Alpine, Debian minimal) can reduce system overhead.
             "num_workers": 1,
         },
         "open_webui": {},

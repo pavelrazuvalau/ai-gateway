@@ -1,6 +1,6 @@
 [Unit]
 Description=AI Gateway - LiteLLM, Open WebUI, PostgreSQL, Nginx
-Documentation=https://github.com/your-repo/ai-gateway
+Documentation=https://github.com/pavelrazuvalau/ai-gateway
 After=docker.service
 Requires=docker.service
 

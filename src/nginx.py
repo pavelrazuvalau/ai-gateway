@@ -92,18 +92,18 @@ server {{
         proxy_set_header X-Forwarded-Proto $scheme;
     }}
 
-    # Security: Block LiteLLM UI and non-OpenAI endpoints
+    # Security: Block LiteLLM UI and admin endpoints
     # Block admin UI and other non-standard endpoints (except health, which is allowed above)
     location ~ ^/api/litellm/(ui|metrics|sse|.*key|.*team|.*user|.*spend|.*config|.*model/new|.*model/delete|.*model/update)(/.*)?$ {{
-        return 403 "Access denied: Only OpenAI-compatible endpoints are allowed";
+        return 403 "Access denied: Only standard API endpoints are allowed";
         add_header Content-Type text/plain;
     }}
 
-    # Azure OpenAI-compatible format support
+    # Azure format support
     # Some clients (like continue.dev) automatically use Azure format for certain models
     # Format: /api/litellm/v1/openai/deployments/DEPLOYMENT_NAME/ENDPOINT
-    # LiteLLM supports this format and converts it to standard OpenAI format
-    # Supports all OpenAI-compatible endpoints: chat/completions, completions, embeddings, models,
+    # LiteLLM supports this format and converts it to standard format
+    # Supports all standard endpoints: chat/completions, completions, embeddings, models,
     # responses (Azure Responses API for o1, o1-mini, GPT-5), audio/*, images/*, moderations,
     # files/*, fine-tunes/*, assistants/*, threads/*, runs/*, messages/*
     location ~ ^/api/litellm/v1/openai/deployments/([^/]+)/(chat/completions|completions|embeddings|responses|models|audio/|images/|moderations|files/|fine-tunes/|assistants/|threads/|runs/|messages/)(.*)$ {{
@@ -206,9 +206,9 @@ server {{
         proxy_set_header Connection "upgrade";
     }}
     
-    # LiteLLM OpenAI-compatible API endpoints (v1 only)
-    # Following OpenAI API standard: https://platform.openai.com/docs/api-reference
-    # LiteLLM uses /v1/ prefix for all OpenAI-compatible endpoints
+    # LiteLLM API endpoints (v1 only)
+    # Following standard API format: https://platform.openai.com/docs/api-reference
+    # LiteLLM uses /v1/ prefix for all standard endpoints
     # Allowed endpoints:
     # - /v1/chat/completions - Chat completions
     # - /v1/completions - Text completions
@@ -256,7 +256,7 @@ server {{
     
     # Block all other /api/litellm/ paths (security)
     location /api/litellm/ {{
-        return 403 "Access denied: Only OpenAI-compatible endpoints are allowed. Use /v1/chat/completions, /v1/models, etc.";
+        return 403 "Access denied: Only standard API endpoints are allowed. Use /v1/chat/completions, /v1/models, etc.";
         add_header Content-Type text/plain;
     }}
 

@@ -6,9 +6,12 @@
 
 **AI Gateway** - prototype bundled solution for working with language models through a unified interface. Similar to LAMP/XAMPP stacks, AI Gateway bundles LiteLLM, Open WebUI, PostgreSQL, and Nginx into a single, easy-to-configure package. All configuration is done through LiteLLM Admin UI.
 
+**Version:** 0.0.1 (Prototype)
+
 ⚠️ **Note:** This is a **prototype** with known limitations. Not production-ready.
 
 **Known limitations:**
+- **Platform support**: Scripts have been tested only on Linux. macOS and Windows support is experimental and not fully tested
 - Rootless Docker may not work reliably in unprivileged Proxmox LXC containers (use full VM or privileged LXC)
 - GitHub Copilot integration requires complex custom proxy setup (use Continue.dev instead)
 - Anthropic API Tier 1 has strict rate limits (50k ITPM for Haiku, 30k for Sonnet/Opus) - Tier 2+ recommended for comfortable AI assistant usage
@@ -35,7 +38,7 @@
 - **RAM**: 2GB minimum (4GB recommended)
 - **CPU**: 2 cores minimum (4 cores recommended)
 - **Disk**: 10GB minimum (see [Disk Space Requirements](#-disk-space-requirements) below for details)
-- **OS**: Linux, macOS, or Windows (with WSL2)
+- **OS**: Linux (tested), macOS (experimental, not fully tested), Windows with WSL2 (experimental, not fully tested)
 
 ### ⚠️ Proxmox LXC Containers
 
@@ -47,7 +50,7 @@
 For more details, see the [Installation Guide](INSTALL.md#proxmox-lxc-containers).
 
 ### Recommended Requirements
-- **RAM**: 4GB+ for production use
+- **RAM**: 4GB+ for better performance
 - **CPU**: 4+ cores for better performance
 - **Network**: Stable internet connection for API calls to LLM providers
 
@@ -64,9 +67,8 @@ Each profile sets Docker container resource limits. The host system should have:
 The system uses several Docker volumes for persistent data storage:
 
 #### Base Storage (Required)
-- **Docker Images**: ~3-4GB (PostgreSQL, LiteLLM, Open WebUI, Nginx, Certbot)
+- **Docker Images**: ~3-4GB (PostgreSQL, LiteLLM, Open WebUI, Nginx)
 - **System & Logs**: ~500MB-1GB (Docker logs, system files, configs)
-- **SSL Certificates**: ~10-50MB (if using HTTPS with Let's Encrypt)
 
 #### Persistent Data Volumes
 
@@ -121,18 +123,20 @@ Storage usage grows based on:
 
 1. **Regular cleanup**: Periodically remove old chat history in Open WebUI
 2. **Log rotation**: Already configured (max 3-5 files per service)
-3. **PostgreSQL maintenance**: Run `VACUUM` periodically to reclaim space
-4. **Monitor usage**: Check volumes with:
+3. **Monitor usage**: Check volumes with:
    ```bash
    docker system df                    # Overall Docker disk usage
    docker volume ls                    # List all volumes
    docker volume inspect <volume_name> # Check specific volume size
    ```
-5. **Backup strategy**: Plan for 2-3x storage for backups
 
 ## 🚀 Quick Start
 
-### 1. Setup
+This guide will walk you through the complete setup and launch process. The entire process takes about 5 minutes.
+
+### Step 1: Run Setup Script
+
+The setup script (`setup.sh` or `setup.bat`) performs automatic dependency checks and interactive configuration:
 
 ```bash
 # Linux/macOS
@@ -142,12 +146,77 @@ Storage usage grows based on:
 setup.bat
 ```
 
-The setup script will ask for:
-- Resource profile (Local/Small VPS/Medium VPS/Large VPS)
-- Budget profile (test/prod/unlimited)
-- Port settings
+#### What the Setup Script Does:
 
-### 2. Start
+1. **Dependency Checks** (automatic):
+   - ✅ Checks if Python 3.8+ is installed (with installation instructions if missing)
+   - ✅ Checks if Docker is installed (with installation instructions if missing)
+   - ✅ Checks if Docker Compose is available
+   - ✅ Verifies Docker daemon is running (with start instructions if not)
+
+2. **Environment Setup** (automatic):
+   - Creates Python virtual environment (`venv/`)
+   - Installs required Python packages from `requirements.txt`
+
+3. **Interactive Configuration** (you'll be asked):
+   - **Resource Profile** - Choose based on your system:
+     - `[1] Desktop` - Local development (no limits)
+     - `[2] Small VPS` - 2GB RAM, 2 CPU cores (1-2 users)
+     - `[3] Medium VPS` - 4GB RAM, 4 CPU cores (3-5 users) ⭐ Recommended
+     - `[4] Large VPS` - 8GB+ RAM, 8 CPU cores (10+ users)
+     - `[5] Don't configure workers` - Use LiteLLM defaults
+   
+   - **Budget Profile** - Spending limits for API calls:
+     - `[1] Test` - $15/month (recommended for testing)
+     - `[2] Prod` - $200/month
+     - `[3] Unlimited` - $1000/month (use with caution!)
+   
+   - **Port Configuration**:
+     - **Nginx Reverse Proxy** (enabled by default, recommended):
+       - Exposes only one external port for enhanced security
+       - Open WebUI and LiteLLM API accessible through single port
+       - All other services (PostgreSQL, LiteLLM UI) remain internal
+       - You can disable it if you prefer separate ports for each service
+     - Port selection: default ports, manual configuration, or random high ports
+   
+   - **Systemd Service** (Linux only, optional):
+     - Install as systemd user service for auto-start on boot
+
+4. **File Generation** (automatic):
+   - Creates `.env` file with generated passwords and keys
+   - Creates `config.yaml` with LiteLLM configuration
+   - Creates `docker-compose.override.yml` with resource limits
+   - Generates Nginx configuration files
+
+5. **Optional: Continue.dev Setup** (recommended to skip during initial setup):
+   - After main setup, you'll be asked if you want to configure Continue.dev (VS Code extension)
+   - ⚠️ **Important**: Continue.dev setup requires models to be already configured in LiteLLM Admin UI
+   - **Recommended**: Skip this during initial setup, configure later after adding models (see [Continue.dev Integration](#-continue.dev-integration) section)
+   - The script fetches models from LiteLLM API, so models must exist first
+
+#### If Dependencies Are Missing:
+
+The setup script will show clear instructions for your platform:
+
+**Python not found:**
+- Fedora/RHEL: `sudo dnf install python3 python3-pip python3-venv`
+- Ubuntu/Debian: `sudo apt install python3 python3-pip python3-venv`
+- Arch: `sudo pacman -S python python-pip`
+- macOS: `brew install python@3.11`
+
+**Docker not found:**
+- Follow official Docker installation guide for your platform
+- Linux: Usually `sudo dnf install docker docker-compose` or `sudo apt install docker.io docker-compose`
+
+**Docker daemon not running:**
+- Linux (rootless): `systemctl --user start docker`
+- Linux (system-wide): `sudo systemctl start docker`
+- macOS: Start Docker Desktop from Applications
+- Windows: Start Docker Desktop from Start menu
+
+### Step 2: Start the System
+
+After setup completes, you can start the system:
 
 ```bash
 # Linux/macOS
@@ -157,22 +226,103 @@ The setup script will ask for:
 start.bat
 ```
 
-### 3. Configure Providers and Models
+#### What the Start Script Does:
 
-After startup, access URLs will be shown. Typically:
-- **Open WebUI**: http://localhost:PORT (main port)
-- **LiteLLM (API + UI)**: http://localhost:PORT (separate port)
+1. **Pre-flight Checks**:
+   - Verifies `.env` file exists (if not, offers to run setup)
+   - Checks Docker daemon is running (with start instructions if not)
+   - Validates PostgreSQL configuration
+   - Checks budget profile settings
 
-In LiteLLM Admin UI:
-- Add providers (Anthropic, Azure, OpenAI Compatible)
-- Configure API keys
-- Add models
+2. **Container Startup**:
+   - Starts all Docker containers (PostgreSQL, LiteLLM, Open WebUI, Nginx)
+   - Waits for health checks to pass (may take 1-2 minutes on first run)
+   - Shows container status and access URLs
 
-### 4. Usage
+3. **First Run Instructions**:
+   - If this is the first run, shows instructions for setting up Virtual Keys in LiteLLM Admin UI
 
-Open **Open WebUI** from the main port shown after startup.
+#### Alternative: Start from Setup
 
-Create an account and start chatting with models.
+You can also start immediately after setup completes - the setup script will ask if you want to start containers automatically.
+
+### Step 3: Access and Configure
+
+After containers start, you'll see access URLs like:
+
+```
+✅ Containers are running!
+
+🌐 Access URLs:
+   Open WebUI:    http://localhost:3000
+   LiteLLM API:   http://localhost:4000
+   LiteLLM Admin: http://localhost:4000/ui
+```
+
+#### Configure Providers and Models:
+
+**All models are configured through LiteLLM Admin UI** - this is the only way to add and manage models.
+
+1. **Open LiteLLM Admin UI** (http://localhost:4000/ui)
+   - Use the master key from `.env` file (starts with `sk-`)
+
+2. **Add Providers**:
+   - Click "Add Provider" or "Add Key"
+   - Select provider type (Anthropic, OpenAI, Azure, etc.)
+   - Enter your API key
+   - Save
+
+3. **Add Models** (in LiteLLM Admin UI):
+   - Go to "Models" section
+   - Click "Add Model"
+   - Select from available models for your providers
+   - Configure model settings (temperature, max tokens, etc.)
+   - Save
+
+4. **Set Budgets** (optional, in LiteLLM Admin UI):
+   - Configure spending limits per model or provider
+   - Set up alerts for budget thresholds
+
+**Important:** Once models are properly configured in LiteLLM Admin UI, they will automatically appear in Open WebUI - no restart needed!
+
+### Step 4: Start Using
+
+1. **Open WebUI** (http://localhost:3000):
+   - Create your first account (first user becomes admin)
+   - **Models configured in LiteLLM Admin UI will appear automatically** - no restart needed!
+   - Start chatting with models
+
+2. **API Access** (http://localhost:4000):
+   - Use LiteLLM API endpoint for programmatic access
+   - API key is the master key from `.env` file
+
+### Quick Reference: Common Workflows
+
+**First-time setup:**
+```bash
+./setup.sh          # Run setup (checks dependencies, configures everything)
+./start.sh           # Start containers
+# Then configure providers/models via LiteLLM Admin UI
+# After models are configured, you can run: ./ai-gateway continue-dev
+```
+
+**Daily usage:**
+```bash
+./start.sh           # Start containers
+# Use Open WebUI or API
+./stop.sh            # Stop containers when done
+```
+
+**Update configuration:**
+```bash
+./setup.sh           # Re-run setup (will detect existing .env and ask to update)
+```
+
+**Check status:**
+```bash
+docker compose ps    # Show container status
+docker compose logs # Show logs
+```
 
 ## 📊 Resource Profiles
 
@@ -190,7 +340,7 @@ Create an account and start chatting with models.
 | Profile | Total Budget | Description |
 |---------|--------------|-------------|
 | **test** | $15/month | Test environment |
-| **prod** | $200/month | Production |
+| **prod** | $200/month | Regular use |
 | **unlimited** | $1000/month | No limits |
 
 You can change the profile:
@@ -198,6 +348,20 @@ You can change the profile:
 - When starting: `./start.sh prod`
 
 ## 🛠️ Commands
+
+### CLI Commands (Recommended)
+
+All commands are available via the unified CLI:
+
+```bash
+./ai-gateway setup          # Run interactive setup
+./ai-gateway start          # Start Docker containers
+./ai-gateway stop           # Stop Docker containers
+./ai-gateway continue-dev   # Generate Continue.dev configuration
+./ai-gateway --help         # Show help message
+```
+
+**Architecture**: The CLI (`./ai-gateway`) is a Python entry point that calls application services. Bash scripts are wrappers that set up the Python environment and call the CLI.
 
 ### Manual Management (Scripts)
 
@@ -250,27 +414,57 @@ See [SYSTEMD.md](SYSTEMD.md) for detailed documentation.
 
 ## 🔧 Port Configuration
 
-By default:
+### Default Configuration (with Nginx - Enabled by Default)
+
+**During setup, Nginx reverse proxy is enabled by default** (you can disable it if needed). This provides enhanced security by exposing only one external port:
+
+- **Single External Port** (via Nginx):
+  - **Open WebUI**: Available at root path `/` (e.g., `http://localhost:PORT/`)
+  - **LiteLLM API**: Available at `/api/litellm/v1/*` (e.g., `http://localhost:PORT/api/litellm/v1/chat/completions`)
+  - **All other services**: Closed to external access (PostgreSQL, LiteLLM UI remain internal)
+
+- **LiteLLM UI**: Still accessible on separate port for local network configuration (optional)
+
+**Ports are configured when running `./ai-gateway setup` or `./setup.sh`** - Nginx reverse proxy is enabled by default (press Enter to accept, or type 'n' to disable).
+
+### Alternative Configuration (without Nginx)
+
+If you disable Nginx during setup, services will be exposed on separate ports:
 - **Open WebUI**: 3000
 - **LiteLLM API**: 4000
 - **LiteLLM UI**: 4000/ui
-- **PostgreSQL**: 5432 (internal)
-
-Ports are configured when running `./ai-gateway setup` or `./setup.sh` or through `.env`.
+- **PostgreSQL**: 5432 (internal only)
 
 ## 🔒 Security
 
-### For production:
-- Change passwords in `.env` (POSTGRES_PASSWORD, UI_PASSWORD)
-- Configure firewall
-- Use reverse proxy with TLS (Nginx)
-- Regularly update Docker images
+### Basic Security Recommendations:
+
+1. **Change default passwords**:
+   - Update passwords in `.env` (POSTGRES_PASSWORD, UI_PASSWORD)
+   - The master key (LITELLM_MASTER_KEY) is auto-generated, but you can change it
+
+2. **Use Nginx Reverse Proxy** (enabled by default):
+   - Nginx is enabled by default during setup for enhanced security
+   - Exposes only one external port
+   - Open WebUI and LiteLLM API accessible through single port
+   - PostgreSQL and internal services remain closed to external access
+
+3. **Keep software updated**:
+   - Update Docker images: `docker compose pull`
+   - Update Python dependencies: `pip install -U -r requirements.txt`
+
+**Note:** This is a prototype version. For production use, additional security measures should be implemented (firewall, TLS/HTTPS, etc.).
 
 ## ❓ Troubleshooting
 
 ### Models don't appear in Open WebUI?
-1. Add models through LiteLLM Admin UI (access URL shown after startup)
-2. Restart: `docker compose restart litellm`
+1. Make sure models are configured in LiteLLM Admin UI (http://localhost:4000/ui)
+2. Models should appear automatically - no restart needed
+3. If models still don't appear, check:
+   - Models are properly saved in LiteLLM Admin UI
+   - Providers have valid API keys
+   - Try refreshing Open WebUI page
+   - As last resort: `docker compose restart litellm`
 
 ### "master key invalid" error?
 Make sure `LITELLM_MASTER_KEY` in `.env` starts with `sk-`
@@ -296,16 +490,21 @@ docker compose up -d
 
 ```
 .
-├── ai-gateway            # Main CLI entry point (recommended)
+├── ai-gateway            # Main CLI entry point (Python)
 ├── setup.sh / setup.bat  # Setup wrapper (calls ./ai-gateway setup)
-├── start.sh / start.bat  # Start system
+├── start.sh / start.bat  # Start wrapper (calls ./ai-gateway start)
 ├── stop.sh / stop.bat    # Stop system
+├── continue-dev.sh # Continue.dev wrapper (calls ./ai-gateway continue-dev)
 ├── docker-compose.yml    # Main Docker configuration
 ├── config.yaml           # LiteLLM configuration (auto-generated)
 ├── .env                  # Environment variables (auto-generated)
-├── scripts/              # Utility scripts
-│   └── setup_continue_dev.sh  # Continue.dev config generator
-└── src/                  # Setup modules
+└── src/                  # Python source code (layered architecture)
+    ├── core/             # Domain logic and business rules
+    ├── infrastructure/   # Infrastructure layer (files, Docker, logging)
+    ├── application/      # Application layer (business logic)
+    │   ├── setup_service.py      # Setup service
+    │   ├── start_service.py      # Start service
+    │   └── continue_dev_service.py  # Continue.dev service
     ├── budgets.py        # Budget profiles
     ├── config.py         # Resource profiles
     ├── config_generator.py
@@ -313,28 +512,52 @@ docker compose up -d
     └── ...
 ```
 
+**Architecture**: Bash scripts are **wrappers** that set up Python virtual environment and call Python modules. All business logic is in Python following layered architecture (Core → Infrastructure → Application).
+
 ## 🎯 What's Next?
 
-1. Configure providers and models through Admin UI
-2. Configure budgets and limits in Admin UI
-3. Configure model fallback (in Admin UI)
-4. Configure reverse proxy for production
+**All configuration is done through LiteLLM Admin UI** (http://localhost:4000/ui):
+
+1. Configure providers and models through LiteLLM Admin UI
+2. Configure budgets and limits in LiteLLM Admin UI
+3. Configure model fallback in LiteLLM Admin UI
+4. Models will automatically appear in Open WebUI once configured
+5. Nginx reverse proxy is enabled by default during setup (provides single port access)
 
 ## 🔌 Continue.dev Integration
 
-AI Gateway includes a script to generate optimized Continue.dev configuration:
+AI Gateway includes a Python service to generate optimized Continue.dev configuration for VS Code extension. The service is accessible via CLI command or bash wrapper script.
+
+### ⚠️ Important Prerequisites
+
+**Before running the Continue.dev setup script, you MUST:**
+1. ✅ Have AI Gateway running (`./start.sh`)
+2. ✅ Have configured providers in LiteLLM Admin UI
+3. ✅ Have added models in LiteLLM Admin UI
+4. ✅ Have created a Virtual Key in LiteLLM Admin UI (required for API access)
+
+**Why?** The script fetches models dynamically from LiteLLM API (`/v1/models` endpoint). If models are not configured yet, the script won't be able to generate the configuration automatically.
 
 ### Quick Setup
 
+**Step 1:** Make sure models are configured (see [Step 3: Access and Configure](#step-3-access-and-configure) above)
+
+**Step 2:** Run the setup (choose one method):
+
 ```bash
-bash scripts/setup_continue_dev.sh
+# Method 1: Via CLI (recommended)
+./ai-gateway continue-dev
+
+# Method 2: Via bash wrapper script
+./continue-dev.sh
 ```
 
-The script will:
-- ✅ Fetch models dynamically from LiteLLM API
+The service will:
+- ✅ Fetch models dynamically from LiteLLM API via Virtual Key (requires models to be configured)
 - ✅ Generate optimized configuration with proper roles (chat, edit, apply)
 - ✅ Create system prompts in `.continue/prompts/` directory
 - ✅ Configure AGENTS.md handling (optional)
+- ✅ Optimize context length based on Anthropic API tier
 
 ### Generated Files
 
@@ -342,6 +565,23 @@ The script will:
 - `.continue/prompts/system-prompt.md` - System prompt for agents (in `.gitignore`)
 
 **Note:** Generated files are excluded from git. Copy `continue-dev-config-generated.yaml` to your Continue.dev config directory (usually `~/.continue/`).
+
+### When to Run the Script
+
+**Recommended workflow:**
+1. Complete initial setup (`./setup.sh`)
+2. Start containers (`./start.sh`)
+3. Configure providers and models in LiteLLM Admin UI
+4. Create Virtual Key in LiteLLM Admin UI
+5. **Then** run Continue.dev setup:
+   ```bash
+   ./ai-gateway continue-dev
+   # Or: ./continue-dev.sh
+   ```
+
+**You can skip Continue.dev setup during initial setup** - it can be done anytime after models are configured.
+
+**Note**: The setup will automatically check if models are available via Virtual Key after containers start. If models are found, you'll be prompted to configure Continue.dev.
 
 ### Features
 
@@ -357,7 +597,7 @@ The script will prompt you to select your Anthropic API tier (1-4) based on your
 - **Tier 1**: Strict control, limited context providers (50k ITPM for Haiku, 30k for Sonnet/Opus)
 - **Tier 2+**: Flexible approach, all context providers enabled (500k-4M ITPM)
 
-See `scripts/setup_continue_dev.sh` for detailed options and configuration.
+**Architecture**: The bash script `continue-dev.sh` is a wrapper that sets up Python virtual environment and calls the Python service (`ContinueDevService` in `src/application/continue_dev_service.py`). All business logic is in Python.
 
 ## 🔌 GitHub Copilot Integration
 

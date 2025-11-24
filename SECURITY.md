@@ -6,7 +6,10 @@ We provide security updates for the following versions:
 
 | Version | Supported          |
 | ------ | ----------------------- |
+| 0.0.1  | :white_check_mark:      |
 | Latest | :white_check_mark:      |
+
+**Note:** This is a prototype version (0.0.1). Security updates will be provided as the project evolves.
 
 ## Reporting a Vulnerability
 

@@ -560,6 +560,29 @@ class SetupService:
                 self.utils.print_error("WARNING: This will delete all PostgreSQL data!")
                 print()  # Empty line
                 
+                # Show LiteLLM Admin UI credentials for convenience
+                env_vars = self.utils.read_env_file(self.project_root / ".env")
+                ui_username = env_vars.get("UI_USERNAME", "admin").strip()
+                ui_password = env_vars.get("UI_PASSWORD", "").strip()
+                
+                if ui_username and ui_password:
+                    print()
+                    self.utils.print_info("🔑 LiteLLM Admin UI Credentials:")
+                    print()
+                    print(f"  Username: {self.utils.Colors.GREEN}{ui_username}{self.utils.Colors.RESET}")
+                    print(f"  Password: {self.utils.Colors.GREEN}{ui_password}{self.utils.Colors.RESET}")
+                    print()
+                    if port_config.get('use_nginx'):
+                        litellm_ui_port = port_config.get('litellm_external_port', '')
+                        if litellm_ui_port:
+                            self.utils.print_info(f"  Access: http://YOUR_IP:{litellm_ui_port}/ui")
+                    else:
+                        litellm_port = port_config.get('litellm_external_port', 4000)
+                        self.utils.print_info(f"  Access: http://YOUR_IP:{litellm_port}/ui")
+                    print()
+                    self.utils.print_warning("⚠️  Save these credentials - they won't be shown again!")
+                    print()
+                
                 # Check Docker availability
                 if not self.docker_manager.docker_client.check_available()[0]:
                     self.utils.print_warning("Docker is not available or not running")
@@ -601,10 +624,34 @@ class SetupService:
                 self.utils.print_success("Containers are running!")
                 self.utils.print_info("Wait 30-60 seconds for LiteLLM and Open WebUI to fully initialize.")
                 
-                # Check if this is first run and Virtual Key needs to be created
+                # Show LiteLLM Admin UI credentials for convenience (on first setup or force_recreate)
                 env_vars = self.utils.read_env_file(self.project_root / ".env")
-                virtual_key = env_vars.get("VIRTUAL_KEY", "").strip()
                 first_run = env_vars.get("FIRST_RUN", "no").lower() in ("yes", "true", "1")
+                
+                if first_run or force_recreate:
+                    ui_username = env_vars.get("UI_USERNAME", "admin").strip()
+                    ui_password = env_vars.get("UI_PASSWORD", "").strip()
+                    
+                    if ui_username and ui_password:
+                        print()
+                        self.utils.print_info("🔑 LiteLLM Admin UI Credentials:")
+                        print()
+                        print(f"  Username: {self.utils.Colors.GREEN}{ui_username}{self.utils.Colors.RESET}")
+                        print(f"  Password: {self.utils.Colors.GREEN}{ui_password}{self.utils.Colors.RESET}")
+                        print()
+                        if port_config.get('use_nginx'):
+                            litellm_ui_port = port_config.get('litellm_external_port', '')
+                            if litellm_ui_port:
+                                self.utils.print_info(f"  Access: http://YOUR_IP:{litellm_ui_port}/ui")
+                        else:
+                            litellm_port = port_config.get('litellm_external_port', 4000)
+                            self.utils.print_info(f"  Access: http://YOUR_IP:{litellm_port}/ui")
+                        print()
+                        self.utils.print_warning("⚠️  Save these credentials - they won't be shown again!")
+                        print()
+                
+                # Check if this is first run and Virtual Key needs to be created
+                virtual_key = env_vars.get("VIRTUAL_KEY", "").strip()
                 
                 if not virtual_key and first_run:
                     # Wait for LiteLLM to be ready, then create Virtual Key automatically

@@ -21,11 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed SMALL_VPS profile calculations (actual usage ~2.3-2.5GB, not 2.8GB)
 
 ### Added
-- Memory limits for all Docker containers to prevent unbounded growth
 - Request buffer calculations in all resource profiles
 - Comprehensive memory troubleshooting section in README
 - Lightweight Linux distribution recommendations for Small VPS users
-- Memory configuration documentation section
 
 ### Changed
 - Updated all resource profile memory calculations with verified measurements
@@ -36,8 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 - Added detailed memory breakdown per service
 - Updated Resource Profiles section with real measurements (2025-11-24)
-- Added memory limit configuration guide
 - Added troubleshooting section for OOM errors
+
+### Removed
+- Memory limits from docker-compose.yml (deploy.resources not supported in rootless Docker)
 
 ---
 

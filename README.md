@@ -104,7 +104,7 @@ Each profile sets Docker container resource limits. **Memory usage is based on r
 
 **Note**: All usage numbers above include buffers for active requests. Idle usage is lower, but you should plan for peak usage during active API calls.
 
-**Note:** Resource limits are optimized based on PostgreSQL best practices and container memory constraints. PostgreSQL settings (`shared_buffers`, `effective_cache_size`, `work_mem`) are calculated based on container RAM limits, not host RAM. Memory limits are configured in `docker-compose.yml` to prevent unbounded growth.
+**Note:** Resource limits are optimized based on PostgreSQL best practices and container memory constraints. PostgreSQL settings (`shared_buffers`, `effective_cache_size`, `work_mem`) are calculated based on available RAM. Memory usage is monitored and documented, but limits via `deploy.resources` are not supported in rootless Docker.
 
 ### 💾 Disk Space Requirements
 
@@ -377,7 +377,7 @@ docker compose logs # Show logs
 | **Medium VPS** | 4GB | 4 CPU | 3-5 | ⭐ **Recommended** - Actual usage ~3.3GB |
 | **Large VPS** | 8GB+ | 8 CPU | 10+ | For teams - Actual usage ~5.1GB |
 
-**Note:** Memory usage is based on real measurements (2025-11-24). Each LiteLLM worker uses ~460MB RAM. The system includes memory limits in `docker-compose.yml` to prevent unbounded growth. See [Resource Profiles Explained](#resource-profiles-explained) above for detailed breakdown.
+**Note:** Memory usage is based on real measurements (2025-11-24). Each LiteLLM worker uses ~460MB RAM. See [Resource Profiles Explained](#resource-profiles-explained) above for detailed breakdown.
 
 ## 💰 Budget Profiles
 
@@ -458,46 +458,22 @@ See [SYSTEMD.md](SYSTEMD.md) for detailed documentation.
 
 ## 💾 Memory Configuration
 
-### Memory Limits
+### Memory Usage
 
-Memory limits are configured in `docker-compose.yml` to prevent containers from consuming unbounded memory. These limits are based on real measurements and allow for growth while preventing OOM (Out of Memory) kills.
+Memory usage is based on real measurements (2025-11-24). Current usage per service:
 
-**Current Memory Limits:**
-- **litellm**: 1.5G limit, 1.2G reservation
-  - Current usage: ~1.177 GiB (with 2 workers)
-  - Allows growth for additional workers or increased load
-- **open-webui**: 800M limit, 600M reservation
-  - Current usage: ~602 MB
-  - Allows growth for chat history and file uploads
-- **postgres**: 200M limit, 100M reservation
-  - Current usage: ~48 MB (idle)
-  - Allows growth for database size and query cache
-- **nginx**: 100M limit, 50M reservation
-  - Current usage: ~6 MB
-  - Allows growth for high traffic
+- **litellm**: ~1.177 GiB (with 2 workers, idle)
+  - Base process: ~320MB
+  - Per worker: ~460MB
+  - Can grow during active requests (+200-400MB per worker)
+- **open-webui**: ~602 MB
+  - Can grow during active chat sessions (+100-200MB)
+- **postgres**: ~48 MB (idle)
+  - Can grow during queries (+50-100MB)
+- **nginx**: ~6 MB
+  - Minimal overhead
 
-**To adjust memory limits:**
-
-Edit `docker-compose.yml` and modify the `deploy.resources.limits.memory` values:
-
-```yaml
-services:
-  litellm:
-    deploy:
-      resources:
-        limits:
-          memory: 1.5G  # Adjust as needed
-        reservations:
-          memory: 1.2G  # Adjust as needed
-```
-
-**After changing limits:**
-```bash
-docker compose down
-docker compose up -d
-```
-
-**Note:** If you increase limits significantly, ensure your host system has enough RAM. See [Resource Profiles Explained](#resource-profiles-explained) for total system requirements.
+**Note:** Memory limits via `deploy.resources` are not supported in rootless Docker. For production deployments, consider using system-level memory management or Docker Swarm mode if memory limits are required.
 
 ## 🔧 Port Configuration
 
@@ -588,20 +564,18 @@ dmesg | grep -i "out of memory"
 journalctl -k | grep -i "out of memory"
 ```
 
-**Memory limits are configured** in `docker-compose.yml` to prevent unbounded growth:
-- `litellm`: 1.5G limit (current: ~1.177 GiB with 2 workers)
-- `open-webui`: 800M limit (current: ~602 MB)
-- `postgres`: 200M limit (current: ~48 MB)
-- `nginx`: 100M limit (current: ~6 MB)
+**Current memory usage** (measured, idle):
+- `litellm`: ~1.177 GiB (with 2 workers)
+- `open-webui`: ~602 MB
+- `postgres`: ~48 MB
+- `nginx`: ~6 MB
 
-**If containers are being killed due to memory limits:**
+**If containers are being killed due to memory issues:**
 
 1. **Check actual usage**:
    ```bash
    docker stats --no-stream
    ```
-
-2. **If limits are too low**, edit `docker-compose.yml` and increase the `deploy.resources.limits.memory` values
 
 3. **If system is running out of memory**:
    - Consider upgrading to a larger VPS (Medium VPS recommended for 4GB systems)

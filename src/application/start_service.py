@@ -88,6 +88,26 @@ class StartService:
             # Try to use --wait flag (Docker Compose v2.3+)
             try:
                 self.docker_client.compose_up(str(self.project_root), detach=True, wait=wait_for_healthy)
+                
+                # Update web search settings from environment variables if flag is set
+                # This happens when profile was changed during setup
+                try:
+                    env_vars = self.utils.read_env_file(self.project_root / ".env")
+                    update_flag = env_vars.get("UPDATE_WEB_SEARCH_SETTINGS", "no").lower() in ("yes", "true", "1")
+                    
+                    if update_flag:
+                        from ..infrastructure.openwebui_db import update_web_search_settings_on_start
+                        self.utils.print_info("Updating OpenWebUI web search settings from environment variables...")
+                        if update_web_search_settings_on_start("open-webui"):
+                            self.utils.print_success("✅ OpenWebUI web search settings updated")
+                            # Clear flag after successful update
+                            self._clear_update_web_search_flag()
+                        else:
+                            self.utils.print_warning("⚠️  Could not update OpenWebUI settings (will retry on next start)")
+                except Exception as e:
+                    logger.warning(f"Error updating web search settings: {e}")
+                    # Don't fail startup if we can't update settings
+                
                 if wait_for_healthy:
                     self.utils.print_success("Containers started and healthy!")
                 else:
@@ -602,4 +622,31 @@ class StartService:
                 
         except Exception as e:
             logger.warning(f"Error checking models for Continue.dev: {e}")
+    
+    def _clear_update_web_search_flag(self) -> None:
+        """Clear UPDATE_WEB_SEARCH_SETTINGS flag from .env after successful update"""
+        try:
+            env_file = self.project_root / ".env"
+            if not env_file.exists():
+                return
+            
+            # Read current .env
+            env_vars = self.utils.read_env_file(env_file)
+            
+            # Remove flag
+            if "UPDATE_WEB_SEARCH_SETTINGS" in env_vars:
+                del env_vars["UPDATE_WEB_SEARCH_SETTINGS"]
+                
+                # Write back to .env
+                with open(env_file, 'w') as f:
+                    for key, value in env_vars.items():
+                        # Escape special characters in value
+                        if ' ' in value or '#' in value or '$' in value:
+                            f.write(f'{key}="{value}"\n')
+                        else:
+                            f.write(f'{key}={value}\n')
+                
+                logger.debug("Cleared UPDATE_WEB_SEARCH_SETTINGS flag from .env")
+        except Exception as e:
+            logger.warning(f"Could not clear UPDATE_WEB_SEARCH_SETTINGS flag: {e}")
 

@@ -25,6 +25,40 @@ from .utils import print_success, set_file_permissions
 # This is due to LiteLLM's model loading, caching, and Python 3.13 overhead.
 # Monitor actual usage and adjust if needed.
 # If OOM errors occur, reduce workers or upgrade to larger VPS.
+# Web Search configuration profiles based on resource constraints
+# Optimized for API-based providers that return extracted content (no Playwright)
+# Based on real measurements and analysis (2025-11-26)
+WEB_SEARCH_PROFILES = {
+    ResourceProfile.SMALL_VPS: {
+        # Small VPS: 2GB RAM, 2 CPU - very limited resources
+        # Total usage: ~2.3-2.5GB (exceeds 2GB, tight)
+        # Optimized for multi-user: prevents one user from blocking others
+        "web_search_concurrent_requests": 1,
+        "web_search_result_count": 1,
+    },
+    ResourceProfile.MEDIUM_VPS: {
+        # Medium VPS: 4GB RAM, 4 CPU - optimized for multi-user environment
+        # Total usage: ~3.3GB, leaves ~700MB buffer
+        # CRITICAL: One web search can use 80%+ CPU for 12-15 seconds
+        # To prevent one user from blocking others, we limit concurrency
+        "web_search_concurrent_requests": 1,
+        "web_search_result_count": 1,
+    },
+    ResourceProfile.LARGE_VPS: {
+        # Large VPS: 8GB+ RAM, 8 CPU - optimized for multi-user environment
+        # Total usage: ~5.1GB, leaves ~3GB buffer
+        # Real measurements: 3 concurrent requests can use 80%+ CPU
+        # Optimized to prevent one user from blocking others
+        "web_search_concurrent_requests": 2,
+        "web_search_result_count": 3,
+    },
+    ResourceProfile.DESKTOP: {
+        # Desktop: ample resources, but still optimized for multi-user scenarios
+        "web_search_concurrent_requests": 3,
+        "web_search_result_count": 4,
+    },
+}
+
 PROFILE_TEMPLATES = {
     ResourceProfile.DESKTOP: {
         "postgres": {},
@@ -179,9 +213,28 @@ def generate_docker_compose_override(
         
     
     # Open WebUI
+    # Get Web Search configuration based on resource profile
+    # Defaults to Medium VPS if profile is None or not found
+    if profile is not None and profile in WEB_SEARCH_PROFILES:
+        web_search_config = WEB_SEARCH_PROFILES[profile]
+    else:
+        # Default to Medium VPS settings if profile is None
+        web_search_config = WEB_SEARCH_PROFILES[ResourceProfile.MEDIUM_VPS]
+    
     override["services"]["open-webui"] = {
         "environment": [
             f"DEFAULT_MODELS={default_models_str}",
+            # Default setup ships WITHOUT Playwright/web loader. We rely on API providers
+            # that return full content (Tavily, Google PSE, etc.).
+            # Keep BYPASS_WEB_SEARCH_WEB_LOADER=true to avoid invoking non-existent loader.
+            "BYPASS_WEB_SEARCH_WEB_LOADER=${BYPASS_WEB_SEARCH_WEB_LOADER:-true}",
+            # Web Search configuration (automatically optimized based on resource profile)
+            # Default: tavily (recommended for low CPU usage, requires API key)
+            "WEB_SEARCH_ENGINE=${WEB_SEARCH_ENGINE:-tavily}",
+            # Concurrent requests for web search (profile-specific, can be overridden via .env)
+            f"WEB_SEARCH_CONCURRENT_REQUESTS=${{WEB_SEARCH_CONCURRENT_REQUESTS:-{web_search_config['web_search_concurrent_requests']}}}",
+            # Number of search results to fetch (profile-specific, can be overridden via .env)
+            f"WEB_SEARCH_RESULT_COUNT=${{WEB_SEARCH_RESULT_COUNT:-{web_search_config['web_search_result_count']}}}",
         ],
     }
     

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - (Future features will be listed here)
 
+### Changed
+- Removed Playwright/browser loader from the default deployment; web search now assumes API providers that return extracted content (e.g., Tavily).
+
 ---
 
 ## [0.0.2] - 2025-11-24

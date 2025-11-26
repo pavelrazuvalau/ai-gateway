@@ -150,6 +150,66 @@ class InteractiveSetup:
             else:
                 self.utils.print_error("Select 1, 2, or 3")
     
+    def ask_tavily_api_key(self, existing_env: Dict[str, str]) -> Optional[str]:
+        """Ask user for Tavily API key with instructions"""
+        print()
+        self.utils.print_header("🔍 Web Search Configuration (Tavily)")
+        print()
+        self.utils.print_info("Tavily API provides web search with low CPU usage (~20-30% vs ~238% for DDGS)")
+        print()
+        self.utils.print_info("To get a free Tavily API key:")
+        self.utils.print_info("  1. Visit: https://tavily.com/")
+        self.utils.print_info("  2. Sign up for a free account")
+        self.utils.print_info("  3. Get your API key from the dashboard")
+        self.utils.print_info("  4. Free tier: 1000 searches/month")
+        print()
+        
+        # Check if key already exists
+        existing_key = existing_env.get("TAVILY_API_KEY", "").strip()
+        if existing_key:
+            masked = existing_key[:8] + "..." + existing_key[-4:] if len(existing_key) > 12 else "***"
+            self.utils.print_info(f"Found existing Tavily API key: {masked}")
+            print()
+            choice = input(f"{self.utils.Colors.BLUE}Use existing key? (Y/n): {self.utils.Colors.RESET}").strip().lower()
+            if not choice or choice in YES_VALUES:
+                return existing_key
+            print()
+        
+        # Ask if user wants to enter key now
+        self.utils.print_info("Options:")
+        self.utils.print_info("  [1] Enter Tavily API key now (recommended)")
+        self.utils.print_info("  [2] Skip - configure later in .env file (web search disabled until then)")
+        print()
+        
+        while True:
+            choice = input(f"{self.utils.Colors.BLUE}Select option [1-2, Enter for 2]: {self.utils.Colors.RESET}").strip()
+            
+            if not choice or choice == "2":
+                self.utils.print_info("Skipping Tavily API key configuration for now")
+                self.utils.print_info("Web search will stay disabled until you add TAVILY_API_KEY to .env")
+                return None
+            elif choice == "1":
+                print()
+                self.utils.print_info("Enter your Tavily API key:")
+                self.utils.print_warning("Input will be hidden for security")
+                import getpass
+                api_key = getpass.getpass(f"{self.utils.Colors.BLUE}Tavily API Key: {self.utils.Colors.RESET}").strip()
+                
+                if not api_key:
+                    self.utils.print_error("API key cannot be empty")
+                    continue
+                
+                if len(api_key) < 10:
+                    self.utils.print_warning("API key seems too short. Please verify it's correct.")
+                    confirm = input(f"{self.utils.Colors.BLUE}Continue anyway? (y/N): {self.utils.Colors.RESET}").strip().lower()
+                    if confirm not in YES_VALUES:
+                        continue
+                
+                self.utils.print_success(f"✅ Tavily API key saved")
+                return api_key
+            else:
+                self.utils.print_error("Please select 1 or 2")
+    
     def ask_systemd_installation(self) -> bool:
         """Ask user if they want to install systemd service"""
         from ..platform_utils import detect_platform, PlatformType
@@ -434,6 +494,15 @@ class SetupService:
         budget_profile = self.interactive.ask_budget_profile(reuse_env, existing_env)
         self.config_service.set_budget_profile(BudgetProfile(budget_profile))
         
+        # Tavily API key configuration (for web search)
+        if not reuse_env:
+            # Only ask on new setup, not when reusing existing .env
+            tavily_api_key = self.interactive.ask_tavily_api_key(existing_env)
+            if tavily_api_key:
+                # Save to existing_env so it gets written to .env
+                existing_env["TAVILY_API_KEY"] = tavily_api_key
+                self.utils.print_success("Tavily API key will be saved to .env")
+        
         # Port configuration
         if reuse_env:
             self.config_service.load_from_env()
@@ -449,6 +518,11 @@ class SetupService:
         # Generate secrets
         self.config_service.generate_secrets(reuse_existing=reuse_env)
         config = self.config_service.get_config()
+        
+        # Save Tavily API key if provided (before generating .env)
+        if not reuse_env and "TAVILY_API_KEY" in existing_env:
+            # The key will be included when generate_env_file is called
+            pass
         
         if reuse_env:
             # Update mode: only regenerate config.yaml if budget profile changed
@@ -466,6 +540,9 @@ class SetupService:
                 port_config=port_config,
                 selected_models=[],
             )
+            
+            # Update OpenWebUI web search settings if container is running
+            self._update_openwebui_settings_if_running()
             
             # Nginx config - regenerate if nginx is enabled
             if port_config.get('use_nginx'):
@@ -492,6 +569,34 @@ class SetupService:
                 preserve_first_run=True,  # Preserve FIRST_RUN flag in update mode
             )
             
+            # If Tavily API key was provided, add it to .env
+            if "TAVILY_API_KEY" in existing_env:
+                env_file = self.project_root / ".env"
+                if env_file.exists():
+                    content = env_file.read_text(encoding="utf-8")
+                    lines = content.split('\n')
+                    new_lines = []
+                    key_added = False
+                    
+                    for line in lines:
+                        if line.startswith("TAVILY_API_KEY="):
+                            new_lines.append(f"TAVILY_API_KEY={existing_env['TAVILY_API_KEY']}")
+                            key_added = True
+                        else:
+                            new_lines.append(line)
+                    
+                    if not key_added:
+                        # Find the line with WEB_SEARCH_ENGINE and add after it
+                        for i, line in enumerate(new_lines):
+                            if line.startswith("WEB_SEARCH_ENGINE="):
+                                new_lines.insert(i + 1, f"TAVILY_API_KEY={existing_env['TAVILY_API_KEY']}")
+                                key_added = True
+                                break
+                    
+                    if key_added:
+                        env_file.write_text('\n'.join(new_lines), encoding="utf-8")
+                        self.utils.print_success("✅ Tavily API key saved to .env")
+            
             self.utils.print_header("📝 Creating docker-compose.override.yml")
             print()  # Empty line after header
             generate_docker_compose_override(
@@ -499,6 +604,10 @@ class SetupService:
                 port_config=port_config,
                 selected_models=[],
             )
+            
+            # Set flag to update OpenWebUI settings on next start
+            # (container not running yet, so we'll update on first start)
+            self._set_update_web_search_flag()
             
             # Nginx config
             if port_config.get('use_nginx'):
@@ -510,6 +619,9 @@ class SetupService:
         # This allows user to review all settings before container recreation
         containers_started = False
         
+        # Check web search configuration and warn if needed
+        self._check_and_warn_web_search_config()
+        
         # Final instructions (includes container recreation if needed)
         self._print_final_instructions(
             port_config, 
@@ -519,6 +631,120 @@ class SetupService:
             force_recreate,
             config.postgres_password or ""
         )
+    
+    def _update_openwebui_settings_if_running(self) -> None:
+        """Update OpenWebUI web search settings if container is running"""
+        try:
+            import subprocess
+            from ..infrastructure.openwebui_db import update_web_search_settings_from_env
+            
+            # Check if open-webui container is running
+            try:
+                result = subprocess.run(
+                    ["docker", "ps", "--filter", "name=open-webui", "--format", "{{.Names}}"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                
+                if result.returncode == 0 and "open-webui" in result.stdout:
+                    self.utils.print_info("Updating OpenWebUI web search settings from environment variables...")
+                    if update_web_search_settings_from_env("open-webui"):
+                        self.utils.print_success("✅ OpenWebUI web search settings updated")
+                    else:
+                        self.utils.print_warning("⚠️  Could not update OpenWebUI settings (will be updated on next start)")
+                        self._set_update_web_search_flag()
+                else:
+                    # Container not running - set flag for update on next start
+                    self._set_update_web_search_flag()
+            except Exception as e:
+                logger.debug(f"Could not check container status: {e}")
+                # Set flag for update on next start
+                self._set_update_web_search_flag()
+        except Exception as e:
+            logger.warning(f"Error updating OpenWebUI settings: {e}")
+            # Set flag for update on next start
+            self._set_update_web_search_flag()
+    
+    def _check_and_warn_web_search_config(self) -> None:
+        """Check web search configuration and warn if API key is missing"""
+        try:
+            env_path = self.project_root / ".env"
+            if not env_path.exists():
+                return
+            
+            env_vars = self.utils.read_env_file(self.project_root / ".env")
+            web_search_engine = env_vars.get("WEB_SEARCH_ENGINE", "tavily").lower()
+            tavily_api_key = env_vars.get("TAVILY_API_KEY", "").strip()
+            api_key_map = {
+                "tavily": ("TAVILY_API_KEY", tavily_api_key),
+                "google_pse": ("GOOGLE_PSE_API_KEY", env_vars.get("GOOGLE_PSE_API_KEY", "").strip()),
+                "serper": ("SERPER_API_KEY", env_vars.get("SERPER_API_KEY", "").strip()),
+                "brave": ("BRAVE_API_KEY", env_vars.get("BRAVE_API_KEY", "").strip()),
+                "kagi": ("KAGI_API_KEY", env_vars.get("KAGI_API_KEY", "").strip()),
+            }
+            supported_api_engines = set(api_key_map.keys())
+            
+            if web_search_engine == "tavily" and not tavily_api_key:
+                self.utils.print_warning("⚠️  Web Search Configuration Warning")
+                print()
+                print("   Tavily API key is not configured, but WEB_SEARCH_ENGINE=tavily is set.")
+                print("   Web search will not work without an API key.")
+                print()
+                print("   Options:")
+                print("   1. Get free Tavily API key (recommended):")
+                print("      - Sign up at: https://tavily.com/")
+                print("      - Free tier: 1000 searches/month")
+                print("      - Add to .env: TAVILY_API_KEY=your-api-key-here")
+                print("      - CPU usage: ~20-30% per user (low)")
+                print()
+                print("   2. Disable web search until you add an API key:")
+                print("      - Remove or comment out WEB_SEARCH_ENGINE in .env")
+                print()
+            elif web_search_engine in supported_api_engines:
+                key_name, key_value = api_key_map[web_search_engine]
+                if not key_value:
+                    self.utils.print_warning("⚠️  Web Search Configuration Warning")
+                    print()
+                    print(f"   {web_search_engine} requires {key_name}, but it is not set in .env.")
+                    print("   Web search will be disabled until the key is provided.")
+                    print()
+            else:
+                self.utils.print_warning("⚠️  Web Search Configuration Warning")
+                print()
+                print(f"   WEB_SEARCH_ENGINE={web_search_engine} is set, but this stack no longer ships Playwright.")
+                print("   Engines that only return URLs (e.g. ddgs) are unsupported out-of-the-box.")
+                print()
+                print("   Please switch to Tavily or another API-based provider that returns content.")
+                print()
+        except Exception as e:
+            logger.debug(f"Error checking web search config: {e}")
+    
+    def _set_update_web_search_flag(self) -> None:
+        """Set UPDATE_WEB_SEARCH_SETTINGS flag in .env for update on next start"""
+        try:
+            env_file = self.project_root / ".env"
+            if not env_file.exists():
+                return
+            
+            # Read current .env
+            env_vars = self.utils.read_env_file(env_file)
+            
+            # Set flag
+            env_vars["UPDATE_WEB_SEARCH_SETTINGS"] = "yes"
+            
+            # Write back to .env
+            with open(env_file, 'w') as f:
+                for key, value in env_vars.items():
+                    # Escape special characters in value
+                    if ' ' in value or '#' in value or '$' in value:
+                        f.write(f'{key}="{value}"\n')
+                    else:
+                        f.write(f'{key}={value}\n')
+            
+            logger.debug("Set UPDATE_WEB_SEARCH_SETTINGS flag in .env")
+        except Exception as e:
+            logger.warning(f"Could not set UPDATE_WEB_SEARCH_SETTINGS flag: {e}")
     
     def _print_final_instructions(
         self, 

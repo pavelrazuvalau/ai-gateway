@@ -441,9 +441,40 @@ docker stats --no-stream
 ### URL в документации:
 - [x] `http://litellm:4000/v1` - корректный URL для внутренней Docker сети (имя сервиса)
 
-### Проблемы, требующие проверки с установкой:
-- [ ] Команды `docker compose logs litellm` vs `docker compose logs litellm-proxy`
-- [ ] Создание файлов `.env`, `config.yaml`, `docker-compose.override.yml` при setup
-- [ ] Права доступа к создаваемым файлам
-- [ ] Примеры API запросов из документации
+## ✅ E2E Тест - Выполняется
+
+### Этап 1: Установка (завершено)
+- [x] Setup выполнен успешно (Medium VPS + Test budget)
+- [x] Файлы созданы с правильными правами доступа
+- [x] Resource profile применен (2 workers)
+- [x] Budget profile применен (test)
+- [x] Nginx конфигурация создана
+
+### Этап 2: Запуск системы (в процессе)
+- [x] Контейнеры запущены через `docker compose up -d`
+- [ ] Проверка health checks контейнеров
+- [ ] Проверка доступности сервисов
+- [ ] Проверка логов на ошибки
+
+### Этап 3: Virtual Key (завершено)
+- [x] Проверка логики автоматического создания Virtual Key
+- [x] Обнаружена проблема: автоматическое создание работает только в setup, если контейнеры запускаются
+- [x] **БАГ НАЙДЕН:** start.sh не создает Virtual Key автоматически при FIRST_RUN=yes
+  - В setup_service.py (строки 900-962) есть автоматическое создание, но только если контейнеры запускаются во время setup
+  - В start_service.py (строки 449-550) есть только интерактивный запрос через show_first_run_instructions()
+  - **Проблема:** При setup без запуска контейнеров → start.sh → Virtual Key не создается автоматически
+  - **Решение:** Нужно добавить автоматическое создание Virtual Key в start_service.py при FIRST_RUN=yes и отсутствии Virtual Key
+
+### Этап 4: API тестирование
+- [ ] Проверка `/v1/models` endpoint
+- [ ] Проверка примеров из документации
+- [ ] Проверка форматов ответов
+
+### Этап 5: Команды из документации
+- [x] `docker compose ps` - проверено
+- [x] `docker compose logs litellm` - проверено (работает)
+- [x] `docker compose logs litellm-proxy` - проверено (не работает)
+- [ ] `docker compose restart litellm` - нужно проверить после полного запуска
+- [ ] `docker stats --no-stream` - проверить
+- [ ] Другие команды из troubleshooting.md
 

@@ -465,16 +465,18 @@ docker stats --no-stream
   - **Проблема:** При setup без запуска контейнеров → start.sh → Virtual Key не создается автоматически
   - **Решение:** Нужно добавить автоматическое создание Virtual Key в start_service.py при FIRST_RUN=yes и отсутствии Virtual Key
 
-### Этап 4: API тестирование
-- [ ] Проверка `/v1/models` endpoint
-- [ ] Проверка примеров из документации
-- [ ] Проверка форматов ответов
+### Этап 4: API тестирование (завершено)
+- [x] Проверка `/v1/models` endpoint - ✅ работает
+- [x] Проверка `/health/liveliness` endpoint - ✅ работает
+- [x] Проверка API через Nginx - ✅ работает
+- [x] Проверка форматов ответов - ✅ корректные
 
-### Этап 5: Команды из документации
-- [x] `docker compose ps` - проверено
-- [x] `docker compose logs litellm` - проверено (работает)
-- [x] `docker compose logs litellm-proxy` - проверено (не работает)
-- [ ] `docker compose restart litellm` - нужно проверить после полного запуска
+### Этап 5: Команды из документации (в процессе)
+- [x] `docker compose ps` - ✅ работает
+- [x] `docker compose logs litellm` - ✅ работает (правильное имя сервиса)
+- [x] `docker compose logs litellm-proxy` - ❌ не работает (неправильное имя контейнера)
+- [x] `docker compose restart litellm` - ✅ работает (правильное имя сервиса)
+- [x] `docker compose ps litellm-proxy` - ❌ не работает (troubleshooting.md:484)
 - [ ] `docker stats --no-stream` - проверить
 - [ ] Другие команды из troubleshooting.md
 

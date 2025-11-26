@@ -11,7 +11,7 @@ The systemd service is **optionally installed during setup**:
    - If you answer "yes", service is installed automatically
    - Service file is copied to `~/.config/systemd/user/ai-gateway.service`
 
-2. **During `./setup_user.sh` (system user installation):**
+2. **During `./user.sh` (system user installation):**
    - Service is automatically installed
    - Detects rootless Docker vs regular Docker
    - Uses appropriate service type (user service or system service)

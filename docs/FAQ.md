@@ -538,7 +538,7 @@ docker cp litellm-proxy:/tmp/openapi.json ./openapi.json
 
 4. **Check logs:**
    ```bash
-   docker compose logs litellm-proxy | grep -i error
+   docker compose logs litellm | grep -i error
    ```
 
 **Related:** [Troubleshooting - Models](troubleshooting.md#models-dont-appear-in-open-webui)

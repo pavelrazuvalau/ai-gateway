@@ -19,6 +19,7 @@ API ключи НИКОГДА не должны:
    AZURE_API_KEY=your-azure-key-here
    AZURE_API_BASE=your-azure-endpoint-here
    AZURE_API_VERSION=2024-02-15-preview
+   TAVILY_API_KEY=your-tavily-key-here
    EOF"
    ```
 
@@ -35,6 +36,7 @@ API ключи НИКОГДА не должны:
    cat > /tmp/keys_local.txt << 'EOF'
    ANTHROPIC_API_KEY=your-key
    AZURE_API_KEY=your-key
+   TAVILY_API_KEY=your-tavily-key
    EOF
    ```
 

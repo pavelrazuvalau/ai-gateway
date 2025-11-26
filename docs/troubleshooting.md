@@ -441,7 +441,7 @@ When making API requests, you may encounter HTTP error codes. Here's what they m
 **Solutions:**
 1. **Check LiteLLM logs:**
    ```bash
-   docker compose logs litellm-proxy | tail -50
+   docker compose logs litellm | tail -50
    ```
 
 2. **Check database:**
@@ -481,8 +481,8 @@ When making API requests, you may encounter HTTP error codes. Here's what they m
 **Solutions:**
 1. **Check LiteLLM container:**
    ```bash
-   docker compose ps litellm-proxy
-   docker compose logs litellm-proxy | tail -50
+   docker compose ps litellm
+   docker compose logs litellm | tail -50
    ```
 
 2. **Check health:**

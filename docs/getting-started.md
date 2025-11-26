@@ -584,7 +584,7 @@ docker compose ps
 docker compose logs -f
 
 # View logs for specific service
-docker compose logs -f litellm-proxy
+docker compose logs -f litellm
 docker compose logs -f open-webui
 ```
 
@@ -687,7 +687,7 @@ pip3 --version
 **API calls failing:**
 - Verify Virtual Key is correct
 - Check API endpoint URL
-- View LiteLLM logs: `docker compose logs litellm-proxy`
+- View LiteLLM logs: `docker compose logs litellm`
 
 For more troubleshooting help, see [Troubleshooting Guide](troubleshooting.md)
 

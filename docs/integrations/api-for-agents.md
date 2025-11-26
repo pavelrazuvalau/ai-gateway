@@ -711,7 +711,7 @@ docker compose logs
 
 **Virtual Key creation fails:**
 - Wait 45+ seconds after container start (LiteLLM needs time to initialize)
-- Check LiteLLM logs: `docker compose logs litellm-proxy`
+- Check LiteLLM logs: `docker compose logs litellm`
 - Create manually via LiteLLM Admin UI: http://localhost:4000/ui
 
 ## Getting OpenAPI Specification
@@ -920,7 +920,7 @@ for line in response.iter_lines():
 - Ensure firewall allows connections
 
 **Timeout errors:**
-- Check LiteLLM logs: `docker compose logs litellm-proxy`
+- Check LiteLLM logs: `docker compose logs litellm`
 - Verify provider API keys are valid
 - Check network connectivity
 

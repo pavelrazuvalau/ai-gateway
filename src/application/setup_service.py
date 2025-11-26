@@ -587,7 +587,7 @@ class SetupService:
                 preserve_first_run=True,  # Preserve FIRST_RUN flag in update mode
             )
             
-            # If Tavily API key was provided, add it to .env
+            # If Tavily API key was provided, add it to .env (for both new setup and update mode)
             if "TAVILY_API_KEY" in existing_env:
                 env_file = self.project_root / ".env"
                 if env_file.exists():
@@ -605,11 +605,20 @@ class SetupService:
                     
                     if not key_added:
                         # Find the line with WEB_SEARCH_ENGINE and add after it
+                        web_search_found = False
                         for i, line in enumerate(new_lines):
                             if line.startswith("WEB_SEARCH_ENGINE="):
                                 new_lines.insert(i + 1, f"TAVILY_API_KEY={existing_env['TAVILY_API_KEY']}")
                                 key_added = True
+                                web_search_found = True
                                 break
+                        
+                        # If WEB_SEARCH_ENGINE not found, add at the end of file
+                        if not web_search_found:
+                            new_lines.append("")
+                            new_lines.append("# Tavily API Key for web search")
+                            new_lines.append(f"TAVILY_API_KEY={existing_env['TAVILY_API_KEY']}")
+                            key_added = True
                     
                     if key_added:
                         env_file.write_text('\n'.join(new_lines), encoding="utf-8")

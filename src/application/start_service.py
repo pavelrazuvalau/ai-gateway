@@ -1,5 +1,7 @@
 """
-Start service for AI Gateway containers
+Start service for AI Gateway containers.
+
+See docs/getting-started.md#step-2-start-the-system for detailed information.
 """
 
 from pathlib import Path
@@ -12,7 +14,11 @@ logger = get_logger(__name__)
 
 
 class StartService:
-    """Service for starting Docker containers with health check waiting"""
+    """
+    Service for starting Docker containers with health check waiting.
+    
+    See docs/getting-started.md#step-2-start-the-system for details.
+    """
     
     def __init__(self, project_root: Path):
         """
@@ -43,7 +49,9 @@ class StartService:
     
     def start_containers(self, wait_for_healthy: bool = True) -> bool:
         """
-        Start Docker containers and wait for them to become healthy
+        Start Docker containers and wait for them to become healthy.
+        
+        See docs/troubleshooting.md#containers-wont-start for troubleshooting.
         
         Args:
             wait_for_healthy: Whether to wait for containers to become healthy
@@ -74,10 +82,11 @@ class StartService:
                     self.utils.print_info("To create Virtual Key:")
                     import sys
                     if sys.platform == "win32":
-                        self.utils.print_info("   python virtual-key.py")
+                        self.utils.print_info("   virtual-key.bat")
+                        self.utils.print_info("   # Or: python -m src.virtual_key")
                     else:
-                        self.utils.print_info("   python3 virtual-key.py")
-                        self.utils.print_info("   # Or: ./virtual-key.sh")
+                        self.utils.print_info("   ./virtual-key.sh")
+                        self.utils.print_info("   # Or: python3 -m src.virtual_key")
                     print()
                     self.utils.print_info("After creating Virtual Key, it will be saved to .env automatically")
                     print()
@@ -406,10 +415,10 @@ class StartService:
                     print()
                 else:
                     print(f"  • LiteLLM API: {api_url}")
-                    print(f"    API Key: Use Master Key or run ./virtual-key.py to create Virtual Key")
+                    print(f"    API Key: Use Master Key or run ./virtual-key.sh to create Virtual Key")
                     print()
                     self.utils.print_warning("⚠️  Virtual Key not configured - Open WebUI uses Master Key")
-                    self.utils.print_info("   Run ./virtual-key.py to create Virtual Key for better security")
+                    self.utils.print_info("   Run ./virtual-key.sh to create Virtual Key for better security")
                     print()
                 
                 if litellm_external_port:
@@ -438,7 +447,11 @@ class StartService:
             logger.warning(f"Error reading access info: {e}")
     
     def show_first_run_instructions(self) -> None:
-        """Show Virtual Key setup instructions on first run and optionally run setup script"""
+        """
+        Show Virtual Key setup instructions on first run and optionally run setup script.
+        
+        See docs/getting-started.md#step-31-create-virtual-key-required for details.
+        """
         try:
             env_vars = self.utils.read_env_file(self.project_root / ".env")
             first_run = env_vars.get("FIRST_RUN", "no").lower() in ("yes", "true", "1")
@@ -472,11 +485,11 @@ class StartService:
                     self.utils.print_info("You can run the setup script later:")
                     import sys
                     if sys.platform == "win32":
-                        self.utils.print_info("   python virtual-key.py")
-                        self.utils.print_info("   # Or: virtual-key.bat")
+                        self.utils.print_info("   virtual-key.bat")
+                        self.utils.print_info("   # Or: python -m src.virtual_key")
                     else:
-                        self.utils.print_info("   python3 virtual-key.py")
-                        self.utils.print_info("   # Or: ./virtual-key.sh")
+                        self.utils.print_info("   ./virtual-key.sh")
+                        self.utils.print_info("   # Or: python3 -m src.virtual_key")
                     print()
                     return
                 
@@ -488,29 +501,12 @@ class StartService:
                 import subprocess
                 import sys
                 
-                # Try to run the universal Python script
-                setup_script = self.project_root / "virtual-key.py"
-                if setup_script.exists():
-                    # Run as script
-                    if sys.platform == "win32":
-                        result = subprocess.run(
-                            [sys.executable, str(setup_script)],
-                            cwd=str(self.project_root),
-                            check=False
-                        )
-                    else:
-                        result = subprocess.run(
-                            [sys.executable, str(setup_script)],
-                            cwd=str(self.project_root),
-                            check=False
-                        )
-                else:
-                    # Fallback to module import
-                    result = subprocess.run(
-                        [sys.executable, "-m", "src.virtual_key"],
-                        cwd=str(self.project_root),
-                        check=False
-                    )
+                # Run the Python module
+                result = subprocess.run(
+                    [sys.executable, "-m", "src.virtual_key"],
+                    cwd=str(self.project_root),
+                    check=False
+                )
                 
                 if result.returncode == 0:
                     print()
@@ -526,9 +522,11 @@ class StartService:
                     self.utils.print_warning("⚠️  Setup script exited with errors")
                     self.utils.print_info("You can run it manually later:")
                     if sys.platform == "win32":
-                        self.utils.print_info("   python virtual-key.py")
+                        self.utils.print_info("   virtual-key.bat")
+                        self.utils.print_info("   # Or: python -m src.virtual_key")
                     else:
-                        self.utils.print_info("   python3 virtual-key.py")
+                        self.utils.print_info("   ./virtual-key.sh")
+                        self.utils.print_info("   # Or: python3 -m src.virtual_key")
                     print()
                     
             except KeyboardInterrupt:
@@ -541,9 +539,11 @@ class StartService:
                 self.utils.print_info("You can run it manually:")
                 import sys
                 if sys.platform == "win32":
-                    self.utils.print_info("   python virtual-key.py")
+                    self.utils.print_info("   virtual-key.bat")
+                    self.utils.print_info("   # Or: python -m src.virtual_key")
                 else:
-                    self.utils.print_info("   python3 virtual-key.py")
+                    self.utils.print_info("   ./virtual-key.sh")
+                    self.utils.print_info("   # Or: python3 -m src.virtual_key")
                 print()
             
         except Exception as e:
@@ -551,7 +551,9 @@ class StartService:
     
     def check_models_and_suggest_continue_dev(self) -> None:
         """
-        Check if models are available via Virtual Key and suggest Continue.dev setup
+        Check if models are available via Virtual Key and suggest Continue.dev setup.
+        
+        See docs/integrations/continue-dev.md for Continue.dev integration details.
         """
         try:
             from .continue_dev_service import ContinueDevService

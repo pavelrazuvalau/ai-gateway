@@ -1,6 +1,9 @@
 """
-System dependency checks and validation
-Cross-platform support for Linux, macOS, Windows
+System dependency checks and validation.
+
+Cross-platform support for Linux, macOS, Windows.
+
+See docs/getting-started.md#if-dependencies-are-missing for dependency installation.
 """
 
 import subprocess

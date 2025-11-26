@@ -1,5 +1,8 @@
 """
-Docker operations abstraction
+Docker operations abstraction.
+
+See docs/troubleshooting.md#containers-wont-start for troubleshooting.
+See docs/getting-started.md#step-2-start-the-system for startup details.
 """
 
 import subprocess

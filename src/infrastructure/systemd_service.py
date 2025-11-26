@@ -1,5 +1,7 @@
 """
-Systemd service installation and management
+Systemd service installation and management.
+
+See docs/administration/systemd.md for detailed information.
 """
 
 import subprocess
@@ -11,7 +13,12 @@ logger = get_logger(__name__)
 
 
 class SystemdService:
-    """Manages systemd user service for AI Gateway"""
+    """
+    Manages systemd user service for AI Gateway.
+    
+    See docs/administration/systemd.md#installation for installation details.
+    See docs/administration/systemd.md#basic-commands for service management.
+    """
     
     SERVICE_NAME = "ai-gateway.service"
     

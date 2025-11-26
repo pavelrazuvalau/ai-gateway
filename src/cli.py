@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-AI Gateway CLI - Unified entry point for all commands
+AI Gateway CLI - Unified entry point for all commands.
+
 Usage:
     ./ai-gateway setup     # Run setup (recommended)
     ./ai-gateway start     # Start containers
@@ -10,6 +11,8 @@ Usage:
     
 Alternative (for advanced users):
     python3 -m src [command]  # Direct module access
+
+See docs/getting-started.md for detailed information.
 """
 
 import sys
@@ -34,7 +37,11 @@ def get_script_path(script_name: str) -> Path:
 
 
 def run_setup() -> int:
-    """Run setup command"""
+    """
+    Run setup command.
+    
+    See docs/getting-started.md#step-1-run-setup-script for details.
+    """
     from src.application.setup_service import SetupService
     
     try:
@@ -52,7 +59,11 @@ def run_setup() -> int:
 
 
 def run_start() -> int:
-    """Run start command"""
+    """
+    Run start command.
+    
+    See docs/getting-started.md#step-2-start-the-system for details.
+    """
     from src.application.start_service import StartService
     
     try:
@@ -115,7 +126,11 @@ def run_stop() -> int:
 
 
 def run_continue_dev() -> int:
-    """Run Continue.dev configuration command"""
+    """
+    Run Continue.dev configuration command.
+    
+    See docs/integrations/continue-dev.md for details.
+    """
     from src.application.continue_dev_service import ContinueDevService
     
     try:

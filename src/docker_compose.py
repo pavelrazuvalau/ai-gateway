@@ -7,48 +7,22 @@ from .config import ResourceProfile
 from .utils import print_success, set_file_permissions
 
 
-# Worker recommendations calculated to fit within specified RAM limits
-# NOTE: These estimates are based on REAL measurements from production deployments.
-# To check real memory usage after deployment, run:
-#   docker stats --no-stream
-# 
-# Memory estimates based on REAL measurements (2025-11-24):
-#   - LiteLLM base: ~300-320MB (main process, dependencies)
-#   - LiteLLM worker: ~460MB each (measured: 2 workers = 1.177 GiB total, avg 460MB per worker)
-#   - PostgreSQL 16: ~20-60MB (idle, can grow with usage)
-#   - Open WebUI: ~600MB (Python web app with dependencies)
-#   - Nginx Alpine: ~5MB (very lightweight)
-#   - Docker overhead: ~200MB (container runtime)
-#   - OS/system overhead: ~1.2GB (varies by Linux distribution and system services)
-# 
-# IMPORTANT: Real worker memory usage is 2-3x higher than Gunicorn docs suggest.
-# This is due to LiteLLM's model loading, caching, and Python 3.13 overhead.
-# Monitor actual usage and adjust if needed.
-# If OOM errors occur, reduce workers or upgrade to larger VPS.
-# Web Search configuration profiles based on resource constraints
-# Optimized for API-based providers that return extracted content (no Playwright)
-# Based on real measurements and analysis (2025-11-26)
+# Worker recommendations and web search profiles
+# See docs/system-requirements.md for detailed memory usage metrics and resource profiles
 WEB_SEARCH_PROFILES = {
     ResourceProfile.SMALL_VPS: {
-        # Small VPS: 2GB RAM, 2 CPU - very limited resources
-        # Total usage: ~2.3-2.5GB (exceeds 2GB, tight)
-        # Optimized for multi-user: prevents one user from blocking others
+        # See docs/system-requirements.md#small-vps-2gb-ram-2-cpu-cores for details
         "web_search_concurrent_requests": 1,
         "web_search_result_count": 1,
     },
     ResourceProfile.MEDIUM_VPS: {
-        # Medium VPS: 4GB RAM, 4 CPU - optimized for multi-user environment
-        # Total usage: ~3.3GB, leaves ~700MB buffer
-        # CRITICAL: One web search can use 80%+ CPU for 12-15 seconds
-        # To prevent one user from blocking others, we limit concurrency
+        # See docs/system-requirements.md#medium-vps-4gb-ram-4-cpu-cores for details
+        # Note: Web search limited to prevent CPU blocking (one request can use 80%+ CPU)
         "web_search_concurrent_requests": 1,
         "web_search_result_count": 1,
     },
     ResourceProfile.LARGE_VPS: {
-        # Large VPS: 8GB+ RAM, 8 CPU - optimized for multi-user environment
-        # Total usage: ~5.1GB, leaves ~3GB buffer
-        # Real measurements: 3 concurrent requests can use 80%+ CPU
-        # Optimized to prevent one user from blocking others
+        # See docs/system-requirements.md#large-vps-8gb-ram-8-cpu-cores for details
         "web_search_concurrent_requests": 2,
         "web_search_result_count": 3,
     },
@@ -63,15 +37,8 @@ PROFILE_TEMPLATES = {
     ResourceProfile.DESKTOP: {
         "postgres": {},
         "litellm": {
-            # Desktop: unlimited resources, can use more workers
-            # Calculation based on REAL measurements (2025-11-24):
-            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
-            #   LiteLLM: 4 workers × 460MB (real avg) + base 320MB = ~2160MB
-            #   Total containers: ~3.0GB
-            #   OS/system overhead: ~1.2GB (typical Linux)
-            #   Total: ~4.2GB - safe for 8GB+ systems
-            # NOTE: Based on real measurements from production deployment
-            # 6 workers would use ~3080MB for LiteLLM alone (total ~5.1GB)
+            # Desktop profile: 4 workers for unlimited resources
+            # See docs/system-requirements.md for memory usage details
             "num_workers": 4,
         },
         "open_webui": {},
@@ -79,19 +46,9 @@ PROFILE_TEMPLATES = {
     ResourceProfile.SMALL_VPS: {
         "postgres": {},
         "litellm": {
-            # Small VPS: 2GB RAM total
-            # Calculation based on REAL measurements (2025-11-24):
-            #   Base services: PostgreSQL (~27MB) + Open WebUI (~603MB) + Nginx (~6MB) = ~636MB
-            #   LiteLLM: 1 worker × 460MB (real avg) + base 320MB = ~780MB (measured: 426.5MB in container)
-            #   Total containers (idle): ~1.063 GiB (measured)
-            #   Total containers (with request buffer): ~1.3 GiB
-            #   OS/system overhead: ~1.2GB (typical Linux) or ~0.7GB (lightweight distro)
-            #   Total (typical Linux, with buffer): ~2.5GB (exceeds 2GB by 25%) ⚠️
-            #   Total (lightweight distro, with buffer): ~2.0GB (fits in 2GB, tight) ⚠️
-            # WARNING: 2GB RAM is TIGHT for this profile. Actual usage is ~2.3-2.5GB on typical Linux.
-            # Consider upgrading to Medium VPS (4GB) for better performance and safety.
-            # Medium VPS uses 2 workers for better concurrency and fits comfortably in 4GB.
-            # Lightweight Linux distributions (Alpine, Debian minimal) can reduce system overhead.
+            # Small VPS: 1 worker (2GB RAM is tight, actual usage ~2.3-2.5GB)
+            # See docs/system-requirements.md#small-vps-2gb-ram-2-cpu-cores for details
+            # Consider lightweight Linux distro or upgrade to Medium VPS (4GB)
             "num_workers": 1,
         },
         "open_webui": {},
@@ -99,16 +56,8 @@ PROFILE_TEMPLATES = {
     ResourceProfile.MEDIUM_VPS: {
         "postgres": {},
         "litellm": {
-            # Medium VPS: 4GB RAM total
-            # Calculation based on REAL measurements (2025-11-24):
-            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
-            #   LiteLLM: 2 workers × 460MB (real avg) + base 320MB = ~1240MB
-            #   Total containers: ~2.1GB
-            #   OS/system overhead: ~1.2GB (typical Linux)
-            #   Total: ~3.3GB, leaves ~700MB buffer - safe
-            # NOTE: Based on real measurements from production deployment
-            # 3 workers would use ~1700MB for LiteLLM alone, leaving only ~200MB buffer (too tight)
-            # Monitor with: docker stats
+            # Medium VPS: 2 workers (uses ~3.3GB, leaves ~700MB buffer)
+            # See docs/system-requirements.md#medium-vps-4gb-ram-4-cpu-cores for details
             "num_workers": 2,
         },
         "open_webui": {},
@@ -116,16 +65,8 @@ PROFILE_TEMPLATES = {
     ResourceProfile.LARGE_VPS: {
         "postgres": {},
         "litellm": {
-            # Large VPS: 8GB+ RAM total
-            # Calculation based on REAL measurements (2025-11-24):
-            #   Base services: PostgreSQL (~48MB) + Open WebUI (~602MB) + Nginx (~6MB) + Docker (~200MB) = ~856MB
-            #   LiteLLM: 6 workers × 460MB (real avg) + base 320MB = ~3080MB
-            #   Total containers: ~3.9GB
-            #   OS/system overhead: ~1.2GB (typical Linux)
-            #   Total: ~5.1GB, leaves ~3GB buffer for 8GB system - very safe
-            # NOTE: Based on real measurements from production deployment
-            # 8 workers would use ~4000MB for LiteLLM alone (total ~6.1GB), leaving less buffer
-            # Monitor with: docker stats
+            # Large VPS: 6 workers (uses ~5.1GB, leaves ~3GB buffer for 8GB system)
+            # See docs/system-requirements.md#large-vps-8gb-ram-8-cpu-cores for details
             "num_workers": 6,
         },
         "open_webui": {},
@@ -166,12 +107,10 @@ def generate_docker_compose_override(
     # No optimizations needed - using defaults like official config
     
     # LiteLLM
-    # Use configured port from port_config (respects LITELLM_INTERNAL_PORT from .env)
-    # When nginx is used, we still need to use the configured port so nginx can connect
+    # Use configured port from port_config
     litellm_internal_port = port_config.get("litellm_internal_port", 4000)
     
-    # Get num_workers from profile template (if profile is None, don't configure workers)
-    # Based on Gunicorn formula: (CPU cores * 2) + 1, adjusted for I/O-bound workload
+    # Get num_workers from profile template (see docs/system-requirements.md for worker calculations)
     if profile is not None and "litellm" in template and "num_workers" in template["litellm"]:
         num_workers = str(template["litellm"]["num_workers"])
         # Override command to set workers and port
@@ -179,7 +118,7 @@ def generate_docker_compose_override(
             "command": f"--config /app/config.yaml --host 0.0.0.0 --port {litellm_internal_port} --num_workers {num_workers} --detailed_debug",
         }
     elif litellm_internal_port != 4000:
-        # Only override command if port is not standard (even without workers config)
+        # Only override command if port is not standard
         override["services"]["litellm"] = {
             "command": f"--config /app/config.yaml --host 0.0.0.0 --port {litellm_internal_port} --detailed_debug",
         }
@@ -224,36 +163,22 @@ def generate_docker_compose_override(
     override["services"]["open-webui"] = {
         "environment": [
             f"DEFAULT_MODELS={default_models_str}",
-            # Default setup ships WITHOUT Playwright/web loader. We rely on API providers
-            # that return full content (Tavily, Google PSE, etc.).
-            # Keep BYPASS_WEB_SEARCH_WEB_LOADER=true to avoid invoking non-existent loader.
+            # Web search config (profile-optimized, see docs/configuration.md)
             "BYPASS_WEB_SEARCH_WEB_LOADER=${BYPASS_WEB_SEARCH_WEB_LOADER:-true}",
-            # Web Search configuration (automatically optimized based on resource profile)
-            # Default: tavily (recommended for low CPU usage, requires API key)
             "WEB_SEARCH_ENGINE=${WEB_SEARCH_ENGINE:-tavily}",
-            # Concurrent requests for web search (profile-specific, can be overridden via .env)
             f"WEB_SEARCH_CONCURRENT_REQUESTS=${{WEB_SEARCH_CONCURRENT_REQUESTS:-{web_search_config['web_search_concurrent_requests']}}}",
-            # Number of search results to fetch (profile-specific, can be overridden via .env)
             f"WEB_SEARCH_RESULT_COUNT=${{WEB_SEARCH_RESULT_COUNT:-{web_search_config['web_search_result_count']}}}",
         ],
     }
     
-    # Open WebUI accesses LiteLLM directly (not through nginx)
-    # According to LiteLLM docs: https://docs.litellm.ai/docs/tutorials/openweb_ui
-    # Open WebUI should connect directly to LiteLLM Proxy
-    # External clients access LiteLLM through nginx at /api/litellm/v1
-    # LiteLLM UI is available on separate port {litellm_external_port}
-    # Open WebUI uses Virtual Key (not Master Key) for security
+    # Open WebUI connects directly to LiteLLM (see docs/configuration.md for architecture)
     if port_config.get("use_nginx"):
         # Open WebUI connects directly to LiteLLM (inside Docker network)
-        # This is the correct way according to LiteLLM documentation
         litellm_internal_port = port_config.get('litellm_internal_port', 4000)
         override["services"]["open-webui"]["environment"].extend([
             f"OPENAI_API_BASE_URL=http://litellm:{litellm_internal_port}/v1",
             f"WEBUI_API_BASE_URL=http://litellm:{litellm_internal_port}/v1",
-            # Use Virtual Key instead of Master Key for security
-            # Virtual Key is created via virtual-key.py and stored in .env
-            # Falls back to Master Key if Virtual Key not set (for first run)
+            # Virtual Key preferred over Master Key (see docs/configuration/virtual-key.md)
             "OPENAI_API_KEY=${VIRTUAL_KEY:-${LITELLM_MASTER_KEY}}",
         ])
     else:
@@ -262,8 +187,7 @@ def generate_docker_compose_override(
         override["services"]["open-webui"]["environment"].extend([
             f"OPENAI_API_BASE_URL=http://litellm:{litellm_internal_port}/v1",
             f"WEBUI_API_BASE_URL=http://litellm:{litellm_internal_port}/v1",
-            # Use Virtual Key instead of Master Key for security
-            # Falls back to Master Key if Virtual Key not set (for first run)
+            # Virtual Key preferred over Master Key (see docs/configuration/virtual-key.md)
             "OPENAI_API_KEY=${VIRTUAL_KEY:-${LITELLM_MASTER_KEY}}",
         ])
     
@@ -289,12 +213,9 @@ def generate_docker_compose_override(
                 "resources": deploy_config
             }
     
-    # LiteLLM ports
-    # With nginx: LiteLLM API available through nginx at /api/litellm/
-    # LiteLLM UI needs separate external port for local network access (configuration)
-    # Without nginx: expose LiteLLM on external port
+    # LiteLLM ports (see docs/configuration.md for port configuration details)
     if port_config.get("use_nginx"):
-        # Map external port for LiteLLM UI (for local network access)
+        # Map external port for LiteLLM UI
         litellm_external_port = port_config.get('litellm_external_port')
         if litellm_external_port:
             litellm_internal_port = port_config.get('litellm_internal_port', 4000)
@@ -319,8 +240,7 @@ def generate_docker_compose_override(
         override["services"]["nginx"] = {"ports": []}
         nginx_ports = []
         
-        # Use nginx_http_port from port_config (HTTP only, no SSL)
-        # Always use random high port for rootless Docker compatibility
+        # Use nginx_http_port from port_config (HTTP only, see docs/nginx/README.md for SSL)
         nginx_http_port = port_config.get('nginx_http_port')
         if not nginx_http_port:
             # Fallback: should not happen, but safety check

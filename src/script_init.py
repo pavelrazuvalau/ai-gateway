@@ -1,6 +1,10 @@
 """
-Common initialization module for all scripts
-Provides consistency in checks and headers
+Common initialization module for all scripts.
+
+Provides consistency in checks and headers.
+
+See docs/getting-started.md for general information.
+See docs/getting-started.md#if-dependencies-are-missing for dependency checks.
 """
 
 import os
@@ -66,7 +70,11 @@ class ScriptInit:
             print()
     
     def check_python(self, min_version: Tuple[int, int] = (3, 8)) -> bool:
-        """Check Python availability and version"""
+        """
+        Check Python availability and version.
+        
+        See docs/getting-started.md#if-dependencies-are-missing for dependency installation.
+        """
         try:
             version = sys.version_info
             if version.major < min_version[0] or (version.major == min_version[0] and version.minor < min_version[1]):
@@ -88,7 +96,11 @@ class ScriptInit:
             return False
     
     def check_docker(self) -> bool:
-        """Check Docker availability"""
+        """
+        Check Docker availability.
+        
+        See docs/getting-started.md#if-dependencies-are-missing for dependency installation.
+        """
         try:
             result = subprocess.run(
                 ["docker", "--version"],

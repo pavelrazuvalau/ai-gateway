@@ -1308,7 +1308,7 @@ if [ "$NEED_SETUP" = "true" ]; then
         find "$APP_DIR" -type f -name "*.sh" -exec chmod 755 {} \;
         find "$APP_DIR" -type f -name "*.py" -exec chmod 755 {} \;
         [ -f "$APP_DIR/.env" ] && chmod 600 "$APP_DIR/.env"
-        [ -f "$APP_DIR/config.yaml" ] && chmod 600 "$APP_DIR/config.yaml"
+        [ -f "$APP_DIR/config.yaml" ] && chmod 644 "$APP_DIR/config.yaml"
         
         echo -e "${GREEN}✅ Files updated${NC}"
     fi
@@ -1361,14 +1361,15 @@ find "$APP_DIR" -type f -name "*.py" -exec chmod 755 {} \;
 # Config files: 644 (readable)
 find "$APP_DIR" -type f \( -name "*.yml" -o -name "*.yaml" -o -name "*.md" -o -name "*.txt" -o -name "*.example" \) -exec chmod 644 {} \;
 
-# .env and config.yaml: 600 (readable/writable only by owner)
+# .env: 600 (readable/writable only by owner - contains sensitive data)
 if [ -f "$APP_DIR/.env" ]; then
     chmod 600 "$APP_DIR/.env"
     echo -e "${GREEN}✅ .env set to 600 (secure)${NC}"
 fi
+# config.yaml: 644 (readable by owner and group - as per CHANGELOG)
 if [ -f "$APP_DIR/config.yaml" ]; then
-    chmod 600 "$APP_DIR/config.yaml"
-    echo -e "${GREEN}✅ config.yaml set to 600 (secure)${NC}"
+    chmod 644 "$APP_DIR/config.yaml"
+    echo -e "${GREEN}✅ config.yaml set to 644${NC}"
 fi
 
 echo -e "${GREEN}✅ Permissions set${NC}"

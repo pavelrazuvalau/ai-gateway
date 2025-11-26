@@ -1,6 +1,9 @@
 """
-Script for creating LiteLLM Virtual Key and configuring Open WebUI
-This script helps with initial setup after first login to Open WebUI
+Script for creating LiteLLM Virtual Key and configuring Open WebUI.
+
+This script helps with initial setup after first login to Open WebUI.
+
+See docs/configuration/virtual-key.md for detailed information.
 """
 
 import os
@@ -24,7 +27,9 @@ def create_virtual_key_via_api(
     key_name: str = "Open WebUI Key"
 ) -> Optional[str]:
     """
-    Create a Virtual Key in LiteLLM via API
+    Create a Virtual Key in LiteLLM via API.
+    
+    See docs/configuration/virtual-key.md#automatic-creation-recommended for details.
     
     Args:
         litellm_url: LiteLLM base URL (e.g., http://localhost:4000)
@@ -168,10 +173,12 @@ def configure_openwebui_connection(
     check_models: bool = True
 ) -> None:
     """
-    Configure Open WebUI connection to LiteLLM
+    Configure Open WebUI connection to LiteLLM.
     
-    Note: Open WebUI configuration is typically done through UI
-    This function provides instructions
+    Note: Open WebUI configuration is typically done through UI.
+    This function provides instructions.
+    
+    See docs/configuration/virtual-key.md#open-webui-configuration for details.
     
     Args:
         virtual_key: Virtual Key from LiteLLM
@@ -248,8 +255,11 @@ def configure_openwebui_connection(
 
 def run_inside_docker_container(project_root: Path, master_key: str) -> Optional[str]:
     """
-    Try to run Virtual Key creation inside Docker container
-    This avoids port issues by using Docker network directly
+    Try to run Virtual Key creation inside Docker container.
+    
+    This avoids port issues by using Docker network directly.
+    
+    See docs/configuration/virtual-key.md#automatic-creation-recommended for details.
     
     Args:
         project_root: Project root directory
@@ -369,7 +379,9 @@ except Exception as e:
 
 def setup_virtual_key_interactive() -> Optional[str]:
     """
-    Interactive setup for Virtual Key creation and Open WebUI configuration
+    Interactive setup for Virtual Key creation and Open WebUI configuration.
+    
+    See docs/configuration/virtual-key.md#automatic-creation-recommended for details.
     """
     print_header("🔑 LiteLLM Virtual Key Setup")
     print()
@@ -526,7 +538,7 @@ def main() -> int:
                     for i, line in enumerate(new_lines):
                         if line.startswith("FIRST_RUN="):
                             new_lines.insert(i + 1, "")
-                            new_lines.insert(i + 2, "# Virtual Key for Open WebUI (created via virtual-key.py)")
+                            new_lines.insert(i + 2, "# Virtual Key for Open WebUI (created via virtual-key.sh/virtual-key.bat)")
                             new_lines.insert(i + 3, f"VIRTUAL_KEY={virtual_key}")
                             added = True
                             break
@@ -534,7 +546,7 @@ def main() -> int:
                     if not added:
                         # If FIRST_RUN not found, append at end
                         new_lines.append("")
-                        new_lines.append("# Virtual Key for Open WebUI (created via virtual-key.py)")
+                        new_lines.append("# Virtual Key for Open WebUI (created via virtual-key.sh/virtual-key.bat)")
                         new_lines.append(f"VIRTUAL_KEY={virtual_key}")
                     
                     content = '\n'.join(new_lines)

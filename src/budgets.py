@@ -1,5 +1,7 @@
 """
-Budget profiles for different environments (test/prod)
+Budget profiles for different environments (test/prod).
+
+See docs/configuration.md#budget-profiles for budget profile details.
 """
 
 from typing import Dict, Any

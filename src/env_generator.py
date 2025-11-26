@@ -1,6 +1,10 @@
 """
-Environment file (.env) generation
-DEPRECATED: Use infrastructure.security.SecurityService for password generation
+Environment file (.env) generation.
+
+DEPRECATED: Use infrastructure.security.SecurityService for password generation.
+
+See docs/getting-started.md#generated-files for information about generated files.
+See docs/security.md#virtual-key-security for master key generation details.
 """
 
 import os
@@ -64,7 +68,9 @@ def generate_env_file(
     preserve_first_run: bool = False,
 ) -> None:
     """
-    Generate .env file with all configuration
+    Generate .env file with all configuration.
+    
+    See docs/getting-started.md#generated-files for details about .env file.
     
     Args:
         master_key: LiteLLM master key (should start with 'sk-')
@@ -199,7 +205,7 @@ def generate_env_file(
         env_content.append("# First run flag (set to 'no' after Virtual Key setup)")
         env_content.append("FIRST_RUN=yes")
         env_content.append("")
-        env_content.append("# Virtual Key for Open WebUI (REQUIRED - created via virtual-key.py)")
+        env_content.append("# Virtual Key for Open WebUI (REQUIRED - created via virtual-key.sh/virtual-key.bat)")
         env_content.append("# System will not start without Virtual Key")
         env_content.append("VIRTUAL_KEY=")
     env_content.append("")

@@ -35,7 +35,7 @@ RESOURCE_PROFILES = {
         "ram": "2GB",
         "workers": "1",
         "recommended_for": "1-2 users, occasional use",
-        "note": "1 worker - WARNING: Actual usage is ~2.3-2.5GB (exceeds 2GB by 15-25% on typical Linux, fits with lightweight distro). Consider upgrading to Medium VPS (4GB) for safety. Medium VPS uses 2 workers for better performance. Monitor with: docker stats",
+        "note": "1 worker - WARNING: Actual usage ~2.3-2.5GB (exceeds 2GB). See docs/system-requirements.md#small-vps-2gb-ram-2-cpu-cores",
     },
     ResourceProfile.MEDIUM_VPS: {
         "name": "Medium VPS",

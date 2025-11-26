@@ -1,6 +1,9 @@
 """
-Continue.dev configuration service
-Generates optimized Continue.dev configuration from LiteLLM API
+Continue.dev configuration service.
+
+Generates optimized Continue.dev configuration from LiteLLM API.
+
+See docs/integrations/continue-dev.md for detailed information.
 """
 
 import json
@@ -19,7 +22,11 @@ logger = get_logger(__name__)
 
 
 class ContinueDevService:
-    """Service for generating Continue.dev configuration"""
+    """
+    Service for generating Continue.dev configuration.
+    
+    See docs/integrations/continue-dev.md for details.
+    """
     
     def __init__(self, project_root: Path):
         """

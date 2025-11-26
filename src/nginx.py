@@ -1,5 +1,8 @@
 """
-Nginx configuration generation
+Nginx configuration generation.
+
+See docs/configuration.md#default-configuration-with-nginx---enabled-by-default for nginx configuration.
+See docs/nginx/README.md for detailed nginx setup instructions.
 """
 
 from typing import Dict, Any
@@ -13,6 +16,9 @@ def generate_nginx_config(port_config: Dict[str, Any]) -> None:
     The configs contain native nginx variables (e.g. $scheme) that must stay
     untouched, so we render concrete port numbers directly instead of
     passing the files through envsubst (which would strip those variables).
+    
+    See docs/nginx/README.md for detailed nginx configuration.
+    Note: SSL/HTTPS should be configured via external nginx container.
     """
     if not port_config.get("use_nginx"):
         return
@@ -294,4 +300,6 @@ server {{
     if litellm_external_port:
         print_success(f"LiteLLM UI: Direct access via Docker port {litellm_external_port} (local/VPN network only)")
     print_info("Note: SSL/HTTPS should be configured via your own nginx container")
+    print_info("Example configuration available in: docs/nginx/external-nginx-example.conf")
+    print_info("See docs/nginx/README.md for detailed setup instructions")
 

@@ -284,12 +284,13 @@ find "$APP_DIR" -type f -name "*.bat" -exec chmod 755 {} \;
 find "$APP_DIR" -type f -name "*.py" -exec chmod 755 {} \;
 # Config files: 644
 find "$APP_DIR" -type f \( -name "*.yml" -o -name "*.yaml" -o -name "*.md" -o -name "*.txt" -o -name "*.example" \) -exec chmod 644 {} \;
-# .env and config.yaml: 600
+# .env: 600 (readable/writable only by owner - contains sensitive data)
 if [ -f "$APP_DIR/.env" ]; then
     chmod 600 "$APP_DIR/.env"
 fi
+# config.yaml: 644 (readable by owner and group - as per CHANGELOG)
 if [ -f "$APP_DIR/config.yaml" ]; then
-    chmod 600 "$APP_DIR/config.yaml"
+    chmod 644 "$APP_DIR/config.yaml"
 fi
 echo -e "${GREEN}✅ Permissions set${NC}"
 

@@ -11,10 +11,75 @@ The project uses a layered architecture (Layered Architecture) with clear separa
 - **Docker configuration**: Container orchestration
 
 **Key Principle**: Bash scripts are **wrappers only**. They:
+
 1. Set up Python virtual environment (using `venv.sh`)
 2. Activate virtual environment
 3. Call Python CLI (`./ai-gateway <command>`) which executes Python services
 4. All business logic is in Python modules following layered architecture
+
+## System Architecture Diagram
+
+### Docker Container Architecture
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                         Host System                             │
+│                                                                 │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │              Docker Network (litellm-network)             │  │
+│  │                                                           │  │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │  │
+│  │  │   Nginx      │  │   LiteLLM    │  │  Open WebUI  │     │  │
+│  │  │  (Port 80)   │  │  (Port 4000) │  │  (Port 8080) │     │  │
+│  │  │              │  │              │  │              │     │  │
+│  │  │  Reverse     │  │  API Proxy   │  │  Web UI      │     │  │
+│  │  │  Proxy       │  │  + Admin UI  │  │  Interface   │     │  │
+│  │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘     │  │
+│  │         │                 │                 │             │  │
+│  │         │                 │                 │             │  │
+│  │         └─────────────────┼─────────────────┘             │  │
+│  │                           │                               │  │
+│  │                  ┌────────▼────────┐                      │  │
+│  │                  │   PostgreSQL    │                      │  │
+│  │                  │   (Port 5432)   │                      │  │
+│  │                  │                 │                      │  │
+│  │                  │   Database      │                      │  │
+│  │                  └─────────────────┘                      │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  External Access:                                               │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  http://localhost:PORT/          (Open WebUI via Nginx)   │  │
+│  │  http://localhost:PORT/api/litellm/v1/*  (LiteLLM API)    │  │
+│  │  http://localhost:PORT/ui        (LiteLLM Admin UI)       │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Component Interaction Flow
+
+```text
+┌──────────┐         ┌──────────┐         ┌──────────┐
+│  Client  │────────▶│  Nginx   │───────▶│ LiteLLM  │
+│          │         │          │         │          │
+└──────────┘         └──────────┘         └────┬─────┘
+                                                 │
+                                                 │
+                                    ┌────────────┼────────────┐
+                                    │            │            │
+                                    ▼            ▼            ▼
+                              ┌──────────┐  ┌──────────┐  ┌──────────┐
+                              │Provider  │  │Provider  │  │Provider  │
+                              │(Anthropic)│ │(OpenAI)  │  │(Gemini)  │
+                              └──────────┘  └──────────┘  └──────────┘
+                                    │            │            │
+                                    └────────────┼────────────┘
+                                                 │
+                                                 ▼
+                                          ┌──────────┐
+                                          │Response  │
+                                          └──────────┘
+```
 
 ## Project Structure
 
@@ -269,6 +334,7 @@ To add new functionality:
 ### Example: Adding New Service
 
 1. Create service in `src/application/my_service.py`:
+
    ```python
    class MyService:
        def __init__(self, project_root: Path):
@@ -280,6 +346,7 @@ To add new functionality:
    ```
 
 2. Add CLI command in `src/cli.py`:
+
    ```python
    def run_my_service() -> int:
        from src.application.my_service import MyService
@@ -288,6 +355,7 @@ To add new functionality:
    ```
 
 3. Create bash wrapper `my_service.sh`:
+
    ```bash
    #!/bin/bash
    # Setup venv (use venv.sh)

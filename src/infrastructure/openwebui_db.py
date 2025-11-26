@@ -1,5 +1,7 @@
 """
-OpenWebUI database utilities for updating web search settings from environment variables
+OpenWebUI database utilities for updating web search settings from environment variables.
+
+See docs/configuration.md#web-search-configuration for web search configuration details.
 """
 
 import sqlite3

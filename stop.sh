@@ -14,48 +14,14 @@ else
     AUTO_YES=""
 fi
 
-# Colors (always define, even if module is loaded)
-RED='\033[0;31m'
-GREEN='\033[1;32m'
-YELLOW='\033[1;93m'
-BLUE='\033[1;36m'
-NC='\033[0m'
-
 # Load common initialization module
-if [ -f "src/script_init_bash.sh" ]; then
-    source src/script_init_bash.sh
-else
-    # Fallback if module not found
-    print_banner() {
-        echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-        echo -e "${BLUE}║  $1${NC}"
-        echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
-        echo ""
-    }
+if [ -f "src/script_init.sh" ]; then
+    source src/script_init.sh
 fi
 
-# Check Python before calling Python check module
-if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 is not installed${NC}"
-    echo -e "${YELLOW}Install Python 3.8+ to use unified checks${NC}"
-    echo ""
-    # Fallback to bash checks
-    print_banner "🛑 Stopping AI Gateway"
-    if ! run_standard_checks "stop"; then
-        echo -e "${RED}❌ Dependency check failed${NC}"
-        echo -e "${YELLOW}Fix errors and run script again${NC}"
-        exit 1
-    fi
-else
-    # Initialize script via unified Python module
-    python3 src/check_dependencies.py stop "Stopping AI Gateway" "🛑" 2>&1
-    CHECK_RESULT=$?
-    if [ $CHECK_RESULT -ne 0 ]; then
-        echo ""
-        echo -e "${RED}❌ Dependency check failed${NC}"
-        echo -e "${YELLOW}Fix errors and run script again${NC}"
-        exit 1
-    fi
+# Run dependency checks using unified function
+if ! init_script_with_checks "stop" "Stopping AI Gateway" "🛑"; then
+    exit 1
 fi
 
 # Determine command - use array for safe execution

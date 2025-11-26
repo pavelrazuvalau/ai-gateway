@@ -45,8 +45,7 @@ services:
     container_name: open-webui
     environment:
       - OPENAI_API_BASE_URL=http://litellm:4000
-      # Virtual Key is required - created via virtual-key.py
-      # Falls back to Master Key if Virtual Key not set (for backward compatibility)
+      # See docs/configuration/virtual-key.md for Virtual Key setup
       - OPENAI_API_KEY=${VIRTUAL_KEY:-${LITELLM_MASTER_KEY}}
     volumes:
       - open-webui-data:/app/backend/data

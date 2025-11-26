@@ -1,6 +1,6 @@
 #!/bin/bash
 # Common initialization module for bash scripts
-# Usage: source src/script_init_bash.sh
+# Usage: source src/script_init.sh
 
 # Colors (consistent for all scripts)
 # Only set if not already set (to avoid readonly conflicts)
@@ -578,8 +578,8 @@ init_script_with_checks() {
     
     # Load common initialization module if not already loaded
     if ! type print_banner &>/dev/null && ! type run_standard_checks &>/dev/null; then
-        if [ -f "src/script_init_bash.sh" ]; then
-            source src/script_init_bash.sh
+        if [ -f "src/script_init.sh" ]; then
+            source src/script_init.sh
         else
             # Fallback if module not found
             print_banner() {

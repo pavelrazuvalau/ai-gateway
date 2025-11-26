@@ -1,7 +1,11 @@
 """
-Configuration file (config.yaml) generation
+Configuration file (config.yaml) generation.
+
 Generates minimal config with only general_settings.
 Models are configured through LiteLLM Admin UI.
+
+See docs/configuration.md for general configuration details.
+See docs/getting-started.md#generated-files for information about generated files.
 """
 
 import os
@@ -106,6 +110,9 @@ def generate_config_yaml(budget_profile: str = "test") -> None:
         
         repo = FileRepository(Path("."))
         repo.write_text(Path("config.yaml"), "\n".join(config_lines))
+        # Set permissions to 644 (readable by owner and group, as per CHANGELOG)
+        from .core.constants import DEFAULT_CONFIG_FILE_PERMISSIONS
+        repo.set_permissions(Path("config.yaml"), DEFAULT_CONFIG_FILE_PERMISSIONS)
     except (ImportError, AttributeError):
         # Fallback to old implementation
         try:
@@ -116,5 +123,9 @@ def generate_config_yaml(budget_profile: str = "test") -> None:
             from .core.exceptions import FileOperationError
             print_error(f"Error writing config.yaml file: {e}")
             raise FileOperationError(f"Failed to create config.yaml file: {e}") from e
+        # Set permissions to 644 (readable by owner and group, as per CHANGELOG)
+        from .core.constants import DEFAULT_CONFIG_FILE_PERMISSIONS
+        from .utils import set_file_permissions
+        set_file_permissions("config.yaml", DEFAULT_CONFIG_FILE_PERMISSIONS)
     
     print_success("config.yaml created")

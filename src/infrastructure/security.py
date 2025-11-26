@@ -1,5 +1,7 @@
 """
-Security utilities - password generation, key generation
+Security utilities - password generation, key generation.
+
+See docs/security.md for security best practices.
 """
 
 import secrets
@@ -33,7 +35,9 @@ class SecurityService:
     @staticmethod
     def generate_master_key() -> str:
         """
-        Generate LiteLLM master key
+        Generate LiteLLM master key.
+        
+        See docs/security.md#virtual-key-security for security details.
         
         Returns:
             Master key string (starts with sk-)
@@ -46,7 +50,9 @@ class SecurityService:
     @staticmethod
     def generate_password(length: int = DEFAULT_PASSWORD_LENGTH) -> str:
         """
-        Generate secure random password
+        Generate secure random password.
+        
+        See docs/security.md#basic-security-recommendations for security details.
         
         Args:
             length: Password length

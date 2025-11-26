@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-AI Gateway - Internal Module Entry Point
+AI Gateway - Internal Module Entry Point.
+
 Run with: python -m src [command]
 
 This is an internal entry point for advanced users.
@@ -12,6 +13,8 @@ Commands:
     stop     - Stop Docker containers
     update   - Update application files
     --help   - Show help message
+
+See docs/getting-started.md for detailed information.
 """
 
 import sys

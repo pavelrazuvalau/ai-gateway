@@ -6,72 +6,12 @@ setlocal enabledelayedexpansion
 
 cd /d "%~dp0"
 
-REM Check Python before calling Python check module
-python --version >nul 2>&1
+REM Run dependency checks using unified function
+call src\script_init.bat init_script_with_checks start "Starting AI Gateway" "🚀"
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Python not found!
-    echo.
-    echo Python is required for unified dependency checks.
-    echo Please install Python 3.8+ or use fallback checks.
-    echo.
-    REM Fallback to simple checks
-    goto :fallback_checks
-)
-
-REM Initialize via unified Python module
-python src\check_dependencies.py start "Starting AI Gateway" "🚀" 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [ERROR] Dependency check failed!
-    echo Fix errors and run the script again.
     pause
     exit /b 1
 )
-goto :continue
-
-:fallback_checks
-echo.
-echo ============================================================
-echo   AI Gateway - Starting Services
-echo ============================================================
-echo.
-
-REM Check for .env file
-if not exist ".env" (
-    echo [ERROR] .env file not found!
-    echo.
-    echo Configuration file is missing. Please run setup first:
-    echo   setup.bat
-    echo.
-    pause
-    exit /b 1
-)
-
-echo [OK] .env file found
-echo.
-
-REM Check for Docker
-where docker >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Docker not found!
-    echo Please install Docker Desktop for Windows.
-    pause
-    exit /b 1
-)
-
-REM Check if Docker is running
-docker ps >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Docker daemon is not running!
-    echo Please start Docker Desktop.
-    pause
-    exit /b 1
-)
-
-echo [OK] Docker is ready
-echo.
-
-:continue
 
 REM Check for docker-compose.override.yml
 set COMPOSE_CMD=docker compose

@@ -1,5 +1,7 @@
 """
-Setup service for AI Gateway configuration
+Setup service for AI Gateway configuration.
+
+See docs/getting-started.md#step-1-run-setup-script for detailed information.
 """
 
 from pathlib import Path
@@ -20,7 +22,11 @@ logger = get_logger(__name__)
 
 
 class InteractiveSetup:
-    """Interactive setup flow"""
+    """
+    Interactive setup flow.
+    
+    See docs/getting-started.md#step-1-run-setup-script for details.
+    """
     
     def __init__(self, project_root: Path):
         self.project_root = Path(project_root)
@@ -118,7 +124,11 @@ class InteractiveSetup:
         return False, True, {}
     
     def ask_budget_profile(self, reuse_env: bool, existing_env: Dict[str, str]) -> str:
-        """Ask user for budget profile"""
+        """
+        Ask user for budget profile.
+        
+        See docs/configuration.md#budget-profiles for budget profile details.
+        """
         if reuse_env:
             return existing_env.get("BUDGET_PROFILE", BUDGET_PROFILE_TEST)
         
@@ -211,7 +221,11 @@ class InteractiveSetup:
                 self.utils.print_error("Please select 1 or 2")
     
     def ask_systemd_installation(self) -> bool:
-        """Ask user if they want to install systemd service"""
+        """
+        Ask user if they want to install systemd service.
+        
+        See docs/administration/systemd.md#installation for systemd installation details.
+        """
         from ..platform_utils import detect_platform, PlatformType
         
         # Only for Linux
@@ -416,7 +430,11 @@ class DockerManager:
 
 
 class SetupService:
-    """Main setup service"""
+    """
+    Main setup service.
+    
+    See docs/getting-started.md#step-1-run-setup-script for details.
+    """
     
     def __init__(self, project_root: Path):
         self.project_root = Path(project_root)
@@ -939,7 +957,8 @@ class SetupService:
                         else:
                             self.utils.print_warning("⚠️  Could not create Virtual Key automatically")
                             self.utils.print_info("   You can create it manually later:")
-                            self.utils.print_info("   python3 virtual-key.py")
+                            self.utils.print_info("   ./virtual-key.sh")
+                            self.utils.print_info("   # Or: python3 -m src.virtual_key")
                             print()
                 
                 # Re-read .env to get updated Virtual Key if it was just created
@@ -1033,7 +1052,7 @@ class SetupService:
             self.utils.print_info("  systemctl --user status ai-gateway.service   # Status")
             self.utils.print_info("  journalctl --user -u ai-gateway.service -f   # View logs")
             print()
-            self.utils.print_info("📚 See SYSTEMD.md for more information")
+            self.utils.print_info("📚 See docs/administration/systemd.md for more information")
             print()
             
             # Ask if user wants to start now

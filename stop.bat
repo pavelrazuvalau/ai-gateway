@@ -5,53 +5,12 @@ setlocal enabledelayedexpansion
 
 cd /d "%~dp0"
 
-REM Check Python before calling Python check module
-python --version >nul 2>&1
+REM Run dependency checks using unified function
+call src\script_init.bat init_script_with_checks stop "Stopping AI Gateway" "🛑"
 if %ERRORLEVEL% NEQ 0 (
-    echo [WARNING] Python not found, using fallback checks
-    echo.
-    goto :fallback_checks
-)
-
-REM Initialize via unified Python module
-python src\check_dependencies.py stop "Stopping AI Gateway" "🛑" 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [ERROR] Dependency check failed!
-    echo Fix errors and run the script again.
     pause
     exit /b 1
 )
-goto :continue
-
-:fallback_checks
-echo.
-echo ╔══════════════════════════════════════════════════════════╗
-echo ║  🛑 Stopping AI Gateway                                   ║
-echo ╚══════════════════════════════════════════════════════════╝
-echo.
-
-REM Check Docker
-where docker >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ Docker is not installed
-    echo.
-    echo Install Docker Desktop for Windows:
-    echo   https://www.docker.com/products/docker-desktop
-    pause
-    exit /b 1
-)
-
-docker ps >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ⚠️  Docker daemon is not running
-    echo.
-    echo Start Docker Desktop and try again.
-    pause
-    exit /b 1
-)
-
-:continue
 
 REM Determine command
 set COMPOSE_CMD=docker compose

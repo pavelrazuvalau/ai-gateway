@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 # Define colors early
-# Use regular variables (not readonly) to allow script_init_bash.sh to override if needed
+# Use regular variables (not readonly) to allow script_init.sh to override if needed
 RED='\033[0;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;93m'
@@ -98,55 +98,31 @@ else
 fi
 
 # Load common initialization module
-if [ -f "src/script_init_bash.sh" ]; then
-    source src/script_init_bash.sh
-else
-    # Fallback if module not found
-    print_banner() {
-        echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-        echo -e "${BLUE}║  $1${NC}"
-        echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
-        echo ""
-    }
+if [ -f "src/script_init.sh" ]; then
+    source src/script_init.sh
 fi
 
-# Check Python before calling Python check module
-if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 is not installed${NC}"
-    echo -e "${YELLOW}Install Python 3.8+ to use unified checks${NC}"
-    echo ""
-    # Fallback to bash checks
-    print_banner "🚀 Starting AI Gateway"
-    if ! run_standard_checks "start"; then
-        echo -e "${RED}❌ Dependency check failed${NC}"
-        echo -e "${YELLOW}Fix errors and run script again${NC}"
-        exit 1
-    fi
-else
-    # Initialize script via unified Python module
-    # Note: We don't exit on Docker daemon errors - bash check_docker() will handle it
-    python3 src/check_dependencies.py start "Starting AI Gateway" "🚀" 2>&1
-    CHECK_RESULT=$?
-    # Only exit on critical errors (missing Docker binary, missing .env, etc.)
-    # Docker daemon not running is handled by bash check_docker() function below
-    if [ $CHECK_RESULT -ne 0 ]; then
-        # Check if it's just Docker daemon issue (non-critical for start.sh)
-        # We'll let bash check_docker() handle Docker daemon startup
-        if command -v docker &>/dev/null && docker --version &>/dev/null && ! docker ps &>/dev/null 2>&1; then
-            # Docker is installed but daemon is not running - this is OK, will be handled below
+# Run dependency checks using unified function
+# Note: We don't exit on Docker daemon errors - bash check_docker() will handle it
+if ! init_script_with_checks "start" "Starting AI Gateway" "🚀"; then
+    # Check if it's just Docker daemon issue (non-critical for start.sh)
+    # We'll let bash check_docker() handle Docker daemon startup
+    if command -v docker &>/dev/null && docker --version &>/dev/null && ! docker ps &>/dev/null 2>&1; then
+        # Docker is installed but daemon is not running - this is OK, will be handled below
+        echo ""
+        echo -e "${BLUE}ℹ️  Docker daemon is not running - will be handled below...${NC}"
+        echo ""
+    else
+        # Other critical errors (missing Docker, etc.)
+        # Note: Missing .env is handled below with interactive prompt
+        # If .env exists, continue - Docker daemon check will be done below
+        if [ -f ".env" ]; then
             echo ""
-            echo -e "${BLUE}ℹ️  Docker daemon is not running - will be handled below...${NC}"
+            echo -e "${YELLOW}⚠️  Some dependency checks failed, but continuing...${NC}"
             echo ""
         else
-            # Other critical errors (missing Docker, etc.)
-            # Note: Missing .env is handled below with interactive prompt
-            # If .env exists, continue - Docker daemon check will be done below
-            if [ -f ".env" ]; then
-                echo ""
-                echo -e "${YELLOW}⚠️  Some dependency checks failed, but continuing...${NC}"
-                echo ""
-            fi
-            # If .env doesn't exist, continue to let the script handle it with interactive prompt below
+            # If .env doesn't exist, exit - script will prompt for setup
+            exit 1
         fi
     fi
 fi
@@ -236,18 +212,18 @@ echo -e "${GREEN}✅ .env file configured${NC}"
 echo -e "${BLUE}💡 Providers, API keys and models are configured through LiteLLM Admin UI${NC}"
 echo ""
 
-# Check Docker (function from script_init_bash.sh will offer to start it)
+# Check Docker (function from script_init.sh will offer to start it)
 # This check is done AFTER Python checks to ensure interactive Docker setup
 echo ""
 echo -e "${BLUE}🔍 Checking Docker daemon...${NC}"
 
 # Ensure check_docker function is available
 if ! type check_docker &>/dev/null; then
-    echo -e "${YELLOW}⚠️  check_docker function not found, loading script_init_bash.sh...${NC}"
-    if [ -f "src/script_init_bash.sh" ]; then
-        source src/script_init_bash.sh
+    echo -e "${YELLOW}⚠️  check_docker function not found, loading script_init.sh...${NC}"
+    if [ -f "src/script_init.sh" ]; then
+        source src/script_init.sh
     else
-        echo -e "${RED}❌ Cannot find script_init_bash.sh${NC}"
+        echo -e "${RED}❌ Cannot find script_init.sh${NC}"
         exit 1
     fi
 fi

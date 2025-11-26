@@ -1,5 +1,7 @@
 """
-Port management and configuration
+Port management and configuration.
+
+See docs/configuration.md#port-configuration for detailed information.
 """
 
 from typing import Tuple, Optional, Dict, Any
@@ -325,8 +327,14 @@ def select_port_interactive(
 
 def configure_ports() -> Dict[str, Any]:
     """
-    Configure all ports (internal and external)
-    Returns dict with port configuration
+    Configure all ports (internal and external).
+    
+    See docs/configuration.md#port-configuration for port configuration details.
+    See docs/configuration.md#default-configuration-with-nginx---enabled-by-default for nginx configuration.
+    See docs/troubleshooting.md#port-conflicts for port conflict troubleshooting.
+    
+    Returns:
+        Dict with port configuration
     """
     from .utils import print_header, Colors
     

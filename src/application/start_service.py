@@ -121,6 +121,80 @@ class StartService:
                     self.utils.print_success("Containers started and healthy!")
                 else:
                     self.utils.print_success("Containers started successfully!")
+                
+                # Auto-create Virtual Key on first run if not exists
+                if wait_for_healthy:
+                    env_vars = self.utils.read_env_file(self.project_root / ".env")
+                    virtual_key = env_vars.get("VIRTUAL_KEY", "").strip()
+                    first_run = env_vars.get("FIRST_RUN", "no").lower() in ("yes", "true", "1")
+                    
+                    if not virtual_key and first_run:
+                        # Wait for LiteLLM to be ready, then create Virtual Key automatically
+                        self.utils.print_info("🔑 Creating Virtual Key automatically on first run...")
+                        self.utils.print_info("Waiting for LiteLLM to be ready...")
+                        
+                        import time
+                        # Wait for LiteLLM to be ready (max 60 seconds)
+                        for i in range(30):
+                            try:
+                                import requests
+                                response = requests.get("http://localhost:4000/health/liveliness", timeout=2)
+                                if response.status_code == 200:
+                                    break
+                            except:
+                                pass
+                            time.sleep(2)
+                        
+                        # Try to create Virtual Key
+                        from ..virtual_key import run_inside_docker_container
+                        master_key = env_vars.get("LITELLM_MASTER_KEY", "").strip()
+                        
+                        if master_key:
+                            virtual_key = run_inside_docker_container(self.project_root, master_key)
+                            
+                            if virtual_key:
+                                # Save Virtual Key to .env
+                                env_file = self.project_root / ".env"
+                                content = env_file.read_text(encoding="utf-8")
+                                
+                                # Update or add VIRTUAL_KEY
+                                lines = content.split('\n')
+                                new_lines = []
+                                virtual_key_added = False
+                                
+                                for line in lines:
+                                    if line.startswith("VIRTUAL_KEY="):
+                                        new_lines.append(f"VIRTUAL_KEY={virtual_key}")
+                                        virtual_key_added = True
+                                    elif line.strip().startswith("# Virtual Key") and not virtual_key_added:
+                                        # Add Virtual Key after comment
+                                        new_lines.append(line)
+                                        new_lines.append(f"VIRTUAL_KEY={virtual_key}")
+                                        virtual_key_added = True
+                                    else:
+                                        new_lines.append(line)
+                                
+                                if not virtual_key_added:
+                                    # Add at the end
+                                    new_lines.append("")
+                                    new_lines.append("# Virtual Key for Open WebUI (auto-created on first run)")
+                                    new_lines.append(f"VIRTUAL_KEY={virtual_key}")
+                                
+                                env_file.write_text('\n'.join(new_lines), encoding="utf-8")
+                                
+                                # Update FIRST_RUN flag
+                                content = env_file.read_text(encoding="utf-8")
+                                content = content.replace("FIRST_RUN=yes", "FIRST_RUN=no")
+                                env_file.write_text(content, encoding="utf-8")
+                                
+                                self.utils.print_success(f"✅ Virtual Key created and saved to .env")
+                                self.utils.print_info(f"   Key: {virtual_key[:30]}...")
+                                print()
+                            else:
+                                self.utils.print_warning("⚠️  Could not create Virtual Key automatically")
+                                self.utils.print_info("   You can create it manually: ./virtual-key.sh")
+                                print()
+                
                 return True
             except DockerError as e:
                 # If --wait failed, check for failed containers and show their logs

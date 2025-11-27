@@ -23,13 +23,13 @@ If you encounter "Permission denied" errors when initializing rootless Docker in
 Run the setup script with root privileges:
 
 ```bash
-sudo ./setup_user.sh
+sudo ./user.sh
 ```
 
 Or simply run it (it will prompt for sudo if needed):
 
 ```bash
-./setup_user.sh
+./user.sh
 ```
 
 The script will:
@@ -68,7 +68,7 @@ sudo -u aigateway /opt/ai-gateway/start.sh
 
 ### Automatic Start via systemd
 
-The `setup_user.sh` script automatically installs the systemd service. It detects rootless Docker and uses the appropriate service type:
+The `user.sh` script automatically installs the systemd service. It detects rootless Docker and uses the appropriate service type:
 
 - **Rootless Docker**: Uses systemd **user service** (runs as user, no root)
 - **Regular Docker**: Uses systemd **system service** (traditional)
@@ -222,8 +222,8 @@ To update application files (preserves your configuration):
 cd /path/to/ai-gateway
 git pull  # or other update method
 
-# 2. Run setup_user.sh again (preserves .env and config.yaml)
-sudo ./setup_user.sh
+# 2. Run user.sh again (preserves .env and config.yaml)
+sudo ./user.sh
 
 # 3. Restart the application
 sudo -u aigateway /opt/ai-gateway/start.sh
@@ -232,7 +232,7 @@ sudo -u aigateway /opt/ai-gateway/start.sh
 sudo -u aigateway systemctl --user restart ai-gateway
 ```
 
-**Important:** The `setup_user.sh` script automatically preserves your `.env` and `config.yaml` files when updating, so your configuration will not be lost.
+**Important:** The `user.sh` script automatically preserves your `.env` and `config.yaml` files when updating, so your configuration will not be lost.
 
 ## Security
 
@@ -320,14 +320,14 @@ cd /opt/ai-gateway && docker compose ps
 **2. View logs for specific container:**
 
 ```bash
-# View logs for litellm-proxy container
-sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs litellm-proxy
+# View logs for litellm service
+sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs litellm
 
 # View last 100 lines with timestamps
-sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs --tail=100 -t litellm-proxy
+sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs --tail=100 -t litellm
 
 # Follow logs in real-time
-sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs -f litellm-proxy
+sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs -f litellm
 ```
 
 **3. View logs for all containers:**
@@ -361,10 +361,10 @@ sudo -u aigateway docker events --filter container=litellm-proxy
 **Container exits immediately:**
 ```bash
 # Check why container exited
-sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs litellm-proxy | tail -50
+sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml logs litellm | tail -50
 
 # Restart container
-sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml restart litellm-proxy
+sudo -u aigateway docker compose -f /opt/ai-gateway/docker-compose.yml restart litellm
 ```
 
 **Configuration errors:**
@@ -395,8 +395,8 @@ echo ""
 echo "=== Recent Errors ==="
 sudo -u aigateway docker compose logs --tail=20 | grep -i error
 echo ""
-echo "=== litellm-proxy Logs (last 30 lines) ==="
-sudo -u aigateway docker compose logs --tail=30 litellm-proxy
+echo "=== litellm Logs (last 30 lines) ==="
+sudo -u aigateway docker compose logs --tail=30 litellm
 ```
 
 ## Uninstallation

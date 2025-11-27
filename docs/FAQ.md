@@ -447,7 +447,7 @@ curl http://localhost:PORT/openapi.json \
   -o openapi.json
 
 # From inside container
-docker exec litellm-proxy curl http://localhost:4000/openapi.json -o /tmp/openapi.json
+docker exec litellm-proxy wget -qO /tmp/openapi.json http://localhost:4000/openapi.json
 docker cp litellm-proxy:/tmp/openapi.json ./openapi.json
 ```
 

@@ -647,7 +647,7 @@ grep -E "^LITELLM_MASTER_KEY=|^POSTGRES_" .env
 docker compose ps
 
 # 2. Проверить health checks
-docker compose ps --format json | python3 -m json.tool | grep -A 2 Health
+docker compose ps --format json | grep -A 2 Health
 # Ожидаемый результат: "healthy" для postgres, litellm, open-webui
 
 # 3. Проверить API доступность (через Nginx)

@@ -107,7 +107,7 @@ check_docker() {
                         echo -e "${RED}❌ subuid not configured for user '$USER'${NC}"
                         echo -e "${YELLOW}   Rootless Docker requires subuid/subgid configuration${NC}"
                         echo -e "${YELLOW}   Run as root to configure:${NC}"
-                        echo -e "${YELLOW}     sudo ./setup_user.sh${NC}"
+                        echo -e "${YELLOW}     sudo ./user.sh${NC}"
                         echo -e "${YELLOW}   Or manually add to /etc/subuid:${NC}"
                         echo -e "${YELLOW}     ${USER}:100000:65536${NC}"
                         return 1
@@ -117,7 +117,7 @@ check_docker() {
                         echo -e "${RED}❌ subgid not configured for user '$USER'${NC}"
                         echo -e "${YELLOW}   Rootless Docker requires subuid/subgid configuration${NC}"
                         echo -e "${YELLOW}   Run as root to configure:${NC}"
-                        echo -e "${YELLOW}     sudo ./setup_user.sh${NC}"
+                        echo -e "${YELLOW}     sudo ./user.sh${NC}"
                         echo -e "${YELLOW}   Or manually add to /etc/subgid:${NC}"
                         echo -e "${YELLOW}     ${USER}:100000:65536${NC}"
                         return 1
@@ -258,7 +258,7 @@ check_docker() {
                                 echo -e "${YELLOW}   Check output above for details${NC}"
                                 if echo "$INIT_OUTPUT" | grep -qi "subuid\|subgid\|uidmap"; then
                                     echo -e "${YELLOW}   This might be a subuid/subgid configuration issue${NC}"
-                                    echo -e "${YELLOW}   Run as root: sudo ./setup_user.sh${NC}"
+                                    echo -e "${YELLOW}   Run as root: sudo ./user.sh${NC}"
                                 fi
                             else
                                 echo -e "${GREEN}✅ Rootless Docker initialized${NC}"

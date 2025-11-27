@@ -499,7 +499,8 @@ After completing setup, you can start using AI Gateway:
 ### Access Open WebUI
 
 1. **Open in browser:**
-   - URL shown after startup (e.g., `http://localhost:3000`)
+   - URL shown after startup (e.g., `http://localhost:PORT` where PORT is your Nginx port)
+   - Check your Nginx port with: `docker compose port nginx 80`
    - Or check access URLs with: `docker compose ps`
 
 2. **First Login:**
@@ -525,11 +526,12 @@ You can also use the API directly:
 
 ```bash
 # List available models
-curl http://localhost:3000/api/litellm/v1/models \
+# Note: Replace PORT with your Nginx port (check with: docker compose port nginx 80)
+curl http://localhost:PORT/api/litellm/v1/models \
   -H "Authorization: Bearer YOUR_VIRTUAL_KEY"
 
 # Chat completion
-curl http://localhost:3000/api/litellm/v1/chat/completions \
+curl http://localhost:PORT/api/litellm/v1/chat/completions \
   -H "Authorization: Bearer YOUR_VIRTUAL_KEY" \
   -H "Content-Type: application/json" \
   -d '{

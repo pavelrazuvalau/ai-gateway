@@ -140,6 +140,11 @@ except Exception as e:
         if 'rag.web.search.bypass_web_loader' in updates and updates['rag.web.search.bypass_web_loader'] is True:
             updates['rag.web.loader.engine'] = None  # Clear playwright engine
         
+        # Enable RAG if web search settings are being configured
+        # This ensures web search works even if it was disabled by default in new OpenWebUI builds
+        if updates:
+            updates['rag.enabled'] = True
+        
         if not updates:
             logger.debug("No web search environment variables found to update")
             return True

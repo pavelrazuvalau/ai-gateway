@@ -521,9 +521,13 @@ When making API requests, you may encounter HTTP error codes. Here's what they m
    - Check container status: `docker compose ps`
 
 2. **Check health:**
-   ```bash
-   docker compose ps --format json | python3 -m json.tool | grep -A 2 Health
-   ```
+```bash
+# Option 1: Direct grep (works everywhere)
+docker compose ps --format json | grep -A 2 Health
+
+# Option 2: Table format (more readable)
+docker compose ps --format 'table {{.Name}}\t{{.Status}}' | grep -i health
+```
 
 3. **View logs:**
    ```bash
@@ -575,7 +579,11 @@ docker compose ps SERVICE_NAME
 
 **Check health status:**
 ```bash
-docker compose ps --format json | python3 -m json.tool | grep -A 2 Health
+# Option 1: Direct grep (works everywhere)
+docker compose ps --format json | grep -A 2 Health
+
+# Option 2: Table format (more readable)
+docker compose ps --format 'table {{.Name}}\t{{.Status}}' | grep -i health
 ```
 
 ### View Logs
@@ -633,7 +641,7 @@ curl http://localhost:PORT/health/liveliness
 **Test connectivity (from container):**
 ```bash
 # Test LiteLLM from inside container
-docker exec litellm-proxy curl http://localhost:4000/health/liveliness
+docker exec litellm-proxy wget -qO- http://localhost:4000/health/liveliness
 
 # Test PostgreSQL from inside container
 docker exec litellm-proxy ping postgres

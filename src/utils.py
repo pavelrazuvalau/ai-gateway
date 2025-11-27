@@ -423,7 +423,7 @@ def check_root() -> None:
                 )
                 
                 if result.returncode != 0:
-                    print_error("setup_user.sh failed")
+                    print_error("user.sh failed")
                     sys.exit(1)
                 
                 print()
@@ -495,7 +495,7 @@ def check_root() -> None:
                 sys.exit(0)
                 
             except subprocess.TimeoutExpired:
-                print_error("setup_user.sh timed out")
+                print_error("user.sh timed out")
                 print()
                 print("You can run it manually:")
                 print(f"  sudo {setup_user_script}")

@@ -168,6 +168,8 @@ def generate_docker_compose_override(
             "WEB_SEARCH_ENGINE=${WEB_SEARCH_ENGINE:-tavily}",
             f"WEB_SEARCH_CONCURRENT_REQUESTS=${{WEB_SEARCH_CONCURRENT_REQUESTS:-{web_search_config['web_search_concurrent_requests']}}}",
             f"WEB_SEARCH_RESULT_COUNT=${{WEB_SEARCH_RESULT_COUNT:-{web_search_config['web_search_result_count']}}}",
+            # Tavily API Key (required if WEB_SEARCH_ENGINE=tavily)
+            "TAVILY_API_KEY=${TAVILY_API_KEY:-}",
         ],
     }
     

@@ -118,7 +118,7 @@ The script will prompt you to select your Anthropic API tier (1-4) based on your
 
 **Architecture**: The bash script `continue-dev.sh` is a wrapper that sets up Python virtual environment and calls the Python service (`ContinueDevService` in `src/application/continue_dev_service.py`). All business logic is in Python.
 
-## Правильная конфигурация провайдера
+## Correct Provider Configuration
 
 **⚠️ Important lesson:** The problem may not be where it seems. Always verify your provider configuration.
 
@@ -189,9 +189,9 @@ models:
     apiBase: http://localhost:PORT/api/litellm/v1
 ```
 
-**Related:** [Troubleshooting - Типичные ошибки конфигурации](../troubleshooting.md#типичные-ошибки-конфигурации)
+**Related:** [Troubleshooting - Common Configuration Errors](../troubleshooting.md#common-configuration-errors)
 
-## Практические ограничения Anthropic API Tier 1
+## Practical Limitations of Anthropic API Tier 1
 
 **⚠️ Important for beginners:** If you're using Anthropic API Tier 1, be aware of practical limitations that affect your workflow with Continue.dev.
 
@@ -241,5 +241,5 @@ Anthropic API Tier 1 is the default tier for new accounts. It has:
 
 **Note:** This information is based on practical experience with Anthropic API Tier 1. Rate limits and behavior may vary. Check [Anthropic API documentation](https://docs.anthropic.com/claude/docs/rate-limits) for current limits.
 
-**Related:** [Troubleshooting - Практические ограничения Anthropic API Tier 1](../troubleshooting.md#практические-ограничения-anthropic-api-tier-1)
+**Related:** [Troubleshooting - Practical Limitations of Anthropic API Tier 1](../troubleshooting.md#practical-limitations-of-anthropic-api-tier-1)
 

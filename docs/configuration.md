@@ -452,7 +452,7 @@ LITELLM_TIMEOUT=600
 - Retries up to 3 times (configurable)
 - Only returns error if all retries fail
 
-**Related:** [Troubleshooting - Rate Limits и Retry Policies](troubleshooting.md#rate-limits-и-retry-policies)
+**Related:** [Troubleshooting - Rate Limits and Retry Policies](troubleshooting.md#rate-limits-and-retry-policies)
 
 ## Environment Variables Reference
 

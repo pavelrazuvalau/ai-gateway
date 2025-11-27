@@ -330,7 +330,7 @@ docker compose up -d
 - Applies to all models (including UI-configured models)
 - Can be adjusted via `LITELLM_NUM_RETRIES` and `LITELLM_TIMEOUT` environment variables
 
-**Related:** [Troubleshooting - Rate Limits и Retry Policies](troubleshooting.md#rate-limits-и-retry-policies), [Configuration - Retry Policies](configuration.md#retry-policies)
+**Related:** [Troubleshooting - Rate Limits and Retry Policies](troubleshooting.md#rate-limits-and-retry-policies), [Configuration - Retry Policies](configuration.md#retry-policies)
 
 ### Q: What are the practical limitations of Anthropic API Tier 1?
 
@@ -348,7 +348,7 @@ docker compose up -d
 - **Use context summary:** Critical feature for managing long conversations
 - **Monitor usage:** Check LiteLLM Admin UI for rate limit patterns
 
-**Related:** [Troubleshooting - Практические ограничения Anthropic API Tier 1](troubleshooting.md#практические-ограничения-anthropic-api-tier-1)
+**Related:** [Troubleshooting - Practical Limitations of Anthropic API Tier 1](troubleshooting.md#practical-limitations-of-anthropic-api-tier-1)
 
 ### Q: Why does it take so long for containers to become ready?
 
@@ -381,7 +381,7 @@ docker compose ps
 # Look for "healthy" status for all containers
 ```
 
-**Related:** [Troubleshooting - Healthchecks и время запуска](troubleshooting.md#healthchecks-и-время-запуска)
+**Related:** [Troubleshooting - Healthchecks and Startup Time](troubleshooting.md#healthchecks-and-startup-time)
 
 ## Security
 

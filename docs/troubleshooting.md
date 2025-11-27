@@ -136,7 +136,7 @@ Some containers failed to start
    docker compose up -d
    ```
 
-## Healthchecks и время запуска
+## Healthchecks and Startup Time
 
 **Important:** Containers start quickly, but become ready for use after healthchecks pass. Understanding this process helps avoid confusion.
 
@@ -510,7 +510,7 @@ When making API requests, you may encounter HTTP error codes. Here's what they m
 
 **Related:** [API for Agents - Rate Limits](integrations/api-for-agents.md#rate-limits)
 
-### Rate Limits и Retry Policies
+### Rate Limits and Retry Policies
 
 **Important:** LiteLLM automatically handles rate limit errors (429) with retry policies. Understanding how this works is crucial for troubleshooting.
 
@@ -554,7 +554,7 @@ router_settings:
 
 **Related:** [Configuration Guide - Retry Policies](configuration.md#retry-policies)
 
-### Практические ограничения Anthropic API Tier 1
+### Practical Limitations of Anthropic API Tier 1
 
 **⚠️ Important for beginners:** Anthropic API Tier 1 has strict rate limits that make work possible but not comfortable.
 
@@ -1113,7 +1113,7 @@ docker system prune -a
 - Check provider service status
 - Verify model ID is correct
 
-## Docker daemon не запускается автоматически
+## Docker Daemon Not Starting Automatically
 
 **Important:** Docker daemon may not start automatically after system reboot. AI Gateway includes automatic detection and startup functionality.
 
@@ -1269,11 +1269,11 @@ When troubleshooting, follow this process:
    ./stop.sh && ./start.sh
    ```
 
-## Типичные ошибки конфигурации
+## Common Configuration Errors
 
 **Important lesson:** Configuration errors may cause problems that seem unrelated. Always verify your configuration.
 
-### Ошибка: Указание `openai` как провайдера для всех моделей
+### Error: Specifying `openai` as Provider for All Models
 
 **Problem:** Specifying `provider: openai` for all models in Continue.dev configuration.
 
@@ -1322,9 +1322,9 @@ models:
     apiBase: http://localhost:PORT/api/litellm/v1
 ```
 
-**Related:** [Continue.dev Integration - Правильная конфигурация провайдера](integrations/continue-dev.md#правильная-конфигурация-провайдера)
+**Related:** [Continue.dev Integration - Correct Provider Configuration](integrations/continue-dev.md#correct-provider-configuration)
 
-## Proxmox LXC проблемы
+## Proxmox LXC Issues
 
 **If you're trying to run AI Gateway in a Proxmox LXC container and encountering issues:**
 

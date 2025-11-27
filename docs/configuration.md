@@ -385,6 +385,75 @@ WEB_SEARCH_RESULT_COUNT=3  # or 4
 
 The web search configuration is managed by `src/infrastructure/openwebui_db.py`, which updates the OpenWebUI database from environment variables.
 
+## Retry Policies
+
+LiteLLM automatically handles rate limit errors (429) with configurable retry policies. Understanding retry configuration is important for production deployments.
+
+### How Retry Policies Work
+
+When a request receives a 429 (Too Many Requests) error:
+
+1. **LiteLLM does NOT return error immediately** - Client/agent continues waiting
+2. **LiteLLM reads Retry-After header** - Automatically extracts wait time from 429 response
+3. **Waits for Retry-After period** - Usually 60 seconds for Anthropic
+4. **Retries request automatically** - Up to 3 retries (configurable)
+5. **Only returns error after ALL retries fail** - If any retry succeeds, client gets successful response
+
+**Key Point:** Your client receives a response, not an error, if any retry succeeds. This means requests may take longer than expected due to retry delays.
+
+### Configuration in config.yaml
+
+Retry settings are configured in `config.yaml` and apply to **all models** (including UI-configured models):
+
+```yaml
+router_settings:
+  max_retries: 3  # Number of retries for failed requests
+  timeout: 600    # Request timeout: 10 minutes (allows retries with delays)
+  retry_after: 120  # Base delay in seconds (used if Retry-After header not present)
+```
+
+**Important:** 
+- These `router_settings` apply to **all models**, including models configured via LiteLLM Admin UI. This ensures consistent retry behavior across all models.
+- `retry_after` is set to **120 seconds (2 minutes)** to allow rate limits to fully reset between retries
+- This is especially important for Anthropic API Tier 1 (50k ITPM limit) - 120 seconds gives enough time for the token limit to fully reset
+- LiteLLM automatically uses `Retry-After` header from 429 responses when available (usually 60 seconds for Anthropic)
+- If `Retry-After` header is not present, LiteLLM uses `retry_after` value (120 seconds) or exponential backoff
+
+### Retry-After Header
+
+- **Anthropic:** Usually 60 seconds (allows rate limit reset)
+- **Other providers:** Varies by provider
+- **If not present:** Uses exponential backoff: `base_delay * (2 ^ retry_count)`
+
+### Environment Variables
+
+Retry configuration can also be set via environment variables in `.env`:
+
+```bash
+# Number of retries (also set in config.yaml)
+LITELLM_NUM_RETRIES=3
+
+# Request timeout in seconds (10 minutes allows retries with delays)
+LITELLM_TIMEOUT=600
+```
+
+**Note:** Settings in `config.yaml` take precedence. Environment variables are used as defaults.
+
+### Understanding Retry Behavior
+
+**What you see:**
+- Requests may take longer than expected (due to retry delays)
+- You may not see 429 errors even when rate limits are hit (retries handle it automatically)
+- Total wait time depends on Retry-After values and number of retries
+
+**What happens behind the scenes:**
+- LiteLLM automatically handles 429 errors
+- Waits for Retry-After period before retrying
+- Retries up to 3 times (configurable)
+- Only returns error if all retries fail
+
+**Related:** [Troubleshooting - Rate Limits и Retry Policies](troubleshooting.md#rate-limits-и-retry-policies)
+
 ## Environment Variables Reference
 
 This section provides a complete reference of all environment variables used in AI Gateway. Variables are stored in the `.env` file, which is created during setup.

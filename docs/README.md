@@ -37,6 +37,7 @@ Welcome to the AI Gateway documentation! This is the main source of information 
 - **[Systemd Service](administration/systemd.md)** - Managing AI Gateway with systemd
 
 ### Reference
+- **[Project Concept](concept.md)** - Project concept, target audience, and use cases
 - **[Project Architecture](architecture.md)** - Code structure and design principles
 - **[Glossary](glossary.md)** - Definitions of key terms and concepts
 - **[FAQ](FAQ.md)** - Frequently asked questions

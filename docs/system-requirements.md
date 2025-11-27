@@ -17,10 +17,16 @@
 
 ## ⚠️ Proxmox LXC Containers
 
-**Rootless Docker is not reliably supported in unprivileged Proxmox LXC containers** due to kernel-level restrictions on user namespaces. If you're using Proxmox, we recommend:
+**For Proxmox users: Use a full VM, not LXC containers.**
 
-- **Use a full VM** instead of an LXC container for running AI Gateway
-- **Or use a privileged LXC container** (less secure, but may work)
+**Why:**
+- **Rootless Docker is not reliably supported in unprivileged LXC containers** due to kernel-level restrictions on user namespaces
+- **VM is more reliable** than privileged LXC containers
+- **VM provides better isolation** and security
+
+**Recommendation:**
+- ✅ **Use a full VM** for running AI Gateway on Proxmox
+- ❌ **Do not use LXC containers** (neither unprivileged nor privileged)
 
 For more details, see the [Installation Guide](installation.md#proxmox-lxc-containers).
 

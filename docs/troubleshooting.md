@@ -136,6 +136,100 @@ Some containers failed to start
    docker compose up -d
    ```
 
+## Healthchecks и время запуска
+
+**Important:** Containers start quickly, but become ready for use after healthchecks pass. Understanding this process helps avoid confusion.
+
+### Startup Process
+
+1. **Containers start immediately** (30-60 seconds)
+   - Docker Compose starts all containers
+   - Containers begin initialization
+
+2. **Healthchecks begin** (after start_period)
+   - LiteLLM: `start_period: 40s` - healthcheck starts after 40 seconds (allows container to initialize before health checks begin)
+   - PostgreSQL: healthcheck starts immediately
+   - System waits for containers to become healthy
+   - **Note:** `start_period: 40s` is the current value (was 600s in earlier versions, reduced for faster startup detection)
+
+3. **LiteLLM requires time for Prisma migrations**
+   - Prisma database migrations can take 1-5 minutes
+   - This happens during container startup
+   - Healthcheck waits for migrations to complete
+
+4. **System automatically waits for readiness**
+   - When using `./start.sh`, system waits up to 5 minutes (`--wait-timeout 300`)
+   - System checks health status of all containers
+   - Only reports success when all containers are healthy
+
+### Expected Timeline
+
+**First startup (with Prisma migrations):**
+- **Container start:** 30-60 seconds
+- **Healthcheck start period:** 40 seconds (LiteLLM)
+- **Prisma migrations:** 10-30 seconds (45 migrations applied on first run)
+- **Total ready time:** 1-2 minutes (typical)
+
+**Subsequent startups (no migrations):**
+- **Container start:** 30-60 seconds
+- **Healthcheck start period:** 40 seconds (LiteLLM)
+- **No Prisma migrations:** Database already initialized
+- **Total ready time:** 1-1.5 minutes (typical)
+
+**Note:** 
+- First startup includes Prisma database migrations (45 migrations on clean install)
+- Migrations typically take 10-30 seconds on first run
+- Subsequent startups are faster as migrations are already applied
+- Actual time may vary based on system performance and database state
+
+### Checking Container Status
+
+```bash
+# Check container status and health
+docker compose ps
+
+# Expected output when ready:
+# NAME                STATUS          HEALTH
+# litellm-proxy       Up 2 minutes    healthy
+# litellm-postgres    Up 2 minutes    healthy
+# open-webui          Up 2 minutes    healthy
+```
+
+**Health status meanings:**
+- `healthy` - Container is ready and passing healthchecks
+- `starting` - Container is starting, healthcheck not yet passed
+- `unhealthy` - Container is running but healthcheck is failing
+- `(no healthcheck)` - Container doesn't have healthcheck (e.g., nginx)
+
+### Troubleshooting Slow Startup
+
+**If containers take longer than expected:**
+
+1. **Check LiteLLM logs for Prisma migrations:**
+   ```bash
+   docker compose logs litellm | grep -i prisma
+   docker compose logs litellm | grep -i migration
+   ```
+
+2. **Check database connection:**
+   ```bash
+   docker compose logs litellm | grep -i database
+   docker compose logs postgres | tail -20
+   ```
+
+3. **Verify healthcheck configuration:**
+   ```bash
+   # Check healthcheck settings in docker-compose.yml
+   grep -A 5 "healthcheck:" docker-compose.yml
+   ```
+
+4. **Wait for healthchecks:**
+   - System automatically waits up to 5 minutes
+   - Don't interrupt the startup process
+   - Check status with `docker compose ps`
+
+**Related:** [Getting Started - Step 2](getting-started.md#step-2-start-the-system)
+
 ```bash
 # Check logs
 docker compose logs
@@ -415,6 +509,95 @@ When making API requests, you may encounter HTTP error codes. Here's what they m
    - Check provider documentation for limits
 
 **Related:** [API for Agents - Rate Limits](integrations/api-for-agents.md#rate-limits)
+
+### Rate Limits и Retry Policies
+
+**Important:** LiteLLM automatically handles rate limit errors (429) with retry policies. Understanding how this works is crucial for troubleshooting.
+
+#### How Retry Policies Work
+
+When LiteLLM receives a 429 (Too Many Requests) error:
+
+1. **LiteLLM does NOT return error immediately** - The client/agent continues waiting
+2. **LiteLLM reads Retry-After header** - Automatically extracts wait time from 429 response
+3. **Waits for Retry-After period** - Usually 60 seconds for Anthropic, or uses exponential backoff if header not present
+4. **Retries request automatically** - Up to 3 retries (configurable via `LITELLM_NUM_RETRIES`)
+5. **Only returns error after ALL retries fail** - If any retry succeeds, agent gets successful response (no error shown)
+
+**Key Point:** Your agent/client receives a response, not an error, if any retry succeeds. This means:
+- Requests may take longer than expected (due to retry delays)
+- You may not see 429 errors even when rate limits are hit (retries handle it automatically)
+- Total wait time depends on Retry-After values and number of retries
+
+#### Configuration
+
+Retry settings are configured in `config.yaml` and apply to all models (including UI-configured models):
+
+```yaml
+router_settings:
+  max_retries: 3  # Number of retries for failed requests
+  timeout: 600    # Request timeout: 10 minutes (allows retries with delays)
+  retry_after: 120  # Base delay in seconds (used if Retry-After header not present)
+```
+
+**Important:** 
+- `retry_after` is set to **120 seconds (2 minutes)** to allow rate limits to fully reset between retries
+- This is especially important for Anthropic API Tier 1 (50k ITPM limit) - 120 seconds gives enough time for the token limit to fully reset
+- LiteLLM automatically uses `Retry-After` header from 429 responses when available (usually 60 seconds for Anthropic)
+- If `Retry-After` header is not present, LiteLLM uses `retry_after` value (120 seconds) or exponential backoff
+
+#### Retry-After Header
+
+- **Anthropic:** Usually 60 seconds (allows rate limit reset)
+- **Other providers:** Varies by provider
+- **If not present:** Uses exponential backoff: `base_delay * (2 ^ retry_count)`
+
+**Related:** [Configuration Guide - Retry Policies](configuration.md#retry-policies)
+
+### Практические ограничения Anthropic API Tier 1
+
+**⚠️ Important for beginners:** Anthropic API Tier 1 has strict rate limits that make work possible but not comfortable.
+
+#### What is Tier 1?
+
+Anthropic API Tier 1 is the default tier for new accounts. It has:
+- **Rate limits:** 50,000 input tokens per minute (ITPM)
+- **Strict enforcement:** Rate limits are actively enforced
+- **Retry delays:** Usually 60 seconds when limit is hit
+
+#### Practical Limitations
+
+**Tier 1 makes work possible, but not comfortable:**
+
+1. **Rate limits are restrictive:**
+   - Frequent 429 errors during active use
+   - Long wait times (60+ seconds) when limits are hit
+   - Automatic retries help, but requests take longer
+
+2. **System prompts help, but don't guarantee compliance:**
+   - System prompts can guide model behavior
+   - However, models may not always follow instructions exactly
+   - User must actively manage context and conversation flow
+
+3. **Context management is critical:**
+   - User must actively manage conversation context
+   - Context summary feature is **critically important** for Tier 1
+   - Without proper context management, you'll hit rate limits more often
+
+4. **For comfortable work, Tier 2+ is recommended:**
+   - Tier 2+ has higher rate limits
+   - Less frequent rate limit errors
+   - Better experience for active AI assistant use
+
+#### Recommendations
+
+- **For testing/learning:** Tier 1 is sufficient
+- **For active development:** Consider upgrading to Tier 2+
+- **Use context summary:** Critical feature for managing long conversations
+- **Monitor usage:** Check LiteLLM Admin UI for rate limit patterns
+- **Understand retry behavior:** Requests may take longer due to automatic retries
+
+**Note:** This information is based on practical experience with Anthropic API Tier 1. Rate limits and behavior may vary. Check [Anthropic API documentation](https://docs.anthropic.com/claude/docs/rate-limits) for current limits.
 
 ### 500 Internal Server Error
 
@@ -930,6 +1113,120 @@ docker system prune -a
 - Check provider service status
 - Verify model ID is correct
 
+## Docker daemon не запускается автоматически
+
+**Important:** Docker daemon may not start automatically after system reboot. AI Gateway includes automatic detection and startup functionality.
+
+### Automatic Detection and Startup
+
+AI Gateway automatically detects and attempts to start Docker daemon when needed:
+
+1. **Automatic Detection:**
+   - System checks if Docker daemon is running before starting containers
+   - Detects rootless Docker vs regular Docker
+   - Checks for systemd user services
+
+2. **Automatic Startup (if available):**
+   - **Rootless Docker with systemd:** Uses `systemctl --user start docker`
+   - **Rootless Docker without systemd:** Attempts to start `dockerd-rootless.sh` in background
+   - **Regular Docker:** Prompts for sudo access to start system service
+
+3. **Integration with systemd user services:**
+   - If systemd is available, uses systemd user service for rootless Docker
+   - Service is automatically enabled for startup on boot (if configured)
+   - Works seamlessly with systemd user services
+
+### Manual Startup Instructions
+
+If automatic startup doesn't work, start Docker daemon manually:
+
+**For Rootless Docker (with systemd):**
+```bash
+# Start Docker daemon
+systemctl --user start docker
+
+# Enable automatic startup on boot
+systemctl --user enable docker
+
+# Check status
+systemctl --user status docker
+```
+
+**For Rootless Docker (without systemd):**
+```bash
+# Start Docker daemon manually
+dockerd-rootless.sh
+
+# Or with environment variables
+XDG_RUNTIME_DIR=~/.docker/run DOCKER_HOST=unix://~/.docker/run/docker.sock dockerd-rootless.sh
+```
+
+**For Regular Docker (system-wide):**
+```bash
+# Start Docker daemon (requires sudo)
+sudo systemctl start docker
+
+# Enable automatic startup on boot
+sudo systemctl enable docker
+
+# Check status
+sudo systemctl status docker
+```
+
+### Troubleshooting
+
+**Docker daemon not starting automatically:**
+
+1. **Check if Docker is installed:**
+   ```bash
+   docker --version
+   ```
+
+2. **For rootless Docker, check initialization:**
+   ```bash
+   # Check if rootless Docker is initialized
+   dockerd-rootless-setuptool.sh install
+   ```
+
+3. **Check systemd user service (for rootless Docker):**
+   ```bash
+   # Check if service exists
+   systemctl --user list-unit-files | grep docker
+   
+   # Check service status
+   systemctl --user status docker
+   
+   # Enable lingering (allows user services without login)
+   loginctl enable-linger $USER
+   ```
+
+4. **Check Docker socket:**
+   ```bash
+   # For rootless Docker
+   ls -la ~/.docker/run/docker.sock
+   
+   # For regular Docker
+   ls -la /var/run/docker.sock
+   ```
+
+5. **View Docker daemon logs:**
+   ```bash
+   # For rootless Docker with systemd
+   journalctl --user -u docker -f
+   
+   # For regular Docker
+   sudo journalctl -u docker -f
+   ```
+
+**Common Issues:**
+
+- **"Cannot connect to Docker daemon":** Docker daemon is not running - start it manually (see instructions above)
+- **"Permission denied":** Check Docker socket permissions or use rootless Docker
+- **"systemd user service not found":** Initialize rootless Docker: `dockerd-rootless-setuptool.sh install`
+- **"Docker daemon not starting after reboot":** Enable systemd user service: `systemctl --user enable docker` and `loginctl enable-linger $USER`
+
+**Related:** [Installation Guide - Docker Access](installation.md#docker-access), [Systemd Service](administration/systemd.md)
+
 ## Step-by-Step Diagnostic Process
 
 When troubleshooting, follow this process:
@@ -971,6 +1268,112 @@ When troubleshooting, follow this process:
    # Or full restart
    ./stop.sh && ./start.sh
    ```
+
+## Типичные ошибки конфигурации
+
+**Important lesson:** Configuration errors may cause problems that seem unrelated. Always verify your configuration.
+
+### Ошибка: Указание `openai` как провайдера для всех моделей
+
+**Problem:** Specifying `provider: openai` for all models in Continue.dev configuration.
+
+**Why it's wrong:**
+- LiteLLM is OpenAI-compatible API, but internally uses real provider names
+- Claude models need `provider: anthropic` for proper tool use support
+- Azure models need `provider: azure` for Azure-specific features
+- Using wrong provider may cause tool-call-filter errors or missing features
+
+**Correct solution:**
+- ✅ **Let the setup script automatically determine provider** (recommended)
+  - Run `./ai-gateway continue-dev`
+  - Script automatically detects provider based on model ID
+- ✅ **Or manually specify the real provider name:**
+  - Claude models: `provider: anthropic`
+  - Azure models: `provider: azure`
+  - OpenAI models: `provider: openai`
+
+**How provider is determined:**
+- Models starting with `claude-`: `provider: anthropic`
+- Models `gpt-5-mini` or starting with `azure/`: `provider: azure`
+- Other models: `provider: openai`
+
+**Example of correct configuration:**
+
+```yaml
+models:
+  - title: Claude Sonnet 4.5
+    provider: anthropic  # ✅ Correct - real provider name
+    model: claude-sonnet-4-5
+    apiBase: http://localhost:PORT/api/litellm/v1
+    
+  - title: GPT-4o
+    provider: openai  # ✅ Correct - real provider name
+    model: gpt-4o
+    apiBase: http://localhost:PORT/api/litellm/v1
+```
+
+**Example of incorrect configuration:**
+
+```yaml
+models:
+  - title: Claude Sonnet 4.5
+    provider: openai  # ❌ Wrong - should be 'anthropic'
+    model: claude-sonnet-4-5
+    apiBase: http://localhost:PORT/api/litellm/v1
+```
+
+**Related:** [Continue.dev Integration - Правильная конфигурация провайдера](integrations/continue-dev.md#правильная-конфигурация-провайдера)
+
+## Proxmox LXC проблемы
+
+**If you're trying to run AI Gateway in a Proxmox LXC container and encountering issues:**
+
+### Common Errors
+
+**"Permission denied" when initializing rootless Docker:**
+```
+Error: failed to start daemon: Error initializing network controller: error creating default "bridge" network: operation not permitted
+```
+
+**"Cannot connect to Docker daemon":**
+```
+Cannot connect to the Docker daemon at unix:///run/user/1000/docker.sock
+```
+
+**Kernel namespace errors:**
+```
+Error: failed to setup network: failed to create namespace: operation not permitted
+```
+
+### Why These Errors Occur
+
+- **Unprivileged LXC containers** have kernel-level restrictions on user namespaces
+- **Rootless Docker requires user namespaces** which are not reliably available in LXC
+- **Even with proper configuration** (subuid/subgid, AppArmor), kernel may deny access
+
+### Solution
+
+**Use a full VM instead of an LXC container:**
+
+1. **Create a new VM in Proxmox:**
+   - Use any Linux distribution (Ubuntu, Debian, etc.)
+   - Allocate sufficient resources (see [System Requirements](system-requirements.md))
+   - Install Docker and Docker Compose
+
+2. **Follow standard installation:**
+   - Rootless Docker works reliably in VMs
+   - Follow [Installation Guide](installation.md) as normal
+   - No special configuration needed
+
+**Why VM is better:**
+- ✅ More reliable than privileged LXC containers
+- ✅ Better isolation and security
+- ✅ No kernel-level namespace restrictions
+- ✅ Standard Docker/rootless Docker support
+
+**Note:** If you must use LXC, privileged containers may work but are not recommended due to security concerns. VM is the recommended solution.
+
+**Related:** [Installation Guide - Proxmox LXC](installation.md#proxmox-lxc-containers), [System Requirements - Proxmox LXC](system-requirements.md#proxmox-lxc-containers)
 
 ## Getting More Help
 

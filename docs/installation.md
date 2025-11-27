@@ -10,13 +10,21 @@ This guide describes the installation of AI Gateway using a system user `aigatew
 
 ### ⚠️ Proxmox LXC Containers
 
-**Rootless Docker is not reliably supported in unprivileged Proxmox LXC containers** due to kernel-level restrictions on user namespaces (`uid_map` access). Even with proper `subuid`/`subgid` configuration and AppArmor settings, the kernel may still deny access to user namespaces.
+**For Proxmox users: Use a full VM, not LXC containers.**
 
-**Recommendations:**
-- **Use a full VM** instead of an LXC container for running AI Gateway
-- **Or use a privileged LXC container** (less secure, but may work with rootless Docker)
+**Why:**
+- **Rootless Docker is not reliably supported in unprivileged LXC containers** due to kernel-level restrictions on user namespaces
+- **VM is more reliable** than privileged LXC containers
+- **VM provides better isolation** and security
+- **VM avoids kernel-level namespace issues** that affect Docker in LXC
 
-If you encounter "Permission denied" errors when initializing rootless Docker in an unprivileged LXC container, this is expected behavior. The recommended solution is to deploy AI Gateway in a VM or use a privileged container.
+**Recommendation:**
+- ✅ **Use a full VM** for running AI Gateway on Proxmox
+- ❌ **Do not use LXC containers** (neither unprivileged nor privileged)
+
+If you encounter "Permission denied" errors when trying to use Docker in an LXC container, this is expected behavior. The solution is to deploy AI Gateway in a VM instead.
+
+**Note:** Rootless Docker works reliably on regular Linux systems (not LXC). The automatic detection and setup in this guide applies to regular systems, not LXC containers.
 
 ## Step 1: User Setup and Permissions Configuration
 

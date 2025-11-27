@@ -194,10 +194,17 @@ start.bat
    - Nginx (reverse proxy, if enabled)
 
 2. **Health Checks** - System waits for containers to become healthy
+   - Containers start quickly (30-60 seconds)
+   - LiteLLM requires time for Prisma database migrations (10-30 seconds on first run, 45 migrations applied)
+   - System automatically waits up to 5 minutes (`--wait-timeout 300`) for containers to become ready
+   - **First run:** 1-2 minutes total (includes migrations)
+   - **Subsequent runs:** 1-1.5 minutes total (no migrations needed)
 
 3. **Access Information** - URLs and access keys are displayed
 
 4. **First Run Detection** - If this is the first run, Virtual Key setup instructions are shown
+
+**Note:** On first startup, LiteLLM performs Prisma database migrations which can take 1-5 minutes. Subsequent startups are faster. The system automatically waits for containers to become healthy before reporting success.
 
 ### Expected Output
 

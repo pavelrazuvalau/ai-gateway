@@ -310,6 +310,79 @@ docker compose up -d
 
 **Related:** [Troubleshooting - PostgreSQL](troubleshooting.md#postgresql-wont-connect)
 
+### Q: How do retry policies work when I get 429 errors?
+
+**A:** LiteLLM automatically handles 429 (rate limit) errors with retry policies. Here's how it works:
+
+1. **LiteLLM does NOT return error immediately** - Your client/agent continues waiting
+2. **LiteLLM reads Retry-After header** - Automatically extracts wait time from 429 response (usually 60 seconds for Anthropic)
+3. **Waits for Retry-After period** - LiteLLM waits the specified time before retrying
+4. **Retries request automatically** - Up to 3 retries (configurable via `LITELLM_NUM_RETRIES`)
+5. **Only returns error after ALL retries fail** - If any retry succeeds, you get successful response (no error shown)
+
+**Key Point:** Your client receives a response, not an error, if any retry succeeds. This means:
+- Requests may take longer than expected (due to retry delays)
+- You may not see 429 errors even when rate limits are hit (retries handle it automatically)
+- Total wait time depends on Retry-After values and number of retries
+
+**Configuration:**
+- Retry settings are in `config.yaml` under `router_settings`
+- Applies to all models (including UI-configured models)
+- Can be adjusted via `LITELLM_NUM_RETRIES` and `LITELLM_TIMEOUT` environment variables
+
+**Related:** [Troubleshooting - Rate Limits и Retry Policies](troubleshooting.md#rate-limits-и-retry-policies), [Configuration - Retry Policies](configuration.md#retry-policies)
+
+### Q: What are the practical limitations of Anthropic API Tier 1?
+
+**A:** Anthropic API Tier 1 has strict rate limits that make work possible but not comfortable:
+
+**Limitations:**
+- **Rate limits are restrictive:** Frequent 429 errors during active use, long wait times (60+ seconds) when limits are hit
+- **System prompts help, but don't guarantee compliance:** Models may not always follow instructions exactly
+- **Context management is critical:** User must actively manage conversation context; context summary feature is critically important
+- **For comfortable work, Tier 2+ is recommended:** Higher rate limits, less frequent errors, better experience
+
+**Recommendations:**
+- **For testing/learning:** Tier 1 is sufficient
+- **For active development:** Consider upgrading to Tier 2+
+- **Use context summary:** Critical feature for managing long conversations
+- **Monitor usage:** Check LiteLLM Admin UI for rate limit patterns
+
+**Related:** [Troubleshooting - Практические ограничения Anthropic API Tier 1](troubleshooting.md#практические-ограничения-anthropic-api-tier-1)
+
+### Q: Why does it take so long for containers to become ready?
+
+**A:** Containers start quickly (30-60 seconds), but become ready after healthchecks pass:
+
+1. **Containers start immediately** - Docker Compose starts all services
+2. **Healthchecks begin** - LiteLLM healthcheck starts after 40 seconds (`start_period`)
+3. **LiteLLM requires time for Prisma migrations** - Database migrations can take 1-5 minutes (especially on first run)
+4. **System automatically waits** - Up to 5 minutes (`--wait-timeout 300`) for containers to become healthy
+
+**Expected timeline:**
+
+**First startup (with Prisma migrations):**
+- Container start: 30-60 seconds
+- Healthcheck start period: 40 seconds (LiteLLM)
+- Prisma migrations: 10-30 seconds (45 migrations applied on first run)
+- **Total ready time: 1-2 minutes (typical)**
+
+**Subsequent startups (no migrations):**
+- Container start: 30-60 seconds
+- Healthcheck start period: 40 seconds (LiteLLM)
+- No Prisma migrations: Database already initialized
+- **Total ready time: 1-1.5 minutes (typical)**
+
+**Note:** First startup includes Prisma database migrations. Subsequent startups are faster as migrations are already applied. Actual time may vary based on system performance.
+
+**Check status:**
+```bash
+docker compose ps
+# Look for "healthy" status for all containers
+```
+
+**Related:** [Troubleshooting - Healthchecks и время запуска](troubleshooting.md#healthchecks-и-время-запуска)
+
 ## Security
 
 ### Q: Is it safe to use Master Key in client applications?

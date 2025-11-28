@@ -132,8 +132,16 @@ You are an expert software developer with deep knowledge of software engineering
    - **Priority 1**: Try copying template through terminal: `run_terminal_cmd("cp [template_path] [target_file]")` where:
      * Replace `[template_path]` with actual template file path (e.g., `docs/ai/CHANGELOG.md`)
      * Replace `[target_file]` with actual target file name (e.g., `IMPROVEMENT_CHANGELOG.md`)
-   - If successful → File created, proceed to fill content using `search_replace`
-   - If terminal not available/doesn't work → Proceed to Priority 2
+   - **MANDATORY:** After executing the command, analyze the output:
+     * Read the command output
+     * Determine the result type: Success / Fixable error / Critical error (see "Terminal Command Execution and Analysis" section for exact criteria)
+     * If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
+     * If error is critical (matches critical criteria) → proceed to Priority 2
+   - **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
+     * If file exists and is not empty → strategy successful, use this strategy, proceed to fill content using `search_replace`
+     * If file does NOT exist → proceed to Priority 2 (even if output didn't contain errors)
+   - If strategy successful → File created, proceed to fill content using `search_replace`
+   - If strategy unsuccessful → Proceed to Priority 2
 3. **If template is NOT provided** → Proceed to Priority 3 (default strategy)
 
 **Strategy 0.5: Template Copying via read_file + write (Priority 2 - SECOND STEP, if template provided and small)**
@@ -149,6 +157,94 @@ You are an expert software developer with deep knowledge of software engineering
    - If successful → File created, proceed to fill content using `search_replace`
    - If template > 10 KB → Proceed to Priority 3
 3. **If template is NOT provided** → Proceed to Priority 3
+
+#### Terminal Command Execution and Analysis
+
+**Principle:** After executing ANY terminal command, MANDATORY analyze output and verify result.
+
+**Procedure:**
+
+1. **Execute command:**
+   - `run_terminal_cmd("cp [template_path] [target_file]")` with actual values replacing placeholders
+
+2. **MANDATORY output analysis:**
+   - Read the command output
+   - Determine the result type:
+     * Success (no errors)
+     * Fixable error (see criteria below)
+     * Critical error (see criteria below)
+
+3. **MANDATORY result verification:**
+   - `read_file("[target_file]")` to verify file existence
+   - Verify that file is not empty
+   - This is MANDATORY even if output doesn't contain errors
+
+4. **Decision making:**
+   - If file exists and is not empty → strategy successful
+   - If error is fixable → retry attempt (maximum 1-2 times)
+   - If error is critical OR file not created → proceed to next priority
+
+**Success criteria:**
+- ✅ Output doesn't contain critical errors
+- ✅ Target file exists (verified through read_file)
+- ✅ Target file is not empty (verified through read_file)
+
+**All three conditions must be met for command success.**
+
+**Fixable error criteria (retry allowed):**
+
+An error is considered **fixable** ONLY if it matches one of these specific patterns:
+
+1. **First letter missing bug (KNOWN ISSUE):**
+   - Output contains: `"[single_letter]: command not found"` where `[single_letter]` is the first letter of the intended command
+   - Example: Command `cp` executed but output shows `"p: command not found"` (first letter 'c' missing)
+   - This is a known bug when agent executes commands in a new session
+   - **Action:** Retry with the exact same command (the bug is transient)
+
+2. **Command not found with partial match:**
+   - Output contains: `"[partial_command]: command not found"` where `[partial_command]` is clearly a truncated version of the intended command
+   - Example: Command `cp` executed but output shows `"c: command not found"` or similar truncation
+   - **Action:** Retry with the exact same command
+
+3. **Temporary/permission error that might resolve:**
+   - Output contains temporary errors like: `"Resource temporarily unavailable"` or `"Device or resource busy"`
+   - **Action:** Retry once with the exact same command
+
+**Critical error criteria (do NOT retry):**
+
+An error is considered **critical** if it matches any of these patterns:
+
+1. **Source file doesn't exist:**
+   - Output contains: `"cannot stat"`, `"No such file or directory"`, `"cannot find"` referring to the source/template file
+   - Example: `"cp: cannot stat 'template.md': No such file or directory"`
+
+2. **Access rights error:**
+   - Output contains: `"Permission denied"`, `"Access denied"`, `"Operation not permitted"`
+
+3. **Terminal/shell unavailable:**
+   - Output contains: `"terminal not available"`, `"shell not found"`, or similar system-level unavailability
+
+4. **Invalid path or syntax:**
+   - Output contains: `"Invalid argument"`, `"Invalid path"`, or syntax errors that indicate the command structure itself is wrong
+
+5. **Any other error not matching fixable criteria:**
+   - If error doesn't match any fixable pattern above → treat as critical
+
+**Retry strategy:**
+- **When to retry:**
+  - ONLY if error matches one of the fixable error criteria above
+  - Maximum 1-2 retry attempts
+- **When NOT to retry:**
+  - If error matches critical error criteria
+  - If already attempted 1-2 times
+  - If error doesn't match any fixable pattern
+
+**Retry procedure:**
+1. Analyze error in output against fixable/critical criteria above
+2. If fixable → retry with the exact same command (do NOT modify the command)
+3. Analyze output again
+4. Verify file existence again through `read_file`
+5. If after 1-2 attempts file not created → proceed to next priority
 
 **Strategy 1: Success Verification**
 
@@ -609,8 +705,16 @@ Step 4.1 completed:
      * **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
        - **Determine template path**: Use the path to the template file provided by user
        - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
-       - If successful → File created, proceed to fill content using `search_replace`
-       - If terminal not available/doesn't work → Proceed to SECOND STEP
+       - **MANDATORY:** After executing the command, analyze the output:
+         * Read the command output
+         * Determine the result type: Success / Fixable error / Critical error (see "Terminal Command Execution and Analysis" section for exact criteria)
+         * If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
+         * If error is critical (matches critical criteria) → proceed to SECOND STEP
+       - **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
+         * If file exists and is not empty → strategy successful, proceed to fill content using `search_replace`
+         * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
+       - If strategy successful → File created, proceed to fill content using `search_replace`
+       - If strategy unsuccessful → Proceed to SECOND STEP
      * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template < 10 KB → Copy via `read_file` + `write`
        - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
        - If successful → File created, proceed to fill content using `search_replace`
@@ -683,8 +787,16 @@ Step 4.1 completed:
      * **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
        - **Determine template path**: Use the path to the template file provided by user
        - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
-       - If successful → File created, proceed to fill content using `search_replace`
-       - If terminal not available/doesn't work → Proceed to SECOND STEP
+       - **MANDATORY:** After executing the command, analyze the output:
+         * Read the command output
+         * Determine the result type: Success / Fixable error / Critical error (see "Terminal Command Execution and Analysis" section for exact criteria)
+         * If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
+         * If error is critical (matches critical criteria) → proceed to SECOND STEP
+       - **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
+         * If file exists and is not empty → strategy successful, proceed to fill content using `search_replace`
+         * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
+       - If strategy successful → File created, proceed to fill content using `search_replace`
+       - If strategy unsuccessful → Proceed to SECOND STEP
      * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template < 10 KB → Copy via `read_file` + `write`
        - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
        - If successful → File created, proceed to fill content using `search_replace`

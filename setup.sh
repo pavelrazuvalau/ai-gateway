@@ -93,23 +93,28 @@ if ! "$SCRIPT_DIR/ai-gateway" setup; then
     exit 1
 fi
 
-# Ask about Continue.dev setup
-echo ""
-echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Continue.dev Setup (Optional)                           ║${NC}"
-echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
-echo ""
-echo -e "${BLUE}💡 Continue.dev is a VS Code extension for AI-powered coding${NC}"
-echo -e "${BLUE}   The setup script will:${NC}"
-echo -e "   • Configure Continue.dev with models from LiteLLM API"
-echo -e "   • Install VS Code extension (if VS Code is available)"
-echo -e "   • Optimize context to exclude large MD files"
-echo -e "   • Create system prompt to avoid duplication"
-echo ""
-read -p "Setup Continue.dev? [y/N]: " -n 1 -r
-echo ""
+# Ask about Continue.dev setup (skip in non-interactive mode)
+if [ "${NON_INTERACTIVE:-0}" = "1" ]; then
+    echo ""
+    echo -e "${YELLOW}⚠️  Non-interactive mode: skipping Continue.dev setup${NC}"
+    echo -e "${YELLOW}   Run manually: ./ai-gateway continue-dev${NC}"
+else
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║  Continue.dev Setup (Optional)                           ║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${BLUE}💡 Continue.dev is a VS Code extension for AI-powered coding${NC}"
+    echo -e "${BLUE}   The setup script will:${NC}"
+    echo -e "   • Configure Continue.dev with models from LiteLLM API"
+    echo -e "   • Install VS Code extension (if VS Code is available)"
+    echo -e "   • Optimize context to exclude large MD files"
+    echo -e "   • Create system prompt to avoid duplication"
+    echo ""
+    read -p "Setup Continue.dev? [y/N]: " -n 1 -r
+    echo ""
 
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
     # Try to use setup script first, fallback to direct CLI call
     if [ -f "$SCRIPT_DIR/continue-dev.sh" ]; then
         if bash "$SCRIPT_DIR/continue-dev.sh"; then
@@ -134,8 +139,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     else
         echo -e "${YELLOW}⚠️  Continue.dev setup script not found${NC}"
     fi
-else
-    echo -e "${BLUE}💡 You can setup Continue.dev later by running:${NC}"
-    echo -e "   ${GREEN}./ai-gateway continue-dev${NC}"
-    echo -e "   ${GREEN}# Or: ./continue-dev.sh${NC}"
+    else
+        echo -e "${BLUE}💡 You can setup Continue.dev later by running:${NC}"
+        echo -e "   ${GREEN}./ai-gateway continue-dev${NC}"
+        echo -e "   ${GREEN}# Or: ./continue-dev.sh${NC}"
+    fi
 fi

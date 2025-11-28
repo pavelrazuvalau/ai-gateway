@@ -4,7 +4,7 @@ Budget profiles for different environments (test/prod).
 See docs/configuration.md#budget-profiles for budget profile details.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Budget profiles for different environments
 BUDGET_PROFILES = {
@@ -31,5 +31,5 @@ def get_budget_profile(profile_name: str = "test") -> Dict[str, Any]:
 def get_general_budget(profile_name: str = "test") -> float:
     """Get total budget for profile"""
     profile = get_budget_profile(profile_name)
-    return profile.get("general_budget", 100.0)
-
+    budget: float = float(profile.get("general_budget", 100.0))
+    return budget

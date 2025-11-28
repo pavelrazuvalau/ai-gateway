@@ -52,4 +52,3 @@ NO_VALUES = ("no", "false", "0", "n")
 # System user configuration
 SYSTEM_USERNAME = "aigateway"
 SYSTEM_APP_DIR = "/opt/ai-gateway"
-

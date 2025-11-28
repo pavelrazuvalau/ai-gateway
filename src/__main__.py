@@ -28,7 +28,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # Import and use CLI
-from src.cli import main
+from src.cli import main  # noqa: E402
 
 if __name__ == "__main__":
     try:
@@ -40,6 +40,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
-

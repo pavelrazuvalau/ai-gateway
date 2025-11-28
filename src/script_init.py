@@ -8,27 +8,37 @@ See docs/getting-started.md#if-dependencies-are-missing for dependency checks.
 """
 
 import os
-import sys
 import subprocess
-from typing import Optional, Dict, List, Tuple
+import sys
 from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 # Import from src package (works both as module and when imported from check_dependencies.py)
 try:
-    from .utils import (
-        print_header, print_success, print_info, print_warning, print_error, Colors
+    from .infrastructure.output import (
+        Colors,  # noqa: F401
+        print_error,
+        print_header,
+        print_info,
+        print_success,
+        print_warning,
     )
-    from .platform_utils import detect_platform, PlatformType
+    from .platform_utils import PlatformType, detect_platform
 except ImportError:
     # Fallback for absolute imports when run as script
-    from src.utils import (
-        print_header, print_success, print_info, print_warning, print_error, Colors
+    from src.infrastructure.output import (
+        print_error,
+        print_header,
+        print_info,
+        print_success,
+        print_warning,
     )
-    from src.platform_utils import detect_platform, PlatformType
+    from src.platform_utils import PlatformType, detect_platform
 
 
 class ScriptType(Enum):
     """Script types for customizing checks"""
+
     SETUP = "setup"
     START = "start"
     STOP = "stop"
@@ -39,11 +49,16 @@ class ScriptType(Enum):
 
 class ScriptInit:
     """Class for initializing scripts with uniform checks"""
-    
-    def __init__(self, script_name: str, script_type: ScriptType, script_dir: Optional[str] = None):
+
+    def __init__(
+        self,
+        script_name: str,
+        script_type: ScriptType,
+        script_dir: Optional[str] = None,
+    ):
         """
         Initialize script
-        
+
         Args:
             script_name: Script name for display
             script_type: Script type (for customizing checks)
@@ -54,7 +69,7 @@ class ScriptInit:
         self.script_dir = script_dir or os.path.dirname(os.path.abspath(sys.argv[0]))
         self.platform = detect_platform()
         self.checks_passed = True
-    
+
     def print_banner(self, emoji: str = "🚀") -> None:
         """Print uniform banner"""
         # For non-Python environments (bash/batch) use simple output
@@ -68,20 +83,26 @@ class ScriptInit:
             print("║  " + f"{banner_text:<55}" + "║")
             print("╚" + "═" * 58 + "╝")
             print()
-    
+
     def check_python(self, min_version: Tuple[int, int] = (3, 8)) -> bool:
         """
         Check Python availability and version.
-        
+
         See docs/getting-started.md#if-dependencies-are-missing for dependency installation.
         """
         try:
             version = sys.version_info
-            if version.major < min_version[0] or (version.major == min_version[0] and version.minor < min_version[1]):
+            if version.major < min_version[0] or (
+                version.major == min_version[0] and version.minor < min_version[1]
+            ):
                 try:
-                    print_error(f"Python {min_version[0]}.{min_version[1]}+ required, found {version.major}.{version.minor}")
+                    print_error(
+                        f"Python {min_version[0]}.{min_version[1]}+ required, found {version.major}.{version.minor}"
+                    )
                 except (ImportError, AttributeError, NameError):
-                    print(f"❌ Python {min_version[0]}.{min_version[1]}+ required, found {version.major}.{version.minor}")
+                    print(
+                        f"❌ Python {min_version[0]}.{min_version[1]}+ required, found {version.major}.{version.minor}"
+                    )
                 return False
             try:
                 print_success(f"Python {version.major}.{version.minor}.{version.micro}")
@@ -94,22 +115,19 @@ class ScriptInit:
             except (ImportError, AttributeError, NameError):
                 print(f"❌ Error checking Python: {e}")
             return False
-    
+
     def check_docker(self) -> bool:
         """
         Check Docker availability.
-        
+
         See docs/getting-started.md#if-dependencies-are-missing for dependency installation.
         """
         try:
             result = subprocess.run(
-                ["docker", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5
+                ["docker", "--version"], capture_output=True, text=True, timeout=5
             )
             if result.returncode == 0:
-                version = result.stdout.strip().split(',')[0]
+                version = result.stdout.strip().split(",")[0]
                 try:
                     print_success(f"Docker: {version}")
                 except (ImportError, AttributeError, NameError, TypeError):
@@ -139,15 +157,12 @@ class ScriptInit:
             except (ImportError, AttributeError, NameError, TypeError):
                 print(f"❌ Error checking Docker: {e}")
             return False
-    
+
     def check_docker_daemon(self) -> bool:
         """Check that Docker daemon is running"""
         try:
             result = subprocess.run(
-                ["docker", "ps"],
-                capture_output=True,
-                text=True,
-                timeout=5
+                ["docker", "ps"], capture_output=True, text=True, timeout=5
             )
             if result.returncode == 0:
                 print_success("Docker daemon is running")
@@ -170,11 +185,11 @@ class ScriptInit:
             print()
             self._print_docker_start_instructions()
             return False
-    
+
     def _print_docker_start_instructions(self) -> None:
         """Print instructions for starting Docker daemon"""
         current_platform = detect_platform()
-        
+
         if current_platform == PlatformType.LINUX:
             print("To start Docker daemon:")
             print()
@@ -184,7 +199,9 @@ class ScriptInit:
             print("    dockerd-rootless-setuptool.sh install")
             print("    # This will initialize and automatically start the daemon")
             print()
-            print("  If rootless Docker is already initialized but daemon is not running:")
+            print(
+                "  If rootless Docker is already initialized but daemon is not running:"
+            )
             print("    systemctl --user start docker")
             print("    systemctl --user enable docker  # Enable auto-start on login")
             print()
@@ -209,7 +226,7 @@ class ScriptInit:
         else:
             print("Please start Docker daemon for your platform")
         print()
-    
+
     def check_docker_compose(self) -> bool:
         """Check docker compose availability"""
         try:
@@ -217,7 +234,7 @@ class ScriptInit:
                 ["docker", "compose", "version"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             if result.returncode == 0:
                 version = result.stdout.strip()
@@ -237,7 +254,7 @@ class ScriptInit:
                         ["docker-compose", "--version"],
                         capture_output=True,
                         text=True,
-                        timeout=5
+                        timeout=5,
                     )
                     if result.returncode == 0:
                         version = result.stdout.strip()
@@ -246,7 +263,11 @@ class ScriptInit:
                         except (ImportError, AttributeError, NameError, TypeError):
                             print(f"✅ docker-compose: {version}")
                         return True
-                except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+                except (
+                    subprocess.CalledProcessError,
+                    subprocess.TimeoutExpired,
+                    FileNotFoundError,
+                ):
                     pass
                 return False
         except FileNotFoundError:
@@ -267,7 +288,7 @@ class ScriptInit:
             except (ImportError, AttributeError, NameError, TypeError):
                 print(f"⚠️  Error checking Docker Compose: {e}")
             return False
-    
+
     def check_env_file(self, required: bool = True) -> bool:
         """Check .env file availability"""
         env_path = os.path.join(self.script_dir, ".env")
@@ -292,7 +313,7 @@ class ScriptInit:
                 except (ImportError, AttributeError, NameError, TypeError):
                     print("⚠️  .env file not found (optional for this script)")
                 return True
-    
+
     def check_config_yaml(self, required: bool = True) -> bool:
         """Check config.yaml availability"""
         config_path = os.path.join(self.script_dir, "config.yaml")
@@ -313,11 +334,13 @@ class ScriptInit:
                 return False
             else:
                 try:
-                    print_warning("config.yaml file not found (optional for this script)")
+                    print_warning(
+                        "config.yaml file not found (optional for this script)"
+                    )
                 except (ImportError, AttributeError, NameError, TypeError):
                     print("⚠️  config.yaml file not found (optional for this script)")
                 return True
-    
+
     def check_venv(self, auto_create: bool = False) -> bool:
         """Check virtual environment availability"""
         venv_path = os.path.join(self.script_dir, "venv")
@@ -335,8 +358,12 @@ class ScriptInit:
                     print("⚠️  Virtual environment not found, creating...")
                 try:
                     from .core.constants import DOCKER_UP_TIMEOUT
-                    subprocess.run([sys.executable, "-m", "venv", "venv"], 
-                                 check=True, timeout=DOCKER_UP_TIMEOUT)
+
+                    subprocess.run(
+                        [sys.executable, "-m", "venv", "venv"],
+                        check=True,
+                        timeout=DOCKER_UP_TIMEOUT,
+                    )
                     try:
                         print_success("Virtual environment created")
                     except (ImportError, AttributeError, NameError, TypeError):
@@ -354,7 +381,7 @@ class ScriptInit:
                 except (ImportError, AttributeError, NameError, TypeError):
                     print("⚠️  Virtual environment not found (optional)")
                 return True
-    
+
     def check_dependencies(self, deps: List[str]) -> bool:
         """Check Python dependencies availability"""
         missing = []
@@ -365,13 +392,13 @@ class ScriptInit:
             except ImportError:
                 missing.append(dep)
                 print_warning(f"  ✗ {dep} not found")
-        
+
         if missing:
             print_error(f"Missing dependencies: {', '.join(missing)}")
             print_info("Install them: pip install " + " ".join(missing))
             return False
         return True
-    
+
     def run_standard_checks(self) -> bool:
         """Run standard checks depending on script type"""
         try:
@@ -379,14 +406,18 @@ class ScriptInit:
         except (ImportError, AttributeError, NameError, TypeError):
             print("🔍 Checking dependencies...")
         print()
-        
+
         all_passed = True
-        
+
         # Python check is NOT needed for Python scripts - if script ran, Python is already available
         # Python check should be at bash/batch script level before calling Python
-        
+
         # Docker check for scripts working with containers
-        if self.script_type in [ScriptType.START, ScriptType.STOP, ScriptType.MONITORING]:
+        if self.script_type in [
+            ScriptType.START,
+            ScriptType.STOP,
+            ScriptType.MONITORING,
+        ]:
             try:
                 print_info("Docker:")
             except (ImportError, AttributeError, NameError, TypeError):
@@ -399,7 +430,7 @@ class ScriptInit:
                 if not self.check_docker_compose():
                     all_passed = False
             print()
-        
+
         # .env check
         # For START script type, .env is optional - start.sh will handle it interactively
         if self.script_type == ScriptType.START:
@@ -422,7 +453,7 @@ class ScriptInit:
                 if not self.check_config_yaml(required=True):
                     all_passed = False
             print()
-        
+
         # Python dependencies for tests
         if self.script_type == ScriptType.TEST:
             try:
@@ -433,29 +464,34 @@ class ScriptInit:
             if not self.check_dependencies(deps):
                 all_passed = False
             print()
-        
+
         self.checks_passed = all_passed
         return all_passed
-    
+
     def get_summary(self) -> Dict[str, bool]:
         """Get checks summary"""
         return {
             "python": True,  # Python is checked at platform script level
-            "docker": self.check_docker() if self.script_type in [ScriptType.START, ScriptType.STOP, ScriptType.MONITORING] else True,
+            "docker": self.check_docker()
+            if self.script_type
+            in [ScriptType.START, ScriptType.STOP, ScriptType.MONITORING]
+            else True,
             "env": self.check_env_file(required=False),
             "config": self.check_config_yaml(required=False),
         }
 
 
-def init_script(script_name: str, script_type: ScriptType, emoji: str = "🚀") -> ScriptInit:
+def init_script(
+    script_name: str, script_type: ScriptType, emoji: str = "🚀"
+) -> ScriptInit:
     """
     Initialize script with uniform checks
-    
+
     Args:
         script_name: Script name
         script_type: Script type
         emoji: Emoji for banner
-    
+
     Returns:
         ScriptInit object for further checks
     """

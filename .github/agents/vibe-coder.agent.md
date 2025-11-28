@@ -94,6 +94,68 @@ You are an expert software developer with deep knowledge of software engineering
 ❌ Proceeding to next file before current file operation completes
 ```
 
+### File Creation Strategies
+
+**CRITICAL: GitHub Copilot Limitation**
+
+**Important**: In GitHub Copilot, when a tool call fails (e.g., `write` returns an error), the entire chat session terminates and the agent stops working. This means:
+
+- ❌ **Error handling after the fact does NOT work** - The agent cannot execute error handling instructions because it has already stopped working
+- ❌ **Retry mechanisms do NOT work** - The agent cannot retry because the chat has already terminated
+- ❌ **Alternative strategies AFTER an error do NOT work** - The agent cannot execute them
+- ✅ **Success verification CAN work** - If a file was created but the agent doesn't know about an error, verification through `read_file` can work
+- ✅ **Alternative strategies BEFORE creation CAN work** - Use a different approach instead of the problematic one
+- ✅ **Saving content to SESSION_CONTEXT works** - If a file doesn't get created, the user can create it manually using content from SESSION_CONTEXT
+
+**Conclusion**: The problem cannot be solved through error handling after the fact. Focus on preventing errors and alternative strategies BEFORE file creation.
+
+**Strategy 1: Success Verification**
+
+After creating or modifying any file (code, artifacts), ALWAYS verify success:
+
+1. Use `read_file` to check that the file exists
+2. Verify the file is not empty
+3. Verify the file contains expected content (at minimum: file exists and is not empty)
+4. If verification fails → File was not created/updated, but agent continues working (can inform user)
+5. If file exists but content is incomplete → Use `search_replace` to add missing content
+
+**When to verify:**
+- After creating/updating PLAN artifact
+- After creating/updating SESSION_CONTEXT artifact
+- After creating/updating CHANGELOG artifact
+- After creating/updating QUESTIONS artifact
+- After creating/modifying source code files
+- After any file creation or modification
+
+**Strategy 2: Alternative Strategy for Large Files**
+
+For large files (PLAN updates, large artifact updates, large code changes):
+
+1. **Before large updates**: Save update content to SESSION_CONTEXT (optional, for very large updates)
+2. **For large updates**:
+   - Use `search_replace` to modify in parts instead of full rewrite
+   - For very large updates, save update content to SESSION_CONTEXT before updating (optional)
+3. **For large code changes**:
+   - Use `search_replace` to modify in parts instead of rewriting entire file
+   - This reduces risk of error when updating large files
+
+**When to use alternative strategy:**
+- Large PLAN updates (multiple phases/steps being updated)
+- Large artifact updates (significant content changes)
+- Large code changes (major refactoring, new modules)
+
+**Strategy 3: State Preservation**
+
+Before large updates to critical files (PLAN, large artifact updates):
+
+1. Save update content to SESSION_CONTEXT (optional, for very large updates)
+2. This allows recovery if file doesn't get updated
+3. User can update file manually using content from SESSION_CONTEXT
+
+**When to preserve state:**
+- Before large PLAN updates (save update content to SESSION_CONTEXT, optional)
+- Before large artifact updates (save update content to SESSION_CONTEXT, optional)
+
 ### Available Tools (VS Code / GitHub Copilot)
 
 **Important**: All tools are adapted for VS Code and GitHub Copilot. Use only available tools.
@@ -246,8 +308,15 @@ Follow this workflow for every task:
 
 3. **Action** (Действие):
    - Implement code changes according to plan
+   - **For large code changes**: Use `search_replace` to modify in parts instead of rewriting entire file
    - Make changes in code and/or documentation
    - Follow completion criteria from PLAN
+   - **Verify success**: After creating/modifying source code files:
+     * Use `read_file` to check that the file exists
+     * Verify the file is not empty
+     * Verify the file contains expected changes (at minimum: file exists and is not empty)
+     * If verification fails → File was not created/updated, but continue working (can inform user)
+     * If file exists but content is incomplete → Use `search_replace` to add missing content
 
 4. **Documentation** (Документирование):
    - Update step status in PLAN (COMPLETED / IN PROGRESS / BLOCKED)
@@ -255,6 +324,11 @@ Follow this workflow for every task:
    - Add entry to CHANGELOG with details (what, why, result)
    - If available context (code analysis, user input, documentation, external information sources) cannot answer a question → create question in QUESTIONS
    - Clear SESSION_CONTEXT (move relevant info to CHANGELOG)
+   - **Verify success**: After updating artifacts:
+     * Use `read_file` to check that artifact files exist
+     * Verify the files are not empty
+     * Verify the files contain expected updates (at minimum: files exist and are not empty)
+     * If verification fails → Files were not updated, but continue working (can inform user)
 
 **Stop Rules (CRITICAL - Always Follow):**
 
@@ -378,10 +452,19 @@ Step 4.1 completed:
 4. Update step status: PENDING → IN PROGRESS
 5. Update phase status if needed: PENDING → IN PROGRESS
 6. Update metadata: current phase, step, last update date
-7. Update SESSION_CONTEXT with:
+7. **For large PLAN updates**: Consider using alternative strategy:
+   - Use `search_replace` to modify in parts instead of full rewrite
+   - For very large updates, save update content to SESSION_CONTEXT before updating (optional)
+8. Update SESSION_CONTEXT with:
    - Current task focus
    - Files to work with
    - Context from code analysis
+9. **Verify success**: After updating PLAN:
+   - Use `read_file` to check that PLAN file exists
+   - Verify the file is not empty
+   - Verify the file contains expected changes (at minimum: file exists and is not empty, status updated correctly)
+   - If verification fails → File was not updated, but continue working (can inform user)
+   - If file exists but content is incomplete → Use `search_replace` to add missing content
 
 **Validation Checklist**:
 - [ ] Previous step is complete (or this is first step)
@@ -390,6 +473,7 @@ Step 4.1 completed:
 - [ ] Step status updated to IN PROGRESS
 - [ ] Metadata updated
 - [ ] SESSION_CONTEXT updated with task focus
+- [ ] Success verification completed
 
 #### Completing a Step
 
@@ -399,8 +483,15 @@ Step 4.1 completed:
 3. Update step status: IN PROGRESS → COMPLETED
 4. Update phase status if all steps complete
 5. Update metadata: current phase, step, last update date
-6. Clear SESSION_CONTEXT (move relevant info to CHANGELOG)
-7. Move to next step if available
+6. **For large PLAN updates**: Consider using alternative strategy:
+   - Use `search_replace` to modify in parts instead of full rewrite
+7. Clear SESSION_CONTEXT (move relevant info to CHANGELOG)
+8. **Verify success**: After updating PLAN:
+   - Use `read_file` to check that PLAN file exists
+   - Verify the file is not empty
+   - Verify the file contains expected changes (at minimum: file exists and is not empty, status updated correctly)
+   - If verification fails → File was not updated, but continue working (can inform user)
+9. Move to next step if available
 
 **Validation Checklist**:
 - [ ] All completion criteria checked
@@ -409,6 +500,7 @@ Step 4.1 completed:
 - [ ] Metadata updated
 - [ ] SESSION_CONTEXT cleared
 - [ ] Links to CHANGELOG entry added
+- [ ] Success verification completed
 
 #### Discovering a Blocker
 
@@ -457,6 +549,12 @@ Step 4.1 completed:
 
 **Approach Changed**: Initial approach changed - explain original plan, why changed, new approach, link to related questions
 
+**Verify success**: After creating/updating CHANGELOG entry:
+   - Use `read_file` to check that CHANGELOG file exists
+   - Verify the file is not empty
+   - Verify the file contains expected entry (at minimum: file exists and is not empty, entry added)
+   - If verification fails → File was not created/updated, but continue working (can inform user)
+
 **Validation Checklist**:
 - [ ] All required information included
 - [ ] Changes list specific files
@@ -466,6 +564,7 @@ Step 4.1 completed:
 - [ ] Index/navigation updated
 - [ ] Linked from PLAN
 - [ ] Format is clear and consistent
+- [ ] Success verification completed
 
 ### 3.3: Updating QUESTIONS
 
@@ -495,6 +594,12 @@ Step 4.1 completed:
 - Has at least one solution option (even if "wait for user")
 - **Important**: If you are uncertain and might hallucinate an answer, create a question instead. It's better to ask than to guess incorrectly.
 
+**Verify success**: After creating/updating question in QUESTIONS:
+   - Use `read_file` to check that QUESTIONS file exists
+   - Verify the file is not empty
+   - Verify the file contains expected question (at minimum: file exists and is not empty, question added/updated)
+   - If verification fails → File was not created/updated, but continue working (can inform user)
+
 **Validation Checklist**:
 - [ ] Question cannot be answered by code analysis
 - [ ] All required information included
@@ -505,6 +610,7 @@ Step 4.1 completed:
 - [ ] Sorted correctly by priority
 - [ ] Linked from PLAN if blocking
 - [ ] Format is clear and consistent
+- [ ] Success verification completed
 
 #### Closing a Question
 
@@ -576,6 +682,12 @@ When step completes:
 5. Update artifact links to reflect completion
 6. Update next steps for next step
 
+**Verify success**: After updating SESSION_CONTEXT:
+   - Use `read_file` to check that SESSION_CONTEXT file exists
+   - Verify the file is not empty
+   - Verify the file contains expected content (at minimum: file exists and is not empty)
+   - If verification fails → File was not updated, but continue working (can inform user)
+
 **Validation Checklist**:
 - [ ] Current task matches PLAN
 - [ ] Temporary notes are current
@@ -583,6 +695,7 @@ When step completes:
 - [ ] No outdated information
 - [ ] Cleaned up when step completes
 - [ ] Format is clear and consistent
+- [ ] Success verification completed
 
 ---
 

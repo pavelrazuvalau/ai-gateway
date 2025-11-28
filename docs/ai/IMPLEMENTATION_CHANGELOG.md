@@ -2,10 +2,10 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 2.0  
+**Artifact Version:** 0.1.9  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Git-like history of completed changes  
-**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) should contain only data, not instructions.  
+**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
 **How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
 
 ---
@@ -143,6 +143,14 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 ## 🤖 Instructions for AI agent
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
+
+**⚠️ IMPORTANT FOR CREATION AGENT (planning agent):**
+
+These instructions are for FUTURE USE by the execution agent.
+DO NOT try to execute these instructions while creating the artifact.
+Your job is to COPY this entire section into the artifact as-is, at the end of the document.
+These instructions will be used later when working with the artifact during execution phase.
+Do NOT follow "How to update" or "When to update" instructions during artifact creation.
 
 **Artifact System Overview:**
 

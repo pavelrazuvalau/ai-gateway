@@ -2,10 +2,10 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 2.0  
+**Artifact Version:** 0.1.9  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** [Purpose of this plan]  
-**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) should contain only data, not instructions.
+**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.
 
 **Status:** 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | ⚪ PENDING  
 **Current Phase:** Phase X  
@@ -175,6 +175,14 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
 
+**⚠️ IMPORTANT FOR CREATION AGENT (planning agent):**
+
+These instructions are for FUTURE USE by the execution agent.
+DO NOT try to execute these instructions while creating the artifact.
+Your job is to COPY this entire section into the artifact as-is, at the end of the document.
+These instructions will be used later when working with the artifact during execution phase.
+Do NOT follow "How to update" or "When to update" instructions during artifact creation.
+
 **Artifact System Overview:**
 
 This artifact is part of a system of 4 required artifacts that work together:
@@ -226,19 +234,42 @@ This artifact is part of a system of 4 required artifacts that work together:
 
 **How to update Current Focus section:**
 
-**For PLAN:**
-1. When Current Step changes → update "🎯 Current Focus" section:
-   - Update "Current Step" link to point to new step using anchor format: `[Phase X, Step Y: Step Name](#phase-x-step-xy-step-name)`
-   - Update "Status" to match step status
-   - Update "Requires Action" if step is BLOCKED and needs user input
-2. When step status changes (but Current Step remains the same) → update "🎯 Current Focus" section:
-   - Update "Status" to match new step status
-   - Update "Requires Action" if step becomes BLOCKED and needs user input, or remove it if step is no longer blocked
-3. When all steps are completed → update "🎯 Current Focus" section:
-   - Set to: "All steps completed" or remove the section if preferred
-4. Format for anchor links: `[Phase X, Step Y: Step Name](#phase-x-step-xy-step-name)`
-   - Markdown automatically creates anchors from headings
-   - Format: lowercase, spaces to hyphens, special chars removed
+**Simple rule:** Show the highest priority active step (first step that is not completed).
+
+**Procedure:**
+1. Find the first step with status: 🟡 IN PROGRESS, 🔴 BLOCKED, or ⚪ PENDING (in order of phases and steps)
+2. Update "🎯 Current Focus" section with that step's link and status
+3. If step is BLOCKED and needs user input → set "Requires Action: Yes"
+4. If all steps completed → show "All steps completed"
+
+**Examples:**
+
+**Example 1: Step in progress**
+```
+## 🎯 Current Focus
+
+> **Current Step:** [Phase 1, Step 1.1: Setup environment](#phase-1-step-11-setup-environment)
+> **Status:** 🟡 IN PROGRESS
+> **Requires Action:** No
+```
+
+**Example 2: Step blocked**
+```
+## 🎯 Current Focus
+
+> **Current Step:** [Phase 2, Step 2.3: Implement feature](#phase-2-step-23-implement-feature)
+> **Status:** 🔴 BLOCKED
+> **Requires Action:** Yes
+```
+
+**Example 3: All completed**
+```
+## 🎯 Current Focus
+
+> **Status:** All steps completed
+```
+
+**Anchor link format:** `[Phase X, Step Y: Step Name](#phase-x-step-xy-step-name)` (Markdown auto-creates anchors from headings)
    - Example: `#### Step 4.3: E2E тесты` → `#step-43-e2e-тесты`
    - For steps with special characters, use the exact heading text and let Markdown generate the anchor
    - To find the correct anchor, look at the actual heading in the document and use the format shown above

@@ -2,10 +2,10 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 2.0  
+**Artifact Version:** 0.1.9  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Knowledge base (doubts and solutions)  
-**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) should contain only data, not instructions.  
+**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
 **How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
 
 ---
@@ -186,6 +186,14 @@
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
 
+**⚠️ IMPORTANT FOR CREATION AGENT (planning agent):**
+
+These instructions are for FUTURE USE by the execution agent.
+DO NOT try to execute these instructions while creating the artifact.
+Your job is to COPY this entire section into the artifact as-is, at the end of the document.
+These instructions will be used later when working with the artifact during execution phase.
+Do NOT follow "How to update" or "When to update" instructions during artifact creation.
+
 **Artifact System Overview:**
 
 This artifact is part of a system of 4 required artifacts that work together:
@@ -220,9 +228,7 @@ This artifact is part of a system of 4 required artifacts that work together:
    - Sort by priority: 🔴 → 🟡 → 🟢
    - Use format: `### QX.Y: [Title] (Phase X, Step Y)`
    - Include all required sections (see "Question Format" section above)
-   - **Update "🎯 Current Focus" section** following the logic in "How to update Current Focus section" below:
-     - If new question is High priority → always update Current Focus to show it
-     - If new question is Medium/Low → update only if there are no higher priority questions
+   - **Update "🎯 Current Focus" section** (see "How to update Current Focus section" below)
 2. Question format: `QX.Y: [Title] (Phase X, Step Y)`
    - QX.Y: Question number (Phase X, Step Y)
    - Title: Brief descriptive title
@@ -249,25 +255,41 @@ This artifact is part of a system of 4 required artifacts that work together:
 
 **How to update Current Focus section:**
 
-**For QUESTIONS:**
-1. When question is created/answered → update "🎯 Current Focus" section:
-   - **If new High priority question** → always update to show it
-   - **If new Medium/Low priority question** → update only if there are no higher priority active questions
-   - **If High question answered** → show next High, or Medium if no High, or Low if no Medium
-   - **If Medium question answered** → show next Medium, or Low if no Medium
-   - **If Low question answered** → show next Low, or "No active questions" if none
-   - **If no active questions** → set to "No active questions requiring your answer"
-2. Logic for selecting question to display (always follow this priority order):
-   - **Step 1:** Check for 🔴 High priority questions with ⏳ Pending status → show first one found
-   - **Step 2:** If no High, check for 🟡 Medium priority questions with ⏳ Pending status → show first one found
-   - **Step 3:** If no Medium, check for 🟢 Low priority questions with ⏳ Pending status → show first one found
-   - **Step 4:** If no active questions → show "No active questions requiring your answer"
-3. Format for anchor links: `[QX.Y: Question Title](#qxy-question-title-phase-x-step-y)`
-   - Markdown automatically creates anchors from headings
-   - Format: lowercase, spaces to hyphens, special chars removed
-   - Example: `### Q2.1: E2E тесты - моки провайдеров` → `#q21-e2e-тесты---моки-провайдеров`
-   - For questions with special characters, use the exact heading text and let Markdown generate the anchor
-   - To find the correct anchor, look at the actual question heading in the document and use the format shown above
+**Simple rule:** Show the highest priority active question (first question with ⏳ Pending status, in priority order: 🔴 High → 🟡 Medium → 🟢 Low).
+
+**Procedure:**
+1. Find first active question (⏳ Pending) in priority order: 🔴 High → 🟡 Medium → 🟢 Low
+2. Update "🎯 Current Focus" section with that question's link and priority
+3. If no active questions → show "No active questions requiring your answer"
+
+**Examples:**
+
+**Example 1: High priority question**
+```
+## 🎯 Current Focus
+
+> **Requires Your Answer:** [Q2.1: Database migration strategy](#q21-database-migration-strategy-phase-2-step-1)
+> **Priority:** 🔴 High
+> **Status:** ⏳ Pending
+```
+
+**Example 2: Medium priority question (no High priority)**
+```
+## 🎯 Current Focus
+
+> **Requires Your Answer:** [Q3.2: API endpoint naming](#q32-api-endpoint-naming-phase-3-step-2)
+> **Priority:** 🟡 Medium
+> **Status:** ⏳ Pending
+```
+
+**Example 3: No active questions**
+```
+## 🎯 Current Focus
+
+> **Note:** No active questions requiring your answer
+```
+
+**Anchor link format:** `[QX.Y: Question Title](#qxy-question-title-phase-x-step-y)` (Markdown auto-creates anchors from headings)
 
 **Formatting rules:**
 - Use exact question format as defined in "Question Format" section above

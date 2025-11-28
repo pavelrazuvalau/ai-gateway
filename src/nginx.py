@@ -5,8 +5,10 @@ See docs/configuration.md#default-configuration-with-nginx---enabled-by-default 
 See docs/nginx/README.md for detailed nginx setup instructions.
 """
 
-from typing import Dict, Any
-from .utils import print_success, print_info, ensure_dir
+from pathlib import Path
+from typing import Any, Dict
+
+from .infrastructure.output import print_info, print_success
 
 
 def generate_nginx_config(port_config: Dict[str, Any]) -> None:
@@ -16,19 +18,19 @@ def generate_nginx_config(port_config: Dict[str, Any]) -> None:
     The configs contain native nginx variables (e.g. $scheme) that must stay
     untouched, so we render concrete port numbers directly instead of
     passing the files through envsubst (which would strip those variables).
-    
+
     See docs/nginx/README.md for detailed nginx configuration.
     Note: SSL/HTTPS should be configured via external nginx container.
     """
     if not port_config.get("use_nginx"):
         return
-    
-    ensure_dir("nginx/conf.d")
-    
+
+    Path("nginx/conf.d").mkdir(parents=True, exist_ok=True)
+
     litellm_internal_port = port_config.get("litellm_internal_port", 4000)
     webui_internal_port = port_config.get("webui_internal_port", 8080)
     litellm_external_port = port_config.get("litellm_external_port", 4000)
-    
+
     # Generate HTTP only configuration
     # Security: Open WebUI and LiteLLM API exposed on external port via nginx
     # LiteLLM UI and other services accessible only within Docker network or via direct port
@@ -50,7 +52,7 @@ upstream litellm_backend {{
 server {{
     listen 80;
     server_name _;
-    
+
     # Client body buffering - optimized for Tier 2 rate limits (RPM: 1,000, ITPM: 500k, OTPM: 50k)
     # Large buffer prevents nginx from writing to temp files for requests up to buffer size
     # This avoids hanging worker processes when reading large request bodies
@@ -67,7 +69,7 @@ server {{
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    
+
     # Hide nginx version
     server_tokens off;
 
@@ -90,7 +92,7 @@ server {{
         proxy_pass http://litellm_backend;
         proxy_http_version 1.1;
         access_log off;
-        
+
         # Security: Don't expose internal hostnames
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -118,7 +120,7 @@ server {{
         rewrite ^/api/litellm/v1/openai/deployments/[^/]+/(.*)$ /v1/$1 break;
         proxy_pass http://litellm_backend;
         proxy_http_version 1.1;
-        
+
         # Security: Don't expose internal hostnames
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -126,16 +128,16 @@ server {{
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port $server_port;
-        
+
         # Streaming support - disable buffering for real-time streaming
         proxy_buffering off;
         proxy_cache off;
         proxy_read_timeout 300s;
         proxy_send_timeout 300s;
-        
+
         # Chunked transfer encoding for streaming
         chunked_transfer_encoding on;
-        
+
         # WebSocket support (if needed for streaming)
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -146,7 +148,7 @@ server {{
         rewrite ^/api/litellm/v1/responses(.*)$ /v1/responses$1 break;
         proxy_pass http://litellm_backend;
         proxy_http_version 1.1;
-        
+
         # Security: Don't expose internal hostnames
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -154,24 +156,24 @@ server {{
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port $server_port;
-        
+
         # Use large buffer to avoid temp files and prevent hanging requests
         # Large buffer allows nginx to read request body in memory without writing to temp files
         # Set to 3M for Tier 2: handles large context requests (200k+ tokens, ~800KB+ JSON payloads)
         # Balanced for memory safety while supporting Tier 2 workloads
         client_body_buffer_size 3M;
         client_body_timeout 300s;
-        
+
         # Streaming support - disable buffering for real-time streaming
         proxy_buffering off;
         proxy_cache off;
         proxy_read_timeout 300s;
         proxy_send_timeout 300s;
         proxy_connect_timeout 300s;
-        
+
         # Chunked transfer encoding for streaming
         chunked_transfer_encoding on;
-        
+
         # WebSocket support (if needed for streaming)
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -187,7 +189,7 @@ server {{
         rewrite ^/api/litellm/v1/messages(.*)$ /v1/messages$1 break;
         proxy_pass http://litellm_backend;
         proxy_http_version 1.1;
-        
+
         # Security: Don't expose internal hostnames
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -195,7 +197,7 @@ server {{
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port $server_port;
-        
+
         # Streaming support - disable buffering for real-time streaming
         proxy_buffering off;
         proxy_cache off;
@@ -203,15 +205,15 @@ server {{
         proxy_connect_timeout 300s;
         proxy_read_timeout 300s;
         proxy_send_timeout 300s;
-        
+
         # Chunked transfer encoding for streaming
         chunked_transfer_encoding on;
-        
+
         # WebSocket support (if needed for streaming)
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }}
-    
+
     # LiteLLM API endpoints (v1 only)
     # Following standard API format: https://platform.openai.com/docs/api-reference
     # LiteLLM uses /v1/ prefix for all standard endpoints
@@ -235,7 +237,7 @@ server {{
         rewrite ^/api/litellm/v1/(.*)$ /v1/$1 break;
         proxy_pass http://litellm_backend;
         proxy_http_version 1.1;
-        
+
         # Security: Don't expose internal hostnames
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -243,7 +245,7 @@ server {{
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port $server_port;
-        
+
         # Streaming support - disable buffering for real-time streaming
         proxy_buffering off;
         proxy_cache off;
@@ -251,15 +253,15 @@ server {{
         proxy_connect_timeout 300s;
         proxy_read_timeout 300s;
         proxy_send_timeout 300s;
-        
+
         # Chunked transfer encoding for streaming
         chunked_transfer_encoding on;
-        
+
         # WebSocket support (if needed for streaming)
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }}
-    
+
     # Block all other /api/litellm/ paths (security)
     location /api/litellm/ {{
         return 403 "Access denied: Only standard API endpoints are allowed. Use /v1/chat/completions, /v1/models, etc.";
@@ -278,28 +280,31 @@ server {{
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port $server_port;
-        
+
         # WebSocket support
         proxy_read_timeout 86400;
         proxy_send_timeout 86400;
     }}
 }}
 """
-    
+
     # Write main vhost configuration file
     main_conf_path = "nginx/conf.d/litellm.conf"
     with open(main_conf_path, "w", encoding="utf-8") as f:
         f.write(config_content)
-    
+
     # Note: LiteLLM UI is accessible via direct Docker port mapping (not through nginx)
     # This provides better security - UI only accessible from local/VPN network
     # Port mapping is configured in docker-compose.override.yml
-    
-    print_success("Nginx configuration created")
-    print_success(f"Main vhost: Open WebUI + LiteLLM API at /api/litellm/")
-    if litellm_external_port:
-        print_success(f"LiteLLM UI: Direct access via Docker port {litellm_external_port} (local/VPN network only)")
-    print_info("Note: SSL/HTTPS should be configured via your own nginx container")
-    print_info("Example configuration available in: docs/nginx/external-nginx-example.conf")
-    print_info("See docs/nginx/README.md for detailed setup instructions")
 
+    print_success("Nginx configuration created")
+    print_success("Main vhost: Open WebUI + LiteLLM API at /api/litellm/")
+    if litellm_external_port:
+        print_success(
+            f"LiteLLM UI: Direct access via Docker port {litellm_external_port} (local/VPN network only)"
+        )
+    print_info("Note: SSL/HTTPS should be configured via your own nginx container")
+    print_info(
+        "Example configuration available in: docs/nginx/external-nginx-example.conf"
+    )
+    print_info("See docs/nginx/README.md for detailed setup instructions")

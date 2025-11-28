@@ -3,16 +3,22 @@ Configuration management and resource profiles
 DEPRECATED: Use core.config for new code, but kept for backward compatibility
 """
 
-from typing import Dict, Any, Optional
 from enum import Enum
+from typing import Any, Dict, Optional
 
 # Re-export from core.config for backward compatibility
 try:
-    from .core.config import ResourceProfile, BudgetProfile, PortConfig, AppConfig
+    from .core.config import (  # noqa: F401
+        AppConfig,
+        BudgetProfile,
+        PortConfig,
+        ResourceProfile,
+    )
 except ImportError:
     # Fallback if core module not available
     class ResourceProfile(str, Enum):
         """Resource profile types"""
+
         DESKTOP = "desktop"
         SMALL_VPS = "small"
         MEDIUM_VPS = "medium"
@@ -63,17 +69,39 @@ def get_profile_info(profile: ResourceProfile) -> Dict[str, Any]:
     return RESOURCE_PROFILES.get(profile, {})
 
 
-def select_resource_profile() -> Optional[ResourceProfile]:
-    """Interactive selection of resource profile"""
-    from .utils import print_header, print_info, Colors
-    
+def select_resource_profile(non_interactive: Optional[bool] = None) -> Optional[ResourceProfile]:
+    """
+    Interactive selection of resource profile
+
+    Args:
+        non_interactive: If True, skip prompt and use MEDIUM_VPS. If None, check NON_INTERACTIVE env var.
+    """
+    from .infrastructure.output import (
+        Colors,
+        is_non_interactive,
+        print_header,
+        print_info,
+    )
+
+    if non_interactive is None:
+        non_interactive = is_non_interactive()
+
+    if non_interactive:
+        # In non-interactive mode, use MEDIUM_VPS by default
+        print_info("Non-interactive mode: using MEDIUM_VPS profile")
+        return ResourceProfile.MEDIUM_VPS
+
     print_header("💻 Performance Profile Selection")
     print()
     print_info("What are workers?")
     print_info("Workers are separate processes that handle API requests in parallel.")
     print_info("More workers = better performance under load, but more RAM usage.")
-    print_info("IMPORTANT: Real measurements show each worker uses ~460MB RAM (not 100-200MB).")
-    print_info("This is due to LiteLLM's model loading, caching, and Python 3.13 overhead.")
+    print_info(
+        "IMPORTANT: Real measurements show each worker uses ~460MB RAM (not 100-200MB)."
+    )
+    print_info(
+        "This is due to LiteLLM's model loading, caching, and Python 3.13 overhead."
+    )
     print_info("LiteLLM uses Gunicorn to manage workers.")
     print_info("")
     print_info("Why multiple workers?")
@@ -84,39 +112,50 @@ def select_resource_profile() -> Optional[ResourceProfile]:
     print_info("Formula: (CPU cores * 2) + 1, adjusted for available RAM")
     print_info("Note: Profiles are optimized based on REAL memory measurements.")
     print()
-    
+
     profiles = [
         (ResourceProfile.DESKTOP, "1"),
         (ResourceProfile.SMALL_VPS, "2"),
         (ResourceProfile.MEDIUM_VPS, "3"),
         (ResourceProfile.LARGE_VPS, "4"),
     ]
-    
+
     for profile, num in profiles:
         info = RESOURCE_PROFILES[profile]
-        print(f"{Colors.BLUE}[{num}] {info['name']}{Colors.RESET} - {info['description']}")
-        print(f"    CPU: {info['cpu_cores']}, RAM: {info['ram']}, Workers: {info['workers']}")
-        if 'note' in info:
+        print(
+            f"{Colors.BLUE}[{num}] {info['name']}{Colors.RESET} - {info['description']}"
+        )
+        print(
+            f"    CPU: {info['cpu_cores']}, RAM: {info['ram']}, Workers: {info['workers']}"
+        )
+        if "note" in info:
             print(f"    {Colors.YELLOW}Note: {info['note']}{Colors.RESET}")
         print(f"    For: {info['recommended_for']}")
         print()
-    
-    print(f"{Colors.BLUE}[5] Don't configure workers{Colors.RESET} - Use LiteLLM defaults")
-    print(f"    {Colors.YELLOW}You'll need to configure workers manually in docker-compose.override.yml{Colors.RESET}")
+
+    print(
+        f"{Colors.BLUE}[5] Don't configure workers{Colors.RESET} - Use LiteLLM defaults"
+    )
+    print(
+        f"    {Colors.YELLOW}You'll need to configure workers manually in docker-compose.override.yml{Colors.RESET}"
+    )
     print()
-    
+
     while True:
         choice = input("Select profile [1-5]: ").strip()
-        
+
         if choice == "5":
-            print(f"{Colors.GREEN}✅ Selected: Don't configure workers (using defaults){Colors.RESET}")
+            print(
+                f"{Colors.GREEN}✅ Selected: Don't configure workers (using defaults){Colors.RESET}"
+            )
             return None  # Special value to indicate no workers configuration
-        
+
         for profile, num in profiles:
             if choice == num:
                 info = RESOURCE_PROFILES[profile]
-                print(f"{Colors.GREEN}✅ Selected profile: {info['name']}{Colors.RESET}")
+                print(
+                    f"{Colors.GREEN}✅ Selected profile: {info['name']}{Colors.RESET}"
+                )
                 return profile
-        
-        print(f"{Colors.RED}❌ Invalid choice. Enter 1, 2, 3, 4, or 5{Colors.RESET}")
 
+        print(f"{Colors.RED}❌ Invalid choice. Enter 1, 2, 3, 4, or 5{Colors.RESET}")

@@ -4,25 +4,32 @@ Security utilities - password generation, key generation.
 See docs/security.md for security best practices.
 """
 
+from __future__ import annotations
+
 import secrets
 import subprocess
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
 if TYPE_CHECKING:
     import logging
 from ..core.constants import (
-    DEFAULT_PASSWORD_LENGTH, DEFAULT_MASTER_KEY_TOKEN_LENGTH,
-    SUBPROCESS_TIMEOUT
+    DEFAULT_MASTER_KEY_TOKEN_LENGTH,
+    DEFAULT_PASSWORD_LENGTH,
+    SUBPROCESS_TIMEOUT,
 )
 
+
 # Lazy import to avoid circular dependency
-def _get_logger() -> 'logging.Logger':
+def _get_logger() -> logging.Logger:
     from .logger import get_logger
-    import logging
+
     return get_logger(__name__)
 
-logger: Optional['logging.Logger'] = None
-def get_logger_instance() -> 'logging.Logger':
-    import logging
+
+logger: Optional[logging.Logger] = None
+
+
+def get_logger_instance() -> logging.Logger:
     global logger
     if logger is None:
         logger = _get_logger()
@@ -31,14 +38,14 @@ def get_logger_instance() -> 'logging.Logger':
 
 class SecurityService:
     """Service for security operations"""
-    
+
     @staticmethod
     def generate_master_key() -> str:
         """
         Generate LiteLLM master key.
-        
+
         See docs/security.md#virtual-key-security for security details.
-        
+
         Returns:
             Master key string (starts with sk-)
         """
@@ -46,17 +53,17 @@ class SecurityService:
         key = f"sk-{token}"
         get_logger_instance().debug("Generated master key")
         return key
-    
+
     @staticmethod
     def generate_password(length: int = DEFAULT_PASSWORD_LENGTH) -> str:
         """
         Generate secure random password.
-        
+
         See docs/security.md#basic-security-recommendations for security details.
-        
+
         Args:
             length: Password length
-        
+
         Returns:
             Generated password
         """
@@ -67,7 +74,7 @@ class SecurityService:
                 capture_output=True,
                 text=True,
                 check=True,
-                timeout=SUBPROCESS_TIMEOUT
+                timeout=SUBPROCESS_TIMEOUT,
             )
             password = result.stdout.strip()
             # Remove special characters that might cause issues
@@ -75,30 +82,33 @@ class SecurityService:
             password = password[:length]
             get_logger_instance().debug("Generated password using openssl")
             return password
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        except (
+            subprocess.CalledProcessError,
+            FileNotFoundError,
+            subprocess.TimeoutExpired,
+        ):
             # Fallback to secrets module
             password = secrets.token_urlsafe(length)[:length]
             get_logger_instance().debug("Generated password using secrets module")
             return password
-    
+
     @staticmethod
     def validate_password_strength(password: str, min_length: int = 16) -> bool:
         """
         Validate password strength
-        
+
         Args:
             password: Password to validate
             min_length: Minimum length
-        
+
         Returns:
             True if password is strong enough
         """
         if len(password) < min_length:
             return False
-        
+
         # Check for at least one digit, one letter
         has_digit = any(c.isdigit() for c in password)
         has_letter = any(c.isalpha() for c in password)
-        
-        return has_digit and has_letter
 
+        return has_digit and has_letter

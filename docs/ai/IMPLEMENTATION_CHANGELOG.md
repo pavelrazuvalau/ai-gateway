@@ -119,6 +119,13 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - `@[TASK_NAME]_QUESTIONS.md` - link to QUESTIONS
 - `QX.Y in @[TASK_NAME]_QUESTIONS.md` - link to specific question
 
+**Anchor Links for Navigation:**
+- Anchor links provide fast navigation within artifacts
+- Format: `[Text](#anchor-name)` where anchor is generated from heading text
+- Markdown automatically creates anchors from headings (lowercase, spaces to hyphens)
+- Example: `## YYYY-MM-DD - Phase 1, Step 1.1` → anchor `#yyyy-mm-dd---phase-1-step-11`
+- Use anchor links in index/navigation sections for quick access to entries
+
 **Entry types:**
 - ✅ Completed - Step completed successfully
 - ❌ Stopped - Work stopped due to blocker

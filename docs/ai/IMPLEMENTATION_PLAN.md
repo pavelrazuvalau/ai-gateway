@@ -146,6 +146,29 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 - Use consistent format across all artifacts
 - Verify links point to existing content
 
+### Anchor Links for Navigation
+
+**Concept**: Anchor links provide fast navigation for both AI agents and humans. They enable quick jumping to specific sections within artifacts.
+
+**Format**: `[Text](#anchor-name)` where anchor is generated from heading text.
+
+**Anchor Generation Rules**:
+- Markdown automatically creates anchors from headings
+- Format: lowercase, spaces converted to hyphens, special characters removed
+- Example: `#### Step 4.3: E2E тесты` → anchor `#step-43-e2e-тесты`
+- For headings with special characters, use the exact heading text and let Markdown generate the anchor
+
+**Usage**:
+- Use anchor links in "Current Focus" and "Quick Navigation" sections
+- Update anchor links when current step/question changes
+- Anchor links enable both agents and humans to quickly navigate to relevant sections
+
+**Example**:
+- In PLAN artifact "Current Focus" section: `[Phase 1, Step 1.1: Setup](#phase-1-step-11-setup)`
+- In QUESTIONS artifact "Current Focus" section: `[Q2.1: Question Title](#q21-question-title-phase-2-step-1)`
+
+**Important**: Always verify anchor links point to existing headings in the artifact.
+
 ---
 
 ## 🤖 Instructions for AI agent

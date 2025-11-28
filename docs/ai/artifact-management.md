@@ -1,6 +1,6 @@
 # Artifact Management System Prompts
 
-**Version:** 2.3  
+**Version:** 2.4  
 **Date:** 2025-01-27  
 **Purpose:** Documentation explaining the artifact management system architecture with separation of concerns
 
@@ -11,8 +11,8 @@
 The artifact management system follows MVC-like architecture with clear separation of concerns:
 
 1. **System Prompts (Controller)** - Logic, procedures, workflow
-   - **`impl-planner.agent.md`** (v1.3) - Planning and artifact creation
-   - **`vibe-coder.agent.md`** (v1.4) - Execution and artifact maintenance
+   - **`impl-planner.agent.md`** (v1.5) - Planning and artifact creation
+   - **`vibe-coder.agent.md`** (v1.6) - Execution and artifact maintenance
 
 2. **Template Files (View)** - Formatting, structure, presentation
    - `docs/ai/IMPLEMENTATION_PLAN.md` - PLAN artifact template
@@ -34,7 +34,7 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 - Starting a new task from scratch
 - Need to analyze codebase and create a plan
 - Want to break down a task into phases and steps
-- Need to create all 4 artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
+- Need to create artifacts step by step (critical artifacts first, conditional artifacts as needed)
 - Identifying questions and blockers upfront
 - Planning phase of work
 
@@ -62,11 +62,15 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 1. **Planning Phase** (use `impl-planner.agent.md`):
    - Receive task description
    - Analyze codebase
-   - Create PLAN with phases and steps
-   - Create CHANGELOG (empty, ready for entries)
-   - Create QUESTIONS with identified questions
-   - Create SESSION_CONTEXT (empty, ready for use)
-   - All artifacts ready for execution
+   - **Step 6: Create Critical Artifacts First** (STOP after completion):
+     - Create PLAN with phases and steps (critical - permanent memory)
+     - Create SESSION_CONTEXT (critical - operational memory)
+   - **Step 7: Create Additional Artifacts (as needed)** (STOP after completion):
+     - Create CHANGELOG only if there are completed steps to document
+     - Create QUESTIONS only if there are questions identified during planning
+     - Do NOT create empty conditional artifacts
+   - **Step 8: Validate and Finalize** (STOP - planning complete)
+   - Artifacts ready for execution
 
 2. **Execution Phase** (use `vibe-coder.agent.md`):
    - Read existing artifacts
@@ -76,6 +80,9 @@ This separation provides clearer responsibilities, eliminates duplication, and e
    - Update artifacts as work progresses
    - Handle blockers by creating questions (STOP rules apply)
    - Complete steps and document in CHANGELOG
+   - **STOP after completing each step** - Wait for confirmation before next step
+   - **STOP after completing each phase** - Wait for confirmation before next phase
+   - **STOP after answering questions** - Wait for confirmation before continuing
 
 ### Iterative Workflow
 
@@ -103,8 +110,8 @@ You can switch between prompts as needed:
 - Detailed structure definitions
 
 **Files:**
-- `impl-planner.agent.md` (v1.3) - Planning and artifact creation
-- `vibe-coder.agent.md` (v1.4) - Execution and artifact maintenance
+- `impl-planner.agent.md` (v1.5) - Planning and artifact creation
+- `vibe-coder.agent.md` (v1.6) - Execution and artifact maintenance
 
 ### Template Files (View)
 **Responsibility:** Formatting, structure, presentation, examples
@@ -142,14 +149,15 @@ You can switch between prompts as needed:
 
 | Aspect | impl-planner.agent.md | vibe-coder.agent.md |
 |--------|----------------------|---------------------|
-| **Version** | 1.3 | 1.4 |
+| **Version** | 1.5 | 1.6 |
 | **Focus** | Analysis and planning | Implementation and execution |
 | **Input** | Task description, codebase | Existing artifacts |
-| **Output** | Complete artifacts | Code changes + updated artifacts |
+| **Output** | Artifacts created step by step | Code changes + updated artifacts |
 | **Status Rules** | Definitions only | Full transition rules |
-| **Procedures** | Creation procedures | Update procedures |
-| **Workflow** | Planning workflow | Core workflow: Analysis → Solution → Action → Documentation |
-| **Stop Rules** | Not applicable | Explicit STOP rules for blockers and deep analysis |
+| **Procedures** | Creation procedures (step by step) | Update procedures |
+| **Workflow** | Planning workflow with STOP rules | Core workflow: Analysis → Solution → Action → Documentation |
+| **Stop Rules** | STOP after critical artifacts, additional artifacts, validation | STOP after step/phase completion, question resolution |
+| **Artifact Creation** | Critical first (PLAN, SESSION_CONTEXT), conditional as needed | Updates existing artifacts |
 | **Assumptions** | No artifacts exist | Artifacts already exist |
 
 ---
@@ -159,6 +167,8 @@ You can switch between prompts as needed:
 Both prompts share:
 - Reference to template files in `docs/ai/` directory
 - Cross-artifact link format (`@[ARTIFACT_NAME]` notation)
+- Anchor links for navigation (`[Text](#anchor-name)` format)
+- Working without templates (instructions creation concept)
 - Universalization principles
 - Quality criteria (adapted for creation vs. updates)
 - Key principles (adapted for planning vs. execution)
@@ -167,19 +177,25 @@ Both prompts share:
 
 ## Key Features
 
-### impl-planner.agent.md (v1.3)
+### impl-planner.agent.md (v1.5)
 - Code-first analysis approach (repository files as primary source)
-- Creates all 4 artifacts from scratch
+- **Step-by-step artifact creation**: Critical artifacts first (PLAN, SESSION_CONTEXT), conditional artifacts as needed (CHANGELOG, QUESTIONS)
+- **Stop rules**: STOP after creating critical artifacts, additional artifacts, and validation
 - Identifies questions and blockers upfront
+- **Working without templates**: Creates instructions based on artifact descriptions if templates not provided
+- **Anchor links**: Supports navigation with anchor links in artifacts
 - Universal and technology-agnostic
 - References template files for formatting (no formatting rules in prompt)
 
-### vibe-coder.agent.md (v1.4)
+### vibe-coder.agent.md (v1.6)
 - **Core Workflow**: Analysis → Solution → Action → Documentation
-- **Stop Rules**: Explicit rules for when to STOP (blockers, deep analysis, uncertainty)
+- **Stop Rules**: Explicit rules for when to STOP (blockers, deep analysis, uncertainty, step/phase completion, question resolution)
+- **Stop after step/phase completion**: Always STOP and wait for confirmation before proceeding
 - Artifacts as source of truth
 - Detailed update procedures for each artifact
 - Status transition rules
+- **Working without templates**: Uses instructions from artifacts (if template not provided)
+- **Anchor links**: Supports navigation with anchor links in artifacts
 - References template files for formatting (no formatting rules in prompt)
 
 ---
@@ -199,6 +215,7 @@ Both prompts reference template files in `docs/ai/`:
 - Formatting reference (complete formatting guide)
 - Examples for each artifact type
 - Navigation sections (e.g., "Current Focus" for quick access to current step/question)
+- Anchor links for navigation (instructions and examples)
 
 **Template files are the source of truth for formatting and instructions.** System prompts contain only logic and procedures, with references to templates for formatting details.
 
@@ -236,7 +253,23 @@ If you have existing artifacts created with the old prompt, they are compatible 
 - **View (Templates)**: Formatting, structure, instructions for agents (source of truth for copying)
 - **Controller (System Prompts)**: Logic, procedures, workflow
 
-**Critical Rule:** When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts. This ensures artifacts are self-sufficient and can be used independently. Templates remain the source of truth for instructions, which are copied into artifacts for convenience and independence.
+**Critical Rules:**
+
+1. **Artifact Creation Priority**: 
+   - **Critical artifacts** (always create): PLAN (permanent memory), SESSION_CONTEXT (operational memory)
+   - **Conditional artifacts** (create only if content exists): CHANGELOG (only if completed steps), QUESTIONS (only if questions exist)
+   - Do NOT create empty conditional artifacts
+
+2. **Instructions in Artifacts**: 
+   - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+   - If template is NOT provided, create instructions based on artifact descriptions in system prompts
+   - This ensures artifacts are self-sufficient and can be used independently
+   - Templates remain the source of truth for instructions, which are copied into artifacts for convenience and independence
+
+3. **Stop Rules**:
+   - Planning: STOP after creating critical artifacts, additional artifacts, and validation
+   - Execution: STOP after completing each step/phase and after answering questions
+   - Always wait for confirmation before proceeding
 
 **Maintainability:**
 - Formatting changes only require template updates (instructions are copied from templates)
@@ -263,13 +296,26 @@ If you have existing artifacts created with the old prompt, they are compatible 
 - System prompts contain only logic, procedures, and workflow
 - Both prompts are universal and technology-agnostic
 
-**Critical MVC Rule:**
-- When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
-- Artifacts (Model) contain data (metadata, phases, steps, entries, questions, context) AND copied instructions
-- Instructions are part of templates (View) and are copied into artifacts for self-sufficiency
-- This ensures artifacts are self-sufficient and can be used independently of templates
-- Templates remain the source of truth for instructions, which are copied into artifacts
-- This maintains clean separation: Model = data + copied instructions, View = instructions/formatting (source of truth), Controller = logic
+**Critical MVC Rules:**
+
+1. **Artifact Creation**:
+   - Create critical artifacts first (PLAN, SESSION_CONTEXT)
+   - Create conditional artifacts only when content exists (CHANGELOG, QUESTIONS)
+   - STOP after each creation phase
+
+2. **Instructions in Artifacts**:
+   - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+   - If template is NOT provided, create instructions based on artifact descriptions
+   - Artifacts (Model) contain data (metadata, phases, steps, entries, questions, context) AND copied/created instructions
+   - Instructions are part of templates (View) and are copied into artifacts for self-sufficiency
+   - This ensures artifacts are self-sufficient and can be used independently of templates
+   - Templates remain the source of truth for instructions, which are copied into artifacts
+   - This maintains clean separation: Model = data + copied instructions, View = instructions/formatting (source of truth), Controller = logic
+
+3. **Navigation**:
+   - Use anchor links (`[Text](#anchor-name)`) for fast navigation within artifacts
+   - Anchor links enable both agents and humans to quickly navigate to relevant sections
+   - Update anchor links in "Current Focus" sections when current step/question changes
 
 ---
 

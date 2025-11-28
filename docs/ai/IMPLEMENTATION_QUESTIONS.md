@@ -158,6 +158,28 @@
 - Use consistent format across all artifacts
 - Verify links point to existing content
 
+### Anchor Links for Navigation
+
+**Concept**: Anchor links provide fast navigation for both AI agents and humans. They enable quick jumping to specific sections within artifacts.
+
+**Format**: `[Text](#anchor-name)` where anchor is generated from heading text.
+
+**Anchor Generation Rules**:
+- Markdown automatically creates anchors from headings
+- Format: lowercase, spaces converted to hyphens, special characters removed
+- Example: `### Q2.1: E2E тесты - моки провайдеров` → anchor `#q21-e2e-тесты---моки-провайдеров`
+- For headings with special characters, use the exact heading text and let Markdown generate the anchor
+
+**Usage**:
+- Use anchor links in "Current Focus" and "Quick Navigation" sections
+- Update anchor links when current step/question changes
+- Anchor links enable both agents and humans to quickly navigate to relevant sections
+
+**Example**:
+- In QUESTIONS artifact "Current Focus" section: `[Q2.1: Question Title](#q21-question-title-phase-2-step-1)`
+
+**Important**: Always verify anchor links point to existing headings in the artifact.
+
 ---
 
 ## 🤖 Instructions for AI agent

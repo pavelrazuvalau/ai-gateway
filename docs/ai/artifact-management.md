@@ -1,6 +1,6 @@
 # Artifact Management System Prompts
 
-**Version:** 2.2  
+**Version:** 2.3  
 **Date:** 2025-01-27  
 **Purpose:** Documentation explaining the artifact management system architecture with separation of concerns
 
@@ -136,6 +136,7 @@ You can switch between prompts as needed:
 - History: Completed work, decisions, solutions
 - Questions: Active and resolved questions
 - Context: Current session state
+- Instructions: Copied instruction section from template (for self-sufficiency)
 
 ## Key Differences
 
@@ -199,13 +200,14 @@ Both prompts reference template files in `docs/ai/`:
 - Examples for each artifact type
 - Navigation sections (e.g., "Current Focus" for quick access to current step/question)
 
-**Template files are the single source of truth for formatting and instructions.** System prompts contain only logic and procedures, with references to templates for formatting details.
+**Template files are the source of truth for formatting and instructions.** System prompts contain only logic and procedures, with references to templates for formatting details.
 
 **Important MVC principle:** 
-- **Templates (View)** contain instructions and structure
-- **Artifacts (Model)** contain only data, NOT instructions
-- When creating artifacts, do NOT copy instruction sections from templates
-- Agents should refer to templates for instructions, not to artifacts
+- **Templates (View)** contain instructions and structure for copying into artifacts
+- **Artifacts (Model)** contain data AND copied instructions (for self-sufficiency)
+- When creating artifacts, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+- This ensures artifacts are self-sufficient and can be used independently of templates
+- Instructions in artifacts are copied from templates, making templates the source of truth
 
 ---
 
@@ -224,31 +226,32 @@ If you have existing artifacts created with the old prompt, they are compatible 
 
 **Separation of Concerns:**
 - System prompts focus on logic and procedures
-- Template files focus on formatting, structure, and instructions
-- Artifacts contain only data (no instructions, no formatting rules)
-- No duplication between system prompts and templates
+- Template files focus on formatting, structure, and instructions (source of truth)
+- Artifacts contain data AND copied instructions (for self-sufficiency)
+- Instructions are copied from templates to artifacts, maintaining templates as source of truth
 - Clear boundaries of responsibility
 
 **MVC Principle:**
-- **Model (Artifacts)**: Pure data - metadata, phases, steps, entries, questions, context
-- **View (Templates)**: Formatting, structure, instructions for agents
+- **Model (Artifacts)**: Data (metadata, phases, steps, entries, questions, context) AND copied instructions
+- **View (Templates)**: Formatting, structure, instructions for agents (source of truth for copying)
 - **Controller (System Prompts)**: Logic, procedures, workflow
 
-**Critical Rule:** When creating artifacts from templates, do NOT copy instruction sections ("🤖 Instructions for AI agent"). Artifacts should contain only data. Agents should refer to templates for instructions, not to artifacts.
+**Critical Rule:** When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts. This ensures artifacts are self-sufficient and can be used independently. Templates remain the source of truth for instructions, which are copied into artifacts for convenience and independence.
 
 **Maintainability:**
-- Formatting changes only require template updates
+- Formatting changes only require template updates (instructions are copied from templates)
 - Logic changes only require system prompt updates
-- Single source of truth for formatting and instructions (templates)
+- Templates are the source of truth for formatting and instructions
+- When templates are updated, new artifacts will include updated instructions
+- Existing artifacts retain their copied instructions (may need manual update if template changes significantly)
 - Easier to understand and modify
-- Artifacts remain clean and focused on data
 
 **Consistency:**
 - Same templates used for both planning and execution
 - Consistent formatting across all artifacts
 - Clear formatting reference in templates
 - No conflicting formatting rules
-- Instructions in one place (templates)
+- Instructions are copied from templates to artifacts, ensuring consistency
 
 ## Notes
 
@@ -261,11 +264,12 @@ If you have existing artifacts created with the old prompt, they are compatible 
 - Both prompts are universal and technology-agnostic
 
 **Critical MVC Rule:**
-- When creating artifacts from templates, do NOT copy instruction sections ("🤖 Instructions for AI agent")
-- Artifacts (Model) should contain only data: metadata, phases, steps, entries, questions, context
-- Instructions are part of templates (View) and should remain there
-- Agents should refer to templates for instructions, not to artifacts
-- This ensures clean separation: Model = data, View = instructions/formatting, Controller = logic
+- When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+- Artifacts (Model) contain data (metadata, phases, steps, entries, questions, context) AND copied instructions
+- Instructions are part of templates (View) and are copied into artifacts for self-sufficiency
+- This ensures artifacts are self-sufficient and can be used independently of templates
+- Templates remain the source of truth for instructions, which are copied into artifacts
+- This maintains clean separation: Model = data + copied instructions, View = instructions/formatting (source of truth), Controller = logic
 
 ---
 

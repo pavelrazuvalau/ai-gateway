@@ -2,7 +2,7 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 0.1.9  
+**Artifact Version:** 0.2.0  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Git-like history of completed changes  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
@@ -210,6 +210,29 @@ This artifact is part of a system of 4 required artifacts that work together:
 - File paths in Changes section: use backticks `file.[ext]`
 - Links use `@[ARTIFACT_NAME]` notation
 - Entry types use icons: ✅ ❌ 🔧
+
+**Technical Update Procedures:**
+
+When updating this artifact, especially for long lists of entries, follow these technical procedures:
+
+1. **Determine if list is "long":**
+   - Count elements: more than 3-5 entries
+   - Estimate content size: more than 50-100 lines of content for all entries OR more than 3-5 KB of data
+   - If matches ANY of these criteria → use sequential filling
+
+2. **Sequential filling for CHANGELOG:**
+   - Create entries one at a time (one entry per iteration) via `search_replace`
+   - **MANDATORY:** After each entry, verify success via `read_file`
+   - Example: If need to add 5 entries → create entry 1, verify, create entry 2, verify, etc.
+
+3. **Success verification after each element:**
+   - `read_file` to verify file exists
+   - Verify that file is not empty
+   - Verify that entry was added correctly (file contains the new entry, structure is preserved)
+   - If verification fails → retry with the same entry (maximum 1-2 times)
+   - If after 1-2 attempts entry not added → continue with next entry (do not block entire process)
+
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **When to use this file:**
 - When checking history of completed changes

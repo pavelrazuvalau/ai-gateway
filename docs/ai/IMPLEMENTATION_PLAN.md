@@ -2,7 +2,7 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 0.1.9  
+**Artifact Version:** 0.2.0  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** [Purpose of this plan]  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.
@@ -280,6 +280,30 @@ This artifact is part of a system of 4 required artifacts that work together:
 - Use consistent phase/step numbering (Phase X, Step X.Y)
 - Links to other artifacts use `@[ARTIFACT_NAME]` notation
 - Metadata fields must be updated when status changes
+
+**Technical Update Procedures:**
+
+When updating this artifact, especially for long lists of phases and steps, follow these technical procedures:
+
+1. **Determine if list is "long":**
+   - Count elements: more than 3-5 phases OR more than 3-5 steps within a phase
+   - Estimate content size: more than 50-100 lines of content for all phases/steps OR more than 3-5 KB of data
+   - If matches ANY of these criteria → use sequential filling
+
+2. **Sequential filling for PLAN:**
+   - **Phases:** Create phases one at a time (one phase per iteration) via `search_replace`
+   - **Steps:** Within each phase, create steps one at a time (one step per iteration) via `search_replace`
+   - **MANDATORY:** After each phase/step, verify success via `read_file`
+   - Example: If plan contains 3 phases with 5 steps each → create phase 1, verify, create steps of phase 1 (one by one), verify each step, then proceed to phase 2
+
+3. **Success verification after each element:**
+   - `read_file` to verify file exists
+   - Verify that file is not empty
+   - Verify that element was added correctly (file contains the new phase/step, structure is preserved)
+   - If verification fails → retry with the same element (maximum 1-2 times)
+   - If after 1-2 attempts element not added → continue with next element (do not block entire process)
+
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **When to use this file:**
 - When starting work on a task from the plan

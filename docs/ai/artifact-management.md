@@ -1,7 +1,7 @@
 # Artifact Management System Prompts
 
-**Version:** 0.2.9  
-**Date:** 2025-01-27  
+**Version:** 0.3.0  
+**Date:** 2025-01-28  
 **Purpose:** Documentation explaining the artifact management system architecture with separation of concerns
 
 ---
@@ -43,8 +43,8 @@
 The artifact management system follows MVC-like architecture with clear separation of concerns:
 
 1. **System Prompts (Controller)** - Logic, procedures, workflow
-   - **`impl-planner.agent.md`** (v0.1.9) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
-   - **`vibe-coder.agent.md`** (v0.1.9) - Execution and artifact maintenance (frequent stops for developer control)
+   - **`impl-planner.agent.md`** (v0.2.0) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
+   - **`vibe-coder.agent.md`** (v0.2.0) - Execution and artifact maintenance (frequent stops for developer control)
 
 2. **Template Files (View)** - Formatting, structure, presentation
    - `docs/ai/IMPLEMENTATION_PLAN.md` - PLAN artifact template
@@ -233,6 +233,7 @@ You can switch between prompts as needed:
 - Procedures: Step-by-step instructions for creating/updating artifacts
 - Workflow: Analysis → Solution → Action → Documentation
 - Validation: Checklists and criteria
+- **Sequential Content Filling for Long Lists**: Strategy for handling large data volumes in artifacts (criteria, procedures, success verification)
 
 **What they DON'T contain:**
 - Formatting rules (icons, statuses, structure)
@@ -240,8 +241,8 @@ You can switch between prompts as needed:
 - Detailed structure definitions
 
 **Files:**
-- `impl-planner.agent.md` (v0.1.9) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
-- `vibe-coder.agent.md` (v0.1.9) - Execution and artifact maintenance (frequent stops for developer control)
+- `impl-planner.agent.md` (v0.2.0) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
+- `vibe-coder.agent.md` (v0.2.0) - Execution and artifact maintenance (frequent stops for developer control)
 
 ### Template Files (View)
 **Responsibility:** Formatting, structure, presentation, examples
@@ -250,6 +251,7 @@ You can switch between prompts as needed:
 - Formatting rules: Icons, statuses, priority indicators
 - Structure definitions: Sections, metadata fields, entry formats
 - Instructions: How to read, how to update, when to use
+- **Technical Update Procedures**: Sequential content filling for long lists (criteria, procedures, success verification) - ensures artifacts are self-sufficient
 - Examples: Format examples for each artifact type
 - Formatting reference: Complete formatting guide
 - Navigation sections: Quick navigation for humans (e.g., "Current Focus" section)
@@ -279,7 +281,7 @@ You can switch between prompts as needed:
 
 | Aspect | impl-planner.agent.md | vibe-coder.agent.md |
 |--------|----------------------|---------------------|
-| **Version** | 0.1.9 | 0.1.9 |
+| **Version** | 0.2.0 | 0.2.0 |
 | **Focus** | Analysis and planning (two modes: Simplified and Full) | Implementation and execution |
 | **Input** | Task description, codebase (plan draft, Jira ticket, business description) | Existing artifacts (PLAN + artifacts for Full, SESSION_CONTEXT only for Simplified) |
 | **Output** | SESSION_CONTEXT (Simplified) or PLAN + artifacts (Full) | Code changes + updated artifacts |
@@ -314,7 +316,7 @@ Both prompts share:
 
 ## Key Features
 
-### impl-planner.agent.md (v0.1.9)
+### impl-planner.agent.md (v0.2.0)
 - Code-first analysis approach (repository files as primary source)
 - **Two Workflow Modes**: 
   - **Simplified Workflow**: For trivial tasks (SESSION_CONTEXT only)
@@ -325,6 +327,7 @@ Both prompts share:
   - SESSION_CONTEXT updated after each step with Analysis Context (CRITICAL)
   - Wait for confirmation before proceeding to next step
 - **Sequential Operations**: Create files ONE at a time, but context gathering can be parallel
+- **Sequential Content Filling for Long Lists**: Strategy for handling large data volumes in artifacts (criteria: >3-5 elements OR >50-100 lines OR >3-5 KB, mandatory verification after each element)
 - **Stop rules**: STOP after creating PLAN (Full), after SESSION_CONTEXT (Simplified), validation
 - **Tool Usage (VS Code/GitHub Copilot)**: Explicit tools (read_file, codebase_search, grep, list_dir, glob_file_search, write, search_replace, read_lints)
 - **Universal SESSION_CONTEXT**: Used in both modes and both phases (planning and execution)
@@ -334,10 +337,11 @@ Both prompts share:
 - Universal and technology-agnostic
 - References template files for formatting (no formatting rules in prompt)
 
-### vibe-coder.agent.md (v0.1.9)
+### vibe-coder.agent.md (v0.2.0)
 - **Core Workflow**: Analysis → Solution → Action → Documentation
 - **Two Workflow Modes**: Works with both Simplified (SESSION_CONTEXT only) and Full (PLAN + artifacts) workflows
 - **Sequential Operations**: Create/modify files ONE at a time, update artifacts sequentially, but context gathering can be parallel
+- **Sequential Content Filling for Long Lists**: Strategy for handling large data volumes in artifacts (criteria: >3-5 elements OR >50-100 lines OR >3-5 KB, mandatory verification after each element)
 - **Stop Rules**: Explicit rules for when to STOP (blockers, deep analysis, uncertainty, step/phase completion, question resolution)
 - **Stop after step/phase completion**: Always STOP and wait for confirmation before proceeding
 - **Tool Usage (VS Code/GitHub Copilot)**: Explicit tools (read_file, write, search_replace, codebase_search, grep, list_dir, read_lints, glob_file_search)
@@ -362,6 +366,7 @@ Both prompts reference template files in `docs/ai/`:
 - Complete formatting rules (icons, statuses, priority indicators)
 - Structure definitions (sections, metadata fields, entry formats)
 - Instructions for AI agents (how to read, how to update, when to use)
+- **Technical Update Procedures**: Sequential content filling for long lists (criteria, procedures, success verification) - ensures artifacts are self-sufficient
 - Formatting reference (complete formatting guide)
 - Examples for each artifact type
 - Navigation sections (e.g., "Current Focus" for quick access to current step/question)
@@ -417,6 +422,7 @@ If you have existing artifacts created with the old prompt, they are compatible 
 
 2. **Instructions in Artifacts**: 
    - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+   - This includes **Technical Update Procedures** section (sequential content filling for long lists, success verification)
    - If template is NOT provided, create instructions based on artifact descriptions in system prompts
    - This ensures artifacts are self-sufficient and can be used independently
    - Templates remain the source of truth for instructions, which are copied into artifacts for convenience and independence
@@ -432,6 +438,7 @@ If you have existing artifacts created with the old prompt, they are compatible 
    - Files must be created/modified sequentially, one at a time
    - Wait for each file operation to complete before starting next
    - Artifact operations are sequential: Create or update artifacts one at a time (PLAN → Wait → CHANGELOG → Wait → QUESTIONS → Wait → SESSION_CONTEXT)
+   - **Sequential Content Filling for Long Lists**: When filling long lists in artifacts (>3-5 elements OR >50-100 lines OR >3-5 KB), fill one element at a time with mandatory verification after each element
    - **Context gathering can be parallel**: Reading multiple files for analysis is OK and encouraged
    - Prevents race conditions and data corruption
 
@@ -492,6 +499,7 @@ If you have existing artifacts created with the old prompt, they are compatible 
 
 2. **Instructions in Artifacts**:
    - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+   - This includes **Technical Update Procedures** section (sequential content filling for long lists, success verification)
    - If template is NOT provided, create instructions based on artifact descriptions
    - Artifacts (Model) contain data (metadata, phases, steps, entries, questions, context) AND copied/created instructions
    - Instructions are part of templates (View) and are copied into artifacts for self-sufficiency

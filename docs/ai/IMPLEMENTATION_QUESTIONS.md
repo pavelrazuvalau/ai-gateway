@@ -2,7 +2,7 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 0.1.9  
+**Artifact Version:** 0.2.0  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Knowledge base (doubts and solutions)  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
@@ -297,6 +297,29 @@ This artifact is part of a system of 4 required artifacts that work together:
 - Use consistent date format: YYYY-MM-DD
 - Links use `@[ARTIFACT_NAME]` notation
 - Status icons: ⏳ Pending, ✅ Resolved
+
+**Technical Update Procedures:**
+
+When updating this artifact, especially for long lists of questions, follow these technical procedures:
+
+1. **Determine if list is "long":**
+   - Count elements: more than 3-5 questions
+   - Estimate content size: more than 50-100 lines of content for all questions OR more than 3-5 KB of data
+   - If matches ANY of these criteria → use sequential filling
+
+2. **Sequential filling for QUESTIONS:**
+   - Create questions one at a time (one question per iteration) via `search_replace`
+   - **MANDATORY:** After each question, verify success via `read_file`
+   - Example: If need to add 4 questions → create question 1, verify, create question 2, verify, etc.
+
+3. **Success verification after each element:**
+   - `read_file` to verify file exists
+   - Verify that file is not empty
+   - Verify that question was added correctly (file contains the new question, structure is preserved)
+   - If verification fails → retry with the same question (maximum 1-2 times)
+   - If after 1-2 attempts question not added → continue with next question (do not block entire process)
+
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **When to use this file:**
 - When discovering blocker or unclear requirements

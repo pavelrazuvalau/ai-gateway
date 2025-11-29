@@ -2,7 +2,7 @@
 
 ## 📊 Metadata
 
-**Artifact Version:** 0.1.9  
+**Artifact Version:** 0.2.0  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Universal operational memory for managing current task state  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
@@ -308,6 +308,29 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
 - Links use `@[ARTIFACT_NAME]` notation
 - Keep "Last Actions" to maximum 5 entries
 - Clear temporary information when step completes
+
+**Technical Update Procedures:**
+
+When updating this artifact, especially for large sections, follow these technical procedures:
+
+1. **Determine if section is "large":**
+   - Estimate content size: more than 50-100 lines of content OR more than 3-5 KB of data
+   - If matches this criteria → use sequential filling for that section
+
+2. **Sequential filling for SESSION_CONTEXT:**
+   - Large sections are created one at a time (one section per iteration) via `search_replace`
+   - **MANDATORY:** After each section, verify success via `read_file`
+   - Part size: 3-5 KB or 50-100 lines (same as Priority 3 incremental addition)
+   - Applies only to large sections (> 50-100 lines or > 3-5 KB)
+
+3. **Success verification after each section:**
+   - `read_file` to verify file exists
+   - Verify that file is not empty
+   - Verify that section was added correctly (file contains the new section, structure is preserved)
+   - If verification fails → retry with the same section (maximum 1-2 times)
+   - If after 1-2 attempts section not added → continue with next section (do not block entire process)
+
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **Update triggers:**
 - **For Simplified Workflow**:

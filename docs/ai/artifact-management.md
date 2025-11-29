@@ -71,9 +71,7 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 - Planning phase of work
 
 **Input**: Task description, codebase (plan draft, Jira ticket, business description)  
-**Output**: 
-- **Simplified Workflow**: SESSION_CONTEXT artifact (for trivial tasks)
-- **Full Workflow**: Complete set of artifacts ready for execution (PLAN, SESSION_CONTEXT, optional CHANGELOG/QUESTIONS)
+**Output**: Complete set of artifacts ready for execution (PLAN, SESSION_CONTEXT, optional CHANGELOG/QUESTIONS)
 
 ### Use `vibe-coder.agent.md` when:
 
@@ -84,9 +82,7 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 - Handling blockers and questions during execution
 - Execution phase of work
 
-**Input**: 
-- **Full Workflow**: Existing artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
-- **Simplified Workflow**: SESSION_CONTEXT artifact only
+**Input**: Existing artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)  
 **Output**: Code changes and updated artifacts
 
 ---
@@ -94,37 +90,6 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 ## Workflow
 
 ### Typical Workflow
-
-**Two Workflow Modes**: The agent automatically determines task complexity and chooses the appropriate workflow.
-
-#### Simplified Workflow (for Trivial Tasks)
-
-1. **Task Complexity Assessment** (use `impl-planner.agent.md`):
-   - Analyze input data (plan draft, Jira ticket, business description)
-   - Analyze codebase context
-   - Determine: task is trivial
-
-2. **Simplified Workflow**:
-   - **Step 1: Gather Context** (MANDATORY - use VS Code/GitHub Copilot tools):
-     - Read files that need to be changed
-     - Understand context around changes
-     - Use `read_file`, `codebase_search`, `grep`, `list_dir`
-   - **Step 2: Create/Update SESSION_CONTEXT**:
-     - Task type: Trivial
-     - Files to be changed
-     - Action plan (1-3 simple steps)
-     - Context from analysis
-     - **Analysis Context**: Files analyzed, search queries used, directions explored, key findings
-   - **Step 3: Execute Changes**:
-     - Make changes using `write` or `search_replace` (one file at a time)
-     - Verify using `read_lints`
-   - **Step 4: Complete and Cleanup**:
-     - Clean SESSION_CONTEXT (remove temporary information)
-     - Task complete
-
-**Output**: SESSION_CONTEXT artifact only
-
-#### Full Workflow (for Complex Tasks)
 
 1. **Task Complexity Assessment** (use `impl-planner.agent.md`):
    - Analyze input data
@@ -193,15 +158,6 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 **Output**: PLAN, SESSION_CONTEXT, optional CHANGELOG/QUESTIONS
 
 2. **Execution Phase** (use `vibe-coder.agent.md`):
-
-**For Simplified Workflow**:
-   - Read SESSION_CONTEXT (primary artifact)
-   - Follow action plan from SESSION_CONTEXT
-   - Implement changes
-   - Update SESSION_CONTEXT with progress
-   - Clean SESSION_CONTEXT after completion
-
-**For Full Workflow**:
    - Read existing artifacts (PLAN, SESSION_CONTEXT, QUESTIONS, CHANGELOG)
    - Follow core workflow: Analysis → Solution → Action → Documentation
    - Follow PLAN step by step
@@ -282,15 +238,15 @@ You can switch between prompts as needed:
 | Aspect | impl-planner.agent.md | vibe-coder.agent.md |
 |--------|----------------------|---------------------|
 | **Version** | 0.2.0 | 0.2.0 |
-| **Focus** | Analysis and planning (two modes: Simplified and Full) | Implementation and execution |
-| **Input** | Task description, codebase (plan draft, Jira ticket, business description) | Existing artifacts (PLAN + artifacts for Full, SESSION_CONTEXT only for Simplified) |
-| **Output** | SESSION_CONTEXT (Simplified) or PLAN + artifacts (Full) | Code changes + updated artifacts |
-| **Workflow Modes** | Simplified (trivial tasks) and Full (complex tasks) | Works with both Simplified and Full workflow artifacts |
+| **Focus** | Analysis and planning | Implementation and execution |
+| **Input** | Task description, codebase (plan draft, Jira ticket, business description) | Existing artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT) |
+| **Output** | PLAN + artifacts | Code changes + updated artifacts |
+| **Workflow Modes** | Full workflow | Works with artifacts |
 | **Status Rules** | Definitions only | Full transition rules |
 | **Procedures** | Creation procedures (step by step) | Update procedures |
-| **Workflow** | Two workflows: Simplified (SESSION_CONTEXT only) and Full (PLAN + artifacts) | Core workflow: Analysis → Solution → Action → Documentation |
-| **Stop Rules** | STOP after PLAN creation (Full), after SESSION_CONTEXT (Simplified), validation | STOP after step/phase completion, question resolution |
-| **Artifact Creation** | Simplified: SESSION_CONTEXT only. Full: PLAN first, SESSION_CONTEXT filled after planning, conditional as needed | Updates existing artifacts |
+| **Workflow** | Full workflow (PLAN + artifacts) | Core workflow: Analysis → Solution → Action → Documentation |
+| **Stop Rules** | STOP after PLAN creation, validation | STOP after step/phase completion, question resolution |
+| **Artifact Creation** | PLAN first, SESSION_CONTEXT filled after planning, conditional as needed | Updates existing artifacts |
 | **Sequential Operations** | Create files ONE at a time, context gathering can be parallel | Create/modify files ONE at a time, update artifacts sequentially |
 | **Tools** | VS Code/GitHub Copilot tools (read_file, codebase_search, grep, list_dir, etc.) | VS Code/GitHub Copilot tools (read_file, write, search_replace, codebase_search, grep, etc.) |
 | **Assumptions** | No artifacts exist | Artifacts already exist (or SESSION_CONTEXT for Simplified) |
@@ -318,11 +274,7 @@ Both prompts share:
 
 ### impl-planner.agent.md (v0.2.0)
 - Code-first analysis approach (repository files as primary source)
-- **Two Workflow Modes**: 
-  - **Simplified Workflow**: For trivial tasks (SESSION_CONTEXT only)
-  - **Full Workflow**: For complex tasks (PLAN + artifacts)
-- **Task Complexity Assessment**: Automatic determination of workflow mode based on input data and codebase analysis
-- **MANDATORY Context Gathering**: Steps 1-5 must be completed before creating PLAN (for Full Workflow)
+- **MANDATORY Context Gathering**: Steps 1-5 must be completed before creating PLAN
   - Each step requires STOP and summary with standardized format (files analyzed, search queries, key findings, directions explored)
   - SESSION_CONTEXT updated after each step with Analysis Context (CRITICAL)
   - Wait for confirmation before proceeding to next step
@@ -411,11 +363,9 @@ If you have existing artifacts created with the old prompt, they are compatible 
 **Critical Rules:**
 
 1. **Artifact Creation Priority**: 
-   - **Simplified Workflow**: SESSION_CONTEXT only (primary artifact for trivial tasks)
-   - **Full Workflow**:
-     - **Critical artifacts** (always create): PLAN (permanent memory)
-     - **Post-Planning artifacts**: SESSION_CONTEXT (operational memory) - can be used during planning for intermediate results, filled AFTER planning
-     - **Conditional artifacts** (create only if content exists): CHANGELOG (only if completed steps), QUESTIONS (only if questions exist)
+   - **Critical artifacts** (always create): PLAN (permanent memory)
+   - **Post-Planning artifacts**: SESSION_CONTEXT (operational memory) - can be used during planning for intermediate results, filled AFTER planning
+   - **Conditional artifacts** (create only if content exists): CHANGELOG (only if completed steps), QUESTIONS (only if questions exist)
    - Do NOT create empty conditional artifacts
    - **Sequential creation**: Create files ONE at a time, wait for completion before creating next file
    - **Context gathering**: Can be parallel (reading multiple files for analysis is OK)
@@ -428,8 +378,7 @@ If you have existing artifacts created with the old prompt, they are compatible 
    - Templates remain the source of truth for instructions, which are copied into artifacts for convenience and independence
 
 3. **Stop Rules**:
-   - **Simplified Workflow**: STOP after creating SESSION_CONTEXT, after executing changes, after cleanup
-   - **Full Workflow**: STOP after creating PLAN (with summary), additional artifacts, SESSION_CONTEXT filling, and validation
+   - STOP after creating PLAN (with summary), additional artifacts, SESSION_CONTEXT filling, and validation
    - Execution: STOP after completing each step/phase and after answering questions
    - Always wait for confirmation before proceeding
    - After STOP, provide summary of what was done and what's next
@@ -442,19 +391,11 @@ If you have existing artifacts created with the old prompt, they are compatible 
    - **Context gathering can be parallel**: Reading multiple files for analysis is OK and encouraged
    - Prevents race conditions and data corruption
 
-5. **Two Workflow Modes**:
-   - **Simplified Workflow**: For trivial tasks (no architectural decisions, linear changes, predictable)
-   - **Full Workflow**: For complex tasks (architectural decisions, multiple dependencies, deep analysis needed)
-   - Agent automatically determines mode based on task complexity assessment
-   - Can switch from Simplified to Full if task becomes more complex
-
-6. **Universal SESSION_CONTEXT**:
-   - Same template for both Simplified and Full workflows
+5. **Universal SESSION_CONTEXT**:
    - Used during planning (intermediate results) and execution (current state)
-   - For Simplified: Primary artifact (only artifact needed)
-   - For Full: Operational memory (complements PLAN, CHANGELOG, QUESTIONS)
+   - Operational memory (complements PLAN, CHANGELOG, QUESTIONS)
    - **Analysis Context (CRITICAL)**: Must contain files analyzed, search queries used, directions explored, key findings - provides visibility into "where the agent is looking" for developers to review and guide
-   - During Full Workflow planning: Optional creation/update during Steps 1-5 (for intermediate analysis results), mandatory filling in Step 8 (after planning is complete)
+   - During planning: Optional creation/update during Steps 1-5 (for intermediate analysis results), mandatory filling in Step 8 (after planning is complete)
    - Each step of context gathering (Steps 1-4) requires STOP and summary with standardized format (files analyzed, search queries, key findings, directions explored)
    - Cleanup after completion to minimize context clutter
 
@@ -486,8 +427,6 @@ If you have existing artifacts created with the old prompt, they are compatible 
 **Critical MVC Rules:**
 
 1. **Artifact Creation**:
-   - **Simplified Workflow**: Create SESSION_CONTEXT only (primary artifact)
-   - **Full Workflow**: 
      - Create critical artifact first (PLAN)
      - STOP after PLAN creation and provide summary
      - Can create/update SESSION_CONTEXT during planning (for intermediate results)

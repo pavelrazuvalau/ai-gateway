@@ -7,6 +7,8 @@
 
 **⚠️ IMPORTANT:** The knowledge base does NOT contain concepts for working with artifacts or project-specific templates. This is a universal reference on prompt engineering that teaches how to write prompts correctly. Specific projects with system prompts describe work with artifacts in their system prompts.
 
+> **📌 This is a condensed English version** focusing on core concepts: Style Guide, Best Practices, Common Mistakes, and Guard Rails. For comprehensive coverage including Prompting Techniques (CoT, Few-shot, Role-based), Security, Anti-Patterns, Structured Output, and Research sections, see the full Russian version: [PROMPT_ENGINEERING_KNOWLEDGE_BASE.md](./PROMPT_ENGINEERING_KNOWLEDGE_BASE.md)
+
 ---
 
 ## 🛡️ Knowledge Base as Guard Rails
@@ -24,7 +26,6 @@
 
 **Key guard rails in the knowledge base:**
 - [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects) - Preventing cyclical changes when working with code
-- [Guard Rails for Planning](#guard-rails-for-planning) - Preventing over-planning and analysis paralysis
 - [When to Stop](#when-to-stop) - "Good enough" criteria
 - [Sufficient Quality Gateway](#sufficient-quality-gateway) - "Good enough" checks for critical transitions
 - [System Prompt Universality Principle](#universality-principle) - Universality without mentioning specific technologies
@@ -88,11 +89,12 @@
 **Related sections:**
 - [Separation of Responsibilities: Agent and Model](#agent-model-separation) - What the model knows, what the agent controls
 - [Nature of System Prompt](#system-prompt-nature) - Instructions for decision-making, not a program
-- [Strategy for Working with Knowledge Base as Database](#knowledge-base-strategy-db) - Indexing and efficient search
 
 ---
 
 ## 📚 Table of Contents
+
+> **📌 Note:** This is a condensed English version focusing on core concepts. For comprehensive coverage including Prompting Techniques, Security, Anti-Patterns, and Research sections, see the full Russian version: [PROMPT_ENGINEERING_KNOWLEDGE_BASE.md](./PROMPT_ENGINEERING_KNOWLEDGE_BASE.md)
 
 **Critical sections (read first):**
 - [📖 Glossary of Terms](#glossary-of-terms) - **Defines the language of communication** - read first to understand terminology
@@ -105,54 +107,22 @@
 
 **Main sections:**
 1. [Style Guide for System Prompts](#style-guide) - Writing principles and system prompt structure
+   - [System Prompt Universality Principle](#universality-principle) - Universality without mentioning specific technologies
+   - [Nature of System Prompt](#system-prompt-nature) - Instructions for decision-making, not a program
+   - [Separation of Responsibilities: Agent and Model](#agent-model-separation) - What the model knows, what the agent controls
+   - [System Prompt Length](#system-prompt-length) - Principles and optimality assessment criteria
 2. [Common Mistakes in System Prompts](#common-mistakes) - Top-10 mistakes and how to avoid them
 3. [Best Practices](#best-practices) - Recommendations for creating effective prompts
    - [Working with Tools and Creating Files](#file-creation-best-practices) - Multi-level file creation strategy, success verification, state preservation
-4. [Prompting Techniques](#prompting-techniques) - Chain-of-Thought, Few-shot, Zero-shot and other techniques
-   - [Thinking Tags](#thinking-tags) - Explicit separation of reasoning and result through tags
-   - [Self-Consistency](#self-consistency) - Multiple reasonings with consistent answer selection
-   - [Tree of Thoughts](#tree-of-thoughts) - Branching reasoning tree with path evaluation
-5. [Prompt Security](#security) - Prompt injection, Jailbreaking, attack protection
-   - [Hallucination Prevention](#hallucination-prevention) - Strategies for combating unreliable generation
-6. [Structured Output](#structured-output) - JSON mode, Structured Outputs, obtaining structured data
-7. [Anti-Patterns](#anti-patterns) - What to avoid when writing prompts
-8. [Conditional Logic in Prompts](#conditional-logic) - When and how to use conditions in prompts
-9. [Model-Specific Optimization](#model-optimization) - Balance between optimization and universality
-10. [Instruction Duplication](#duplication) - When duplication is justified and when it's not
-11. [Using Templates in Prompts](#template-usage) - Universal practices for working with templates
 
 **Guard Rails and Quality Criteria:**
 - [When to Stop](#when-to-stop) - **Core principles** of "good enough" criteria and improvement prioritization
-- [Informing About Further Development Direction](#informing-about-further-development-direction) - Informing user about optional improvements when "good enough" criteria is met
-- [Sufficient Quality Gateway](#sufficient-quality-gateway) - Systematic "good enough" checks for critical transitions (applies principles from "When to Stop")
-- [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects) - Preventing cyclical changes when working with code (applies principles from "When to Stop")
-- [Guard Rails for Planning](#guard-rails-for-planning) - Preventing over-planning and analysis paralysis during planning
+- [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects) - Preventing cyclical changes when working with code
+- [Sufficient Quality Gateway](#sufficient-quality-gateway) - Systematic "good enough" checks for critical transitions
+- [Production Code Quality](#production-code-quality-and-refactoring-criteria) - Code quality criteria and when to refactor
 
-**Working with templates and artifacts:**
-- [Using Templates in Prompts](#template-usage) - Universal principles for working with templates, including the "storage + contract" concept
-
-**Prompt Structure and Components:**
-- [Nature of System Prompt](#system-prompt-nature) - System prompt as instructions for decision-making, not a program
-- [Separation of Responsibilities: Agent and Model](#agent-model-separation) - What the model knows, what the agent controls, practical conclusions for system prompts
-- [Role Definition in System Prompts](#role-definition-structure) - Optimal structure and components of role definition (practical application of Role-based Prompting technique)
-- [Role-based Prompting](#prompting-techniques) - Prompting technique (see also "Role Definition" for system prompts)
-- [System Prompt Length](#system-prompt-length) - Principles for working with system prompt length and optimality assessment criteria
-
-**Practical Recommendations:**
-- [Conclusions and Recommendations for AI Agents](#ai-generated-prompts) - Practical guide for using the knowledge base
-- [Output Size Optimization in Tokens](#output-size-optimization) - Strategies for controlling and optimizing AI agent output size
-
-**Research and Specialized Sections:**
-- [Research: Knowledge Base Universalization for AI Agents](#universalization-research) - Preparation for universalization and navigation optimization
-- [Research: File Operations Strategies](#file-operations-research) - Strategies for optimized file operations with standard development tools
-- [Agent-Agnostic Knowledge Base and Coding Agent Tools](#agent-agnostic-knowledge-base) - Universal tools and approaches
-- [Strategy for Working with Knowledge Base as Database](#knowledge-base-strategy-db) - Indexing and efficient search
-- [Deep Investigation Mechanism in System Prompts](#deep-investigation-mechanism) - Using internal resources to justify decisions
-- [Reference File Structuring](#reference-files-structure) - General structuring practices for quick search
-- [Agent Architecture: Separate vs Combined](#agent-architecture-separation) - Optimal system prompt architecture
-- [Agent Loop Patterns](#agent-loop-patterns) - Loop patterns for iterative task execution by agents
-- [System Prompt Consistency Checklist](#system-prompt-consistency) - Consistency validation procedures
-- [Open Questions for Further Research](#open-questions) - Completed research and their conclusions
+**Reference Materials:**
+- [📚 Sources](#sources) - Consolidated list of all external sources
 
 ---
 
@@ -162,7 +132,7 @@
 
 **Purpose:** Determine the correct location for adding new information to the Knowledge Base  
 **When to use:** When adding new information (best practices, anti-patterns, research, guard rails)  
-**Related sections:** [New Section Template](#section-template), [Categories Map](#kb-categories-map), [Addition Criteria](#kb-addition-criteria), [Strategy for Working with Knowledge Base](#knowledge-base-strategy-db)
+**Related sections:** [New Section Template](#section-template), [Categories Map](#kb-categories-map), [Addition Criteria](#kb-addition-criteria)
 
 ---
 
@@ -179,14 +149,15 @@
 
 **Step 1: Determine information type**
 
+> **📌 Note:** Some sections (marked with 📝) are available only in the full Russian version.
+
 | Information Type | Target Section | Anchor |
 |-----------------|----------------|--------|
 | Best Practice (proven practice) | Best Practices | `#best-practices` |
-| Anti-Pattern (what to avoid) | Anti-Patterns | `#anti-patterns` |
-| Prompting Technique | Prompting Techniques | `#prompting-techniques` |
-| Guard Rail (constraint/rule) | Corresponding Guard Rails section | See categories map |
+| Anti-Pattern (what to avoid) | 📝 Anti-Patterns (RU) | See full RU version |
+| Prompting Technique | 📝 Prompting Techniques (RU) | See full RU version |
+| Guard Rail (constraint/rule) | Guard Rails sections | `#when-to-stop`, `#guard-rails-for-vibe-coding-on-large-projects` |
 | Common Mistake | Common Mistakes | `#common-mistakes` |
-| Research (completed) | Open Questions | `#open-questions` |
 | New Term | Glossary of Terms | `#glossary-of-terms` |
 
 **Step 2: Check existing sections**
@@ -270,7 +241,7 @@
 
 **Purpose:** Ensure uniform section structure in the Knowledge Base  
 **When to use:** When creating a new section in the Knowledge Base  
-**Related sections:** [Where to Add New Information](#where-to-add-content), [Reference File Structuring](#reference-files-structure)
+**Related sections:** [Where to Add New Information](#where-to-add-content)
 
 ---
 
@@ -372,7 +343,7 @@
 
 **Purpose:** Provide topic taxonomy for quick orientation when adding/searching for information  
 **When to use:** When determining location for new information, when searching for relevant section  
-**Related sections:** [Where to Add New Information](#where-to-add-content), [Strategy for Working with Knowledge Base](#knowledge-base-strategy-db)
+**Related sections:** [Where to Add New Information](#where-to-add-content)
 
 ---
 
@@ -387,13 +358,15 @@
 
 ### Category Hierarchy
 
+> **📌 Note:** Sections marked with 📝 are available only in the full Russian version.
+
 ```
-Knowledge Base
+Knowledge Base (EN - condensed version)
 ├── 🧭 Navigation and meta (this section)
-│   ├── Where to add information
-│   ├── Section template
-│   ├── Categories map
-│   └── Addition criteria
+│   ├── Where to add information (#where-to-add-content)
+│   ├── Section template (#section-template)
+│   ├── Categories map (#kb-categories-map)
+│   └── Addition criteria (#kb-addition-criteria)
 │
 ├── 📖 Basics (read first)
 │   ├── Glossary of Terms (#glossary-of-terms)
@@ -402,57 +375,32 @@ Knowledge Base
 ├── 📋 Prompt Structure
 │   ├── Nature of System Prompt (#system-prompt-nature)
 │   ├── Separation of Responsibilities (#agent-model-separation)
-│   ├── Role Definition (#role-definition-structure)
 │   └── Prompt Length (#system-prompt-length)
 │
 ├── 🎯 Best Practices (#best-practices)
-│   ├── Working with Tools (#file-creation-best-practices)
-│   ├── Using Templates (#template-usage)
-│   └── Instruction Duplication (#duplication)
+│   └── Working with Tools (#file-creation-best-practices)
 │
 ├── 🚫 Problems and Mistakes
-│   ├── Common Mistakes (#common-mistakes)
-│   ├── Anti-Patterns (#anti-patterns)
-│   └── Conditional Logic (#conditional-logic)
-│
-├── 🧠 Prompting Techniques (#prompting-techniques)
-│   ├── Zero-shot, Few-shot, Chain-of-Thought
-│   ├── Role-based Prompting
-│   ├── Thinking Tags (#thinking-tags)
-│   ├── Self-Consistency (#self-consistency)
-│   └── Tree of Thoughts (#tree-of-thoughts)
+│   └── Common Mistakes (#common-mistakes)
 │
 ├── 🛑 Guard Rails
 │   ├── When to Stop (#when-to-stop) ← FOUNDATION
 │   ├── Sufficient Quality Gateway (#sufficient-quality-gateway)
-│   ├── Guard Rails for Vibe Coding (#guard-rails-for-vibe-coding-on-large-projects)
-│   └── Guard Rails for Planning (#guard-rails-for-planning)
+│   └── Guard Rails for Vibe Coding (#guard-rails-for-vibe-coding-on-large-projects)
 │
-├── 🔒 Security (#security)
-│   ├── Prompt Injection
-│   ├── Jailbreaking
-│   ├── Data Leakage
-│   └── Hallucination Prevention (#hallucination-prevention)
+├── 💻 Code Quality
+│   └── Production Code Quality (#production-code-quality-and-refactoring-criteria)
 │
-├── 📊 Output and Data
-│   ├── Structured Output (#structured-output)
-│   └── Output Size Optimization (#output-size-optimization)
-│
-├── 💡 Practical Recommendations
-│   ├── Conclusions for AI Agents (#ai-generated-prompts)
-│   └── Model-Specific Optimization (#model-optimization)
-│
-└── 🔬 Research
-    ├── Universalization (#universalization-research)
-    ├── File Operations Strategies (#file-operations-research)
-    ├── Agent-Agnostic KB (#agent-agnostic-knowledge-base)
-    ├── Working with KB as DB (#knowledge-base-strategy-db)
-    ├── Deep Investigation (#deep-investigation-mechanism)
-    ├── File Structuring (#reference-files-structure)
-    ├── Agent Architecture (#agent-architecture-separation)
-    ├── Agent Loop Patterns (#agent-loop-patterns)
-    ├── Prompt Consistency (#system-prompt-consistency)
-    └── Open Questions (#open-questions)
+└── 📚 Reference Materials
+    └── Sources (#sources)
+
+📝 Available only in full RU version:
+├── 🧠 Prompting Techniques (CoT, Few-shot, Role-based, Thinking Tags, etc.)
+├── 🔒 Security (Prompt Injection, Jailbreaking, Hallucination Prevention)
+├── 📊 Structured Output, Output Size Optimization
+├── 🚫 Anti-Patterns, Conditional Logic
+├── 📋 Using Templates, Instruction Duplication
+└── 🔬 Research sections
 ```
 
 ### Quick Topic Search
@@ -461,12 +409,11 @@ Knowledge Base
 |------------------------|-------------------|-------------|
 | How to write prompts | 📋 Prompt Structure | `#style-guide` |
 | What to do | 🎯 Best Practices | `#best-practices` |
-| What not to do | 🚫 Problems and Mistakes | `#anti-patterns` |
+| What not to do | 🚫 Problems and Mistakes | `#common-mistakes` |
 | When to stop | 🛑 Guard Rails | `#when-to-stop` |
-| Improvement techniques | 🧠 Techniques | `#prompting-techniques` |
-| Attack protection | 🔒 Security | `#security` |
-| Output format | 📊 Output | `#structured-output` |
+| Code quality | 💻 Code Quality | `#production-code-quality-and-refactoring-criteria` |
 | Terminology | 📖 Basics | `#glossary-of-terms` |
+| External sources | 📚 Reference | `#sources` |
 
 ---
 
@@ -552,7 +499,7 @@ Knowledge Base
 **Purpose:** Ensure uniform terminology in the knowledge base  
 **When to use:** When creating or updating knowledge base sections for consistent term usage
 
-**⚠️ CRITICALLY IMPORTANT:** The glossary defines the language of communication between people and AI agents. All terms used in the knowledge base should be defined here. Read the glossary first to understand the terminology.
+**Important:** The glossary defines the language of communication between people and AI agents. All terms used in the knowledge base should be defined here. Read the glossary first to understand the terminology.
 
 ### Core Terms
 
@@ -653,27 +600,21 @@ In this knowledge base, Guard Rails are used for:
 
 **Purpose:** Defines the structure and principles of writing effective system prompts  
 **When to use:** When creating a new system prompt or improving an existing one  
-**Related sections:** [Best Practices](#best-practices), [Anti-Patterns](#anti-patterns), [Common Mistakes](#common-mistakes)
+**Related sections:** [Best Practices](#best-practices), [Common Mistakes](#common-mistakes)
 
 ### 🤖 Instructions for you
 
 **How to use this section:**
 - When creating a prompt → follow the recommended structure (Role, Workflow, Output Management, Quality, Quick Reference)
 - When writing → apply principles (clarity, structure, examples, uniformity, objectivity)
-- When checking → use the checklist from section [Conclusions and Recommendations](#ai-generated-prompts)
-
-**Sources:**
-- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) - Official OpenAI guide
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering) - Anthropic guide
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for creating effective prompts (2024)
-- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts) - Collection of real system prompts from ChatGPT, Claude, v0, Cursor, Manus, Bolt.new and others (2025)
+- When checking → verify against [Common Mistakes](#common-mistakes) and [Best Practices](#best-practices)
 
 ---
 
 <a id="universality-principle"></a>
 
 ### System Prompt Universality Principle
-**⚠️ CRITICALLY IMPORTANT:** Even if system prompts are optimized for working with specific technologies (e.g., GitHub Copilot, Claude Sonnet 4.5, Cursor IDE), the system prompts themselves should NOT mention these specific technologies.
+**Important:** Even if system prompts are optimized for working with specific technologies (e.g., GitHub Copilot, Claude Sonnet 4.5, Cursor IDE), the system prompts themselves should NOT mention these specific technologies.
 
 **Why this matters:**
 - Mentioning specific technologies doesn't help the model make decisions
@@ -729,7 +670,7 @@ In this knowledge base, Guard Rails are used for:
 <a id="system-prompt-nature"></a>
 
 ### Nature of System Prompt: Instructions for Decision-Making, Not a Program
-**⚠️ CRITICALLY IMPORTANT:** A system prompt is **not a program**. Its task is to guide the model toward correct decision-making in many intermediate steps that the user may not be aware of.
+**Important:** A system prompt is **not a program**. Its task is to guide the model toward correct decision-making in many intermediate steps that the user may not be aware of.
 
 **Key concept:**
 - A system prompt provides **instructions** on how to gather context and how to use decision-making principles from that context to achieve the user's desired result
@@ -821,10 +762,6 @@ The model goes through a sequence of logical steps:
    - Provide criteria and principles, not deterministic instructions
    - Allow the model to apply principles in the context of a specific situation
    - Use objective criteria instead of subjective assessments
-
-**Sources:**
-- [Chain of Thought Prompting](https://arxiv.org/abs/2201.11903) - Technique guiding model through sequence of logical steps
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for creating effective prompts (2024)
 
 ---
 
@@ -1022,16 +959,9 @@ Examples:
 - ❌ Don't include technical implementation details
 - ❌ Don't mention specific protocols or APIs
 
-**Sources:**
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) - Protocol for standardizing context exchange
-- [Retrieval-Augmented Generation (RAG)](https://arxiv.org/abs/2005.11401) - Original RAG work (2020)
-- [Function Calling / Tool Use](https://platform.openai.com/docs/guides/function-calling) - OpenAI Function Calling Guide
-- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts) - Examples of tool descriptions in real prompts
-
 **Related sections:**
 - [Nature of System Prompt](#system-prompt-nature) - Instructions for decision-making, not a program
 - [System Prompt Universality Principle](#universality-principle) - Universality without mentioning specific technologies
-- [Agent Loop Patterns](#agent-loop-patterns) - Tool usage patterns
 - [Best Practices](#best-practices) - Recommendations for creating effective prompts
 
 ---
@@ -1167,14 +1097,9 @@ If task seems complex → use Full Workflow (without clear criteria)
 ### System Prompt Length: Principles and Recommendations
 **Purpose:** Define principles for working with system prompt length and optimality assessment criteria  
 **When to use:** When creating or evaluating system prompts, when making decisions about instruction detail level  
-**Related sections:** [System Prompt Structure](#system-prompt-structure), [Writing Principles](#writing-principles), [Output Size Optimization](#output-size-optimization)
+**Related sections:** [Style Guide](#style-guide), [Best Practices](#best-practices)
 
-**Sources:**
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for creating effective prompts (2024)
-
----
-
-**⚠️ CRITICALLY IMPORTANT:** System prompt length itself is not a problem. The problem is **lack of structure** in a long prompt.
+**Important:** System prompt length itself is not a problem. The problem is **lack of structure** in a long prompt.
 
 **Key principles:**
 
@@ -1191,7 +1116,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 3. **Length assessment criteria:**
    - ✅ Prompt contains all necessary instructions for the task
    - ✅ Prompt is structured (clear sections, navigation, hierarchy)
-   - ✅ Prompt doesn't contain duplication (see [Instruction Duplication](#duplication))
+   - ✅ Prompt doesn't contain unnecessary duplication
    - ✅ Prompt uses links to external sources (templates, knowledge base) instead of full copying
    - ❌ Prompt contains redundant information unrelated to the task
    - ❌ Prompt is unstructured (continuous text, no navigation)
@@ -1215,7 +1140,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 #### When a prompt should be shorter
 
 ❌ **Shorten prompt if:**
-- Contains instruction duplication (see [Instruction Duplication](#duplication))
+- Contains unnecessary instruction duplication
 - Contains full template copying instead of links to them
 - Contains redundant information unrelated to the task
 - Is unstructured (continuous text without sections)
@@ -1248,8 +1173,8 @@ If task seems complex → use Full Workflow (without clear criteria)
    ```
 
 3. **Removing duplication:**
-   - Use principles from section [Instruction Duplication](#duplication)
    - Avoid repeating the same information in different sections
+   - Use links to external sources instead of copying
 
 **Evaluation metrics:**
 
@@ -1265,10 +1190,8 @@ If task seems complex → use Full Workflow (without clear criteria)
 - ✅ Evaluate prompt effectiveness in practice, not by its length
 
 **Connection with other sections:**
-- [System Prompt Structure](#system-prompt-structure) - Recommended structure for long prompts
-- [Instruction Duplication](#duplication) - When duplication is justified and when it's not
-- [Using Templates](#template-usage) - Using links instead of copying
-- [Output Size Optimization](#output-size-optimization) - Output size control (not prompt)
+- [Style Guide](#style-guide) - Recommended structure for prompts
+- [Best Practices](#best-practices) - Recommendations for creating effective prompts
 
 ---
 
@@ -1278,14 +1201,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 **Purpose:** Describes the most common mistakes when writing system prompts and ways to avoid them  
 **When to use:** When checking prompt quality or when learning to write prompts  
-**Related sections:** [Style Guide](#style-guide), [Best Practices](#best-practices), [Anti-Patterns](#anti-patterns)
-
-**Sources:**
-- [OpenAI Best Practices](https://help.openai.com/en/articles/6654000-best-best-practices-for-prompt-engineering-with-openai-api) - Official OpenAI recommendations
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering) - Anthropic guide
-- [A Prompt Pattern Catalog to Enhance Prompt Engineering with ChatGPT](https://arxiv.org/abs/2302.11382) - Prompt pattern catalog (2023)
-
----
+**Related sections:** [Style Guide](#style-guide), [Best Practices](#best-practices)
 
 ### 1. Ambiguous Formulations ❌
 
@@ -1476,12 +1392,12 @@ If task seems complex → use Full Workflow (without clear criteria)
 - Use static analysis tools
 - Check code for vulnerabilities
 - Follow secure coding principles
-- Protect prompts from prompt injection (see [Prompt Security](#security))
+- Protect prompts from prompt injection attacks
 - Don't include secrets in prompts (use environment variables)
 - Validate and sanitize user input
 - Use moderation API to check input/output
 
-**More details:** See section [Prompt Security](#security) for detailed information about attack protection.
+> **📌 Note:** For detailed information about Prompt Security (Prompt Injection, Jailbreaking, Data Leakage, Hallucination Prevention), see the full Russian version: [PROMPT_ENGINEERING_KNOWLEDGE_BASE.md](./PROMPT_ENGINEERING_KNOWLEDGE_BASE.md#security)
 
 ---
 
@@ -1527,7 +1443,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 **Purpose:** Provides proven recommendations for creating effective system prompts  
 **When to use:** When creating or improving system prompts to apply best practices  
-**Related sections:** [Style Guide](#style-guide), [Common Mistakes](#common-mistakes), [Anti-Patterns](#anti-patterns)
+**Related sections:** [Style Guide](#style-guide), [Common Mistakes](#common-mistakes)
 
 ### 🤖 Instructions for you
 
@@ -1584,7 +1500,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 - Specify format (text, table, JSON, code)
 - Indicate data structure
 - Show format examples
-- Use structured output for integrations (see [Structured Output](#structured-output))
+- Use structured output for integrations (JSON mode, Structured Outputs)
 
 ### 6. Following Coding Style
 
@@ -1714,7 +1630,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 **Purpose:** Defines "good enough" criteria and helps avoid endless improvement cycles  
 **When to use:** When analyzing system prompts, when it seems something could be improved, or when deciding if changes are needed  
-**Related sections:** [Best Practices](#best-practices), [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects), [Sufficient Quality Gateway](#sufficient-quality-gateway), [Conclusions and Recommendations](#ai-generated-prompts)
+**Related sections:** [Best Practices](#best-practices), [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects), [Sufficient Quality Gateway](#sufficient-quality-gateway)
 
 **Context:** Solving the problem of constantly finding "new improvements" with each analysis. Especially important for models prone to overthinking.
 
@@ -1930,7 +1846,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ## ✅ Sufficient Quality Gateway
 
-**⚠️ CRITICALLY IMPORTANT:** **Sufficient Quality Gateway SHOULD be used by default always and everywhere** when working with knowledge base and when making decisions about adding information. This allows precise analysis of when to stop and avoid duplications only in context of this file.
+**Important:** **Sufficient Quality Gateway SHOULD be used by default always and everywhere** when working with knowledge base and when making decisions about adding information. This allows precise analysis of when to stop and avoid duplications only in context of this file.
 
 **Purpose:** Systematic "good enough" check before critical workflow transitions, during planning, when making decisions, and when updating knowledge base  
 **When to use:** 
@@ -2110,20 +2026,104 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ---
 
+<a id="sources"></a>
+
 ## 📚 Sources
+
+**All external sources related to prompt engineering are consolidated in this section.**
 
 ### Official Documentation
 
-- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering)
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering)
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127)
+**OpenAI:**
+- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) - Comprehensive official guide on prompt engineering techniques
+- [OpenAI Best Practices](https://help.openai.com/en/articles/6654000-best-best-practices-for-prompt-engineering-with-openai-api) - Official OpenAI recommendations
+- [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling) - Guide on tool use and function calling
+- [OpenAI JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode) - JSON mode documentation
+- [OpenAI Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) - Structured Outputs API
+- [OpenAI Model Documentation](https://platform.openai.com/docs/models) - OpenAI models documentation
+- [OpenAI Chat Completions API](https://platform.openai.com/docs/api-reference/chat/create) - OpenAI message structure
+- [OpenAI Safety Best Practices](https://platform.openai.com/docs/guides/safety-best-practices) - OpenAI safety recommendations
+- [OpenAI Data Usage Policies](https://openai.com/policies/usage-policies) - Data usage policies
 
-### Software Development Principles
+**Anthropic:**
+- [Anthropic Claude Prompt Engineering Guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview) - Official Anthropic guide for Claude prompt engineering
+- [Anthropic Messages API](https://platform.claude.com/docs/en/api/messages) - Anthropic message structure
+- [Anthropic Structured Outputs](https://platform.claude.com/docs/en/build-with-claude/tool-use/structured-outputs) - Structured outputs documentation
+- [Anthropic Claude Documentation](https://platform.claude.com/docs/en) - Official Anthropic Claude documentation
+- [Anthropic Safety Documentation](https://platform.claude.com/docs/en/build-with-claude/safety) - Anthropic approach to safety
+- [Anthropic Data Privacy](https://www.anthropic.com/policies/privacy) - Anthropic privacy policies
 
-- [Good Enough Software](https://www.joelonsoftware.com/2000/05/14/strategy-letter-iii/)
-- [Analysis Paralysis](https://en.wikipedia.org/wiki/Analysis_paralysis)
-- [Pareto Principle (80/20 Rule)](https://en.wikipedia.org/wiki/Pareto_principle)
-- [YAGNI Principle](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)
+**Google:**
+- [Google Prompt Engineering Guide](https://ai.google.dev/gemini-api/docs/prompting-strategies) - Google prompting strategies
+- [Google Prompt Best Practices](https://ai.google.dev/docs/prompt_best_practices) - Recommendations for structuring prompts
+
+**GitHub:**
+- [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-prompting-with-github-copilot) - GitHub Copilot recommendations
+
+### Research Papers (arXiv)
+
+**Prompting Techniques:**
+- [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) - Original CoT paper (Wei et al., 2022)
+- [Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171) - Original Self-Consistency paper (2022)
+- [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601) - Original ToT paper (2023)
+
+**Surveys and Systematization:**
+- [The Prompt Report: A Systematic Survey of Prompting Techniques](https://arxiv.org/abs/2406.06608) - Comprehensive survey of prompting techniques (2024)
+- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for effective prompts (Hewing & Leinhos, 2024)
+- [Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in NLP](https://arxiv.org/abs/2107.13586) - Systematic survey of prompting methods (2021)
+- [A Prompt Pattern Catalog to Enhance Prompt Engineering with ChatGPT](https://arxiv.org/abs/2302.11382) - Catalog of prompt patterns (White et al., 2023)
+- [A Systematic Survey of Prompt Engineering in Large Language Models](https://arxiv.org/abs/2402.07927) - Systematic survey of prompt engineering techniques and limitations (2024)
+
+**RAG and Information Processing:**
+- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) - Original RAG paper (2020)
+
+**Security and Hallucinations:**
+- [Survey of Hallucination in Natural Language Generation](https://arxiv.org/abs/2202.03629) - Survey of hallucinations in NLG (2022)
+- [Security Analysis of Large Language Models](https://arxiv.org/abs/2310.02059) - Comprehensive LLM security analysis (2023)
+
+### Community Resources
+
+- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts) - Collection of real system prompts from ChatGPT, Claude, v0, Cursor, Manus, Bolt.new and others (2025)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) - Protocol for standardizing context exchange
+- [JSON Schema](https://json-schema.org/) - JSON Schema specification
+
+### Security
+
+- [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/) - Top 10 LLM vulnerabilities
+- [Prompt Injection Attacks Against GPT-3](https://simonwillison.net/2022/Sep/12/prompt-injection/) - Prompt injection attack analysis
+
+### Code Quality and Development
+
+**Refactoring and Patterns:**
+- [Refactoring: Improving the Design of Existing Code](https://refactoring.com/) - Martin Fowler
+- [Refactoring Guru: Design Patterns](https://refactoring.guru/design-patterns) - Design patterns
+- [Refactoring Guru: Code Smells](https://refactoring.guru/refactoring/smells) - Code smells
+- [Refactoring Guru: SOLID](https://refactoring.guru/design-patterns/solid-principles) - SOLID principles
+- [Martin Fowler: Code Smells Catalog](https://refactoring.com/catalog/) - Code smells catalog
+
+**Development Principles:**
+- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID) - SOLID principles
+- [DRY Principle](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) - DRY principle
+- [KISS Principle](https://en.wikipedia.org/wiki/KISS_principle) - KISS principle
+- [YAGNI Principle](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it) - YAGNI principle
+- [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns) - Separation of concerns principle
+
+**Books and Classics:**
+- [Clean Code: A Handbook of Agile Software Craftsmanship](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882) - Robert C. Martin
+- [Clean Code Principles](https://www.freecodecamp.org/news/clean-code-principles/) - Clean code principles
+- [The Pragmatic Programmer](https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/) - 20th Anniversary Edition
+- [The Mythical Man-Month](https://en.wikipedia.org/wiki/The_Mythical_Man-Month) - Classic on software development (Frederick Brooks, 1975)
+- [Extreme Programming](https://en.wikipedia.org/wiki/Extreme_programming) - Extreme programming
+
+**Quality and Approaches:**
+- [Good Enough Software](https://www.joelonsoftware.com/2000/05/14/strategy-letter-iii/) - "Good enough" software concept (Joel Spolsky, 2000)
+- [Analysis Paralysis](https://en.wikipedia.org/wiki/Analysis_paralysis) - Analysis paralysis problem in software development
+- [Pareto Principle (80/20 Rule)](https://en.wikipedia.org/wiki/Pareto_principle) - Pareto principle: 80% of results from 20% of effort
+- [Semantic Versioning (SemVer)](https://semver.org/) - Semantic versioning specification
+
+**Error Handling:**
+- [Error Handling Best Practices](https://www.joyent.com/node-js/production/design/errors) - Error handling best practices
+- [Exception Handling in Programming](https://en.wikipedia.org/wiki/Exception_handling) - Exception handling
 
 ---
 

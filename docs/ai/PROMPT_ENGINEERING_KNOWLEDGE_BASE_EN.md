@@ -154,6 +154,9 @@
 - [System Prompt Consistency Checklist](#system-prompt-consistency) - Consistency validation procedures
 - [Open Questions for Further Research](#open-questions) - Completed research and their conclusions
 
+**Reference Materials:**
+- [📚 Sources](#sources) - Consolidated list of all external sources
+
 ---
 
 <a id="where-to-add-content"></a>

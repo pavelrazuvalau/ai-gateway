@@ -1768,7 +1768,10 @@ Follow this workflow for every task:
    - Rationale (why chosen)
    - Closing date
    - Applied in (CHANGELOG link)
-3. Move question to resolved/answered questions section
+3. **MOVE question to resolved/answered questions section (NOT copy!):**
+   - **REMOVE question from "Active Questions" section** (delete the entire question block)
+   - **ADD question with answer to "Answered Questions" section**
+   - ⚠️ Question must NOT appear in both sections!
 4. Create CHANGELOG entry about resolution
 5. Update PLAN status if was blocked: BLOCKED → IN PROGRESS
 6. Remove blocker reference from PLAN navigation/overview section if applicable
@@ -1776,7 +1779,8 @@ Follow this workflow for every task:
 **Validation Checklist**:
 - [ ] Question status updated to Resolved
 - [ ] Answer information included
-- [ ] Question moved to resolved/answered questions section
+- [ ] **Question REMOVED from "Active Questions" section** (not duplicated!)
+- [ ] Question added to "Answered Questions" section
 - [ ] CHANGELOG entry created
 - [ ] PLAN status updated if was blocked
 - [ ] Blocker removed from PLAN navigation/overview section if applicable
@@ -2595,13 +2599,15 @@ During execution, you may discover information that requires updating the PLAN. 
 **Context**: A question in QUESTIONS has been answered (by user or through analysis).
 
 **Procedure**:
-1. **Update Question**:
+1. **Update Question** (MOVE, not copy!):
    - Update status: Pending → Resolved
    - Add answer section:
      - Answer
      - Rationale
      - Closing date
-   - Move to resolved/answered questions section
+   - **REMOVE question from "Active Questions" section** (delete the entire question block)
+   - **ADD question with answer to "Answered Questions" section**
+   - ⚠️ Question must NOT appear in both sections!
 
 2. **Create CHANGELOG Entry**:
    - Create entry about resolution
@@ -2629,11 +2635,12 @@ During execution, you may discover information that requires updating the PLAN. 
 **Example**:
 ```
 1. Q2.1 answered: Use [solution approach] for [problem description]
-2. Updated QUESTION:
-   - Status: Resolved
-   - Answer: [chosen solution]
-   - Rationale: [why this solution was chosen]
-   - Moved to resolved/answered questions section
+2. Updated QUESTIONS artifact:
+   - REMOVED Q2.1 from "Active Questions" section
+   - ADDED Q2.1 to "Answered Questions" section with:
+     - Status: ✅ Resolved
+     - Answer: [chosen solution]
+     - Rationale: [why this solution was chosen]
 3. Created CHANGELOG entry: Q2.1 resolved, approach chosen
 4. Updated PLAN:
    - Step 4.3: BLOCKED → IN PROGRESS

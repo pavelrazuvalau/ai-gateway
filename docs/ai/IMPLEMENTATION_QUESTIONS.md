@@ -320,14 +320,16 @@ This artifact is part of a system of 4 required artifacts that work together:
    - Why important: Explanation of impact
    - Solution options: List of options with pros/cons
    - Status: ⏳ Pending
-4. When answering question → move to "Answered Questions" section:
+4. When answering question → **MOVE to "Answered Questions" section (NOT copy!)**:
    - Update status: ⏳ Pending → ✅ Resolved
    - Add answer information:
      - Answer (accepted solution)
      - Rationale (why chosen)
      - Closing Date: YYYY-MM-DD
      - Applied in: CHANGELOG link
-   - Move question from "Active Questions" to "Answered Questions"
+   - **REMOVE question from "Active Questions" section** (delete the entire question block)
+   - **ADD question with answer to "Answered Questions" section**
+   - ⚠️ Question must NOT appear in both sections!
    - Create CHANGELOG entry about resolution
    - **Update "🎯 Current Focus" section**: If another active question exists → show next highest priority question, if no active questions → show "No active questions requiring your answer"
 5. Update question status (⏳ Pending → ✅ Resolved) when answered

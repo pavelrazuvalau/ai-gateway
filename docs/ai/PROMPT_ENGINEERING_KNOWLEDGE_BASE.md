@@ -79,7 +79,11 @@ Knowledge base as input context is a document or set of documents provided to an
 41. [Multi-Prompt System Design](#multi-prompt-system-design)
 42. [Checkpoint and Control Flow Design](#checkpoint-and-control-flow-design)
 43. [Requirements-to-Prompt Translation](#requirements-to-prompt-translation)
-44. [Sources](#sources)
+44. [Agentic Patterns](#agentic-patterns)
+45. [Self-Reflection and Self-Correction](#self-reflection-and-self-correction)
+46. [Tool Use Patterns](#tool-use-patterns)
+47. [Deep Investigation Patterns](#deep-investigation-patterns)
+48. [Sources](#sources)
 
 ---
 
@@ -186,9 +190,34 @@ KNOWLEDGE BASE
 │
 ├── TECHNIQUES
 │   ├── Zero-shot / Few-shot / Chain-of-Thought
-│   ├── Nudging Techniques ← NEW
-│   ├── Prompt Chaining Patterns ← NEW
+│   ├── Nudging Techniques
+│   ├── Prompt Chaining Patterns
 │   └── Other techniques
+│
+├── AGENTIC PATTERNS ← NEW CATEGORY
+│   ├── ReAct (Reasoning + Acting)
+│   ├── Plan-and-Execute
+│   ├── MRKL (Router Pattern)
+│   ├── Iterative Refinement
+│   └── Hierarchical Agents
+│
+├── SELF-IMPROVEMENT ← NEW CATEGORY
+│   ├── Self-Reflection Patterns
+│   ├── Critique-and-Revise
+│   ├── Reflexion (Learning from Mistakes)
+│   └── Constitutional Self-Check
+│
+├── TOOL INTEGRATION ← NEW CATEGORY
+│   ├── Tool Use Patterns
+│   ├── Tool Selection Logic
+│   ├── Tool Chaining
+│   └── Tool Fallback Strategies
+│
+├── INVESTIGATION ← NEW CATEGORY
+│   ├── Deep Investigation Patterns
+│   ├── Layered Analysis
+│   ├── Hypothesis-Driven Investigation
+│   └── Root Cause Analysis
 │
 ├── DECISION GUIDANCE
 │   ├── Instruction Hierarchy and Priority
@@ -4558,6 +4587,985 @@ TRACEABILITY:
 
 ---
 
+## Agentic Patterns
+
+**Purpose:** Fundamental patterns for building autonomous AI agents that can reason and act
+**When to use:** When designing agents that need to make decisions, use tools, or accomplish multi-step tasks
+**Related sections:** [Agent Loop Patterns](#agent-loop-patterns), [Tool Use Patterns](#tool-use-patterns), [Prompt Chaining](#prompt-chaining-patterns)
+**Research basis:** ReAct (Yao et al. 2022), Plan-and-Execute, MRKL Systems, Toolformer
+
+---
+
+### Overview: What Makes an Agent
+
+An **agent** is an LLM-based system that can:
+1. **Reason** about tasks and context
+2. **Plan** sequences of actions
+3. **Act** using tools or generating outputs
+4. **Observe** results and adapt
+
+**Key insight:** The difference between a chatbot and an agent is the ability to take actions and iterate based on feedback.
+
+---
+
+### Pattern 1: ReAct (Reasoning + Acting)
+
+**Source:** Yao et al. "ReAct: Synergizing Reasoning and Acting in Language Models" (2022)
+
+**Core concept:** Interleave reasoning traces with actions in a loop.
+
+**Structure:**
+```text
+Thought: [reasoning about current state and what to do next]
+Action: [tool/action to take]
+Observation: [result of the action]
+... repeat until task complete ...
+Thought: [final reasoning]
+Answer: [final response]
+```
+
+**When to use:**
+- Tasks requiring multi-step reasoning with tool use
+- When intermediate reasoning improves accuracy
+- When actions depend on previous observations
+
+<example>
+**Task:** "What is the population of the capital of France?"
+
+Thought: I need to find the capital of France first, then look up its population.
+Action: search("capital of France")
+Observation: Paris is the capital of France.
+
+Thought: Now I know the capital is Paris. I need to find Paris's population.
+Action: search("population of Paris")
+Observation: Paris has a population of approximately 2.1 million in the city proper.
+
+Thought: I have the information needed to answer the question.
+Answer: The population of Paris, the capital of France, is approximately 2.1 million.
+</example>
+
+**Implementation in system prompts:**
+```text
+"For complex tasks, use the following approach:
+
+1. THOUGHT: Reason about what you know and what you need to find out
+2. ACTION: Use available tools to gather information or take action
+3. OBSERVATION: Note what you learned from the action
+4. Repeat steps 1-3 until you have enough information
+5. ANSWER: Provide your final response
+
+Always show your reasoning before taking actions."
+```
+
+**Advantages:**
+- Transparent reasoning process
+- Better error recovery (can see where reasoning went wrong)
+- Improved accuracy on multi-step tasks
+
+**Limitations:**
+- More tokens used for reasoning traces
+- May over-think simple tasks
+
+---
+
+### Pattern 2: Plan-and-Execute
+
+**Core concept:** Separate planning from execution into distinct phases.
+
+**Structure:**
+```text
+PLANNING PHASE:
+1. Analyze the task
+2. Break into subtasks
+3. Create execution plan
+
+EXECUTION PHASE:
+For each subtask:
+1. Execute the subtask
+2. Verify result
+3. Update state
+4. Proceed to next subtask
+```
+
+**When to use:**
+- Complex tasks with multiple independent steps
+- When upfront planning improves efficiency
+- When different expertise needed for planning vs execution
+
+<example>
+**Task:** "Refactor the authentication module"
+
+PLANNING PHASE:
+Plan:
+1. Analyze current auth module structure
+2. Identify components to refactor
+3. Design new structure
+4. Implement changes file by file
+5. Update tests
+6. Verify all tests pass
+
+EXECUTION PHASE:
+Step 1: Analyzing current structure...
+[executes analysis]
+Result: Found 3 files, 2 services, identified coupling issues
+
+Step 2: Identifying components...
+[continues execution]
+</example>
+
+**Implementation in system prompts:**
+```text
+"Approach complex tasks in two phases:
+
+PHASE 1 - PLANNING:
+- Analyze the full scope of the task
+- Break down into numbered steps
+- Identify dependencies between steps
+- Present plan for approval before proceeding
+
+PHASE 2 - EXECUTION:
+- Execute steps in order
+- Report progress after each step
+- Adapt plan if new information emerges
+- Verify completion criteria for each step"
+```
+
+**Advantages:**
+- Better handling of complex tasks
+- Clear progress tracking
+- Easier to course-correct early
+
+**Limitations:**
+- Initial plan may need revision
+- Overhead for simple tasks
+
+---
+
+### Pattern 3: MRKL (Modular Reasoning, Knowledge, and Language)
+
+**Source:** Karpas et al. "MRKL Systems" (2022)
+
+**Core concept:** Route different types of queries to specialized modules/tools.
+
+**Structure:**
+```text
+INPUT → ROUTER → [Module Selection] → MODULE EXECUTION → OUTPUT
+                        ↓
+            Math Module | Search Module | Code Module | etc.
+```
+
+**When to use:**
+- When different query types need different handling
+- When specialized tools exist for specific tasks
+- When routing improves accuracy
+
+<example>
+**System prompt pattern:**
+```text
+"You have access to specialized modules:
+
+CALCULATOR: For mathematical computations
+SEARCH: For factual lookups
+CODE_EXECUTOR: For running code
+DATABASE: For structured queries
+
+For each query:
+1. Identify the type of task
+2. Select appropriate module(s)
+3. Use module to get result
+4. Synthesize final answer"
+```
+</example>
+
+---
+
+### Pattern 4: Iterative Refinement Agent
+
+**Core concept:** Generate initial output, then iteratively improve based on feedback or self-evaluation.
+
+**Structure:**
+```text
+1. GENERATE: Create initial output
+2. EVALUATE: Assess quality against criteria
+3. IDENTIFY: Find specific areas for improvement
+4. REFINE: Make targeted improvements
+5. REPEAT: Until quality threshold met or max iterations
+```
+
+**When to use:**
+- Creative or open-ended tasks
+- When quality criteria are clear
+- When initial output is "good enough" to refine
+
+**Implementation:**
+```text
+"For [task type], use iterative refinement:
+
+1. Generate a complete first draft
+2. Evaluate against these criteria: [criteria list]
+3. Identify the top 2-3 improvements needed
+4. Make those specific improvements
+5. Re-evaluate
+6. Stop when: all criteria met OR 3 iterations complete"
+```
+
+---
+
+### Pattern 5: Hierarchical Agent
+
+**Core concept:** Multiple agents at different levels of abstraction.
+
+**Structure:**
+```text
+ORCHESTRATOR AGENT
+    ├── assigns tasks to →
+    ├── SPECIALIST AGENT A (planning)
+    ├── SPECIALIST AGENT B (execution)
+    └── SPECIALIST AGENT C (validation)
+```
+
+**When to use:**
+- Very complex tasks requiring different expertise
+- When separation of concerns is valuable
+- When different contexts needed for different subtasks
+
+---
+
+### Choosing the Right Pattern
+
+| Task Characteristics | Recommended Pattern |
+|---------------------|---------------------|
+| Multi-step with tools | ReAct |
+| Complex, needs planning | Plan-and-Execute |
+| Different query types | MRKL (Router) |
+| Quality-sensitive output | Iterative Refinement |
+| Very complex, multi-domain | Hierarchical |
+| Simple, single-step | None (direct response) |
+
+---
+
+### Anti-Patterns in Agentic Design
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Over-agentification** | Using agents for simple tasks | Match complexity to task |
+| **Infinite loops** | No termination conditions | Explicit stop criteria, max iterations |
+| **Blind action** | Acting without reasoning | Require thought before action |
+| **Planning paralysis** | Over-planning without execution | Time-box planning phase |
+| **Tool abuse** | Using tools unnecessarily | Check if tool needed before calling |
+
+---
+
+## Self-Reflection and Self-Correction
+
+**Purpose:** Patterns for enabling models to evaluate and improve their own outputs
+**When to use:** When quality matters, when errors are costly, when improvement is possible
+**Related sections:** [Agentic Patterns](#agentic-patterns), [Error Recovery](#error-recovery-and-graceful-degradation)
+**Research basis:** Reflexion (Shinn et al. 2023), Self-Refine (Madaan et al. 2023), Constitutional AI
+
+---
+
+### Why Self-Reflection Matters
+
+**Problem:** LLMs can generate plausible but incorrect outputs without realizing the error.
+
+**Solution:** Build explicit reflection steps into the workflow.
+
+**Research finding:** Self-reflection can significantly improve task performance, especially on reasoning tasks (Reflexion paper showed improvements of 20%+ on some benchmarks).
+
+---
+
+### Pattern 1: Post-Generation Review
+
+**Structure:**
+```text
+1. GENERATE: Produce initial output
+2. REVIEW: Systematically check output against criteria
+3. IDENTIFY: List specific issues found
+4. CORRECT: Fix identified issues
+5. VERIFY: Confirm corrections are valid
+```
+
+**Implementation:**
+```text
+"After generating your response:
+
+REVIEW CHECKLIST:
+- [ ] Does it directly answer the question?
+- [ ] Are all claims accurate and verifiable?
+- [ ] Is the logic sound (no contradictions)?
+- [ ] Are there any unstated assumptions?
+- [ ] Is anything missing that should be included?
+
+If any issues found, revise before delivering final response."
+```
+
+<example>
+**Task:** Explain why the sky is blue
+
+**Initial output:** "The sky is blue because of the ocean's reflection."
+
+**Review:**
+- Direct answer? ✓
+- Accurate? ✗ (This is a common misconception)
+- Logic sound? ✗ (Ocean doesn't reflect into sky)
+
+**Corrected output:** "The sky is blue due to Rayleigh scattering - sunlight interacts with Earth's atmosphere, and blue wavelengths scatter more than other colors, making the sky appear blue."
+</example>
+
+---
+
+### Pattern 2: Critique-and-Revise
+
+**Source:** Self-Refine (Madaan et al. 2023)
+
+**Structure:**
+```text
+INITIAL OUTPUT
+      ↓
+SELF-CRITIQUE: "What's wrong with this output?"
+      ↓
+REVISION: Address critique points
+      ↓
+REPEAT until satisfactory
+```
+
+**Implementation:**
+```text
+"Use the critique-revise loop:
+
+1. Generate your initial response
+2. Critique your own response:
+   - 'What could be wrong with this?'
+   - 'What would an expert criticize?'
+   - 'What edge cases does this miss?'
+3. Revise based on your critique
+4. Stop when no substantive critiques remain"
+```
+
+---
+
+### Pattern 3: Verification Questions
+
+**Structure:** Ask yourself verification questions before finalizing.
+
+**Implementation:**
+```text
+"Before delivering your answer, verify by asking yourself:
+
+1. 'If I were the user, would this fully answer my question?'
+2. 'What could go wrong if someone followed this advice?'
+3. 'Am I certain about this, or am I guessing?'
+4. 'Is there a simpler/better way to do this?'
+
+Adjust your response based on answers to these questions."
+```
+
+---
+
+### Pattern 4: Explicit Uncertainty Acknowledgment
+
+**Structure:** Identify and communicate areas of uncertainty.
+
+**Implementation:**
+```text
+"When responding:
+
+CERTAIN: State directly
+LIKELY: State with 'Based on typical patterns...' or 'Usually...'
+UNCERTAIN: Explicitly say 'I'm not certain about X because Y'
+UNKNOWN: Say 'I don't have information about X. You should verify...'
+
+Never present uncertain information as certain."
+```
+
+---
+
+### Pattern 5: Reflexion (Learning from Mistakes)
+
+**Source:** Shinn et al. "Reflexion" (2023)
+
+**Structure:**
+```text
+ATTEMPT → FEEDBACK → REFLECTION → IMPROVED ATTEMPT
+```
+
+**Key insight:** Store reflections in memory to avoid repeating mistakes.
+
+**Implementation:**
+```text
+"When an attempt fails or receives negative feedback:
+
+1. REFLECT: 'Why did this fail? What specifically went wrong?'
+2. LEARN: 'What should I do differently next time?'
+3. STORE: Note the lesson for this session
+4. RETRY: Apply the lesson in next attempt
+
+Keep a running list of lessons learned during this task."
+```
+
+<example>
+**Task:** Write a function to parse dates
+
+**Attempt 1:** Simple regex pattern
+**Feedback:** Fails on edge cases like "Feb 30"
+
+**Reflection:** "My solution didn't validate that dates are actually valid, only that they match a pattern. I need to add semantic validation, not just syntactic."
+
+**Attempt 2:** Regex + validation of day/month ranges
+**Result:** Success
+</example>
+
+---
+
+### Pattern 6: Constitutional Self-Check
+
+**Source:** Constitutional AI (Anthropic)
+
+**Structure:** Check output against a set of principles.
+
+**Implementation:**
+```text
+"Before finalizing, verify your response against these principles:
+
+HELPFULNESS: Does this genuinely help the user?
+ACCURACY: Is this factually correct?
+SAFETY: Could this cause harm if followed?
+CLARITY: Is this easy to understand?
+COMPLETENESS: Does this address the full question?
+
+If any principle is violated, revise accordingly."
+```
+
+---
+
+### When to Use Self-Reflection
+
+| Scenario | Reflection Depth |
+|----------|------------------|
+| High-stakes output | Full critique-revise cycle |
+| Factual claims | Verification questions |
+| Complex reasoning | Step-by-step review |
+| Simple tasks | Light post-check or skip |
+| Time-critical | Quick verification only |
+
+**Rule of thumb:** Reflection cost should be proportional to error cost.
+
+---
+
+### Anti-Patterns in Self-Reflection
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Infinite revision** | Never satisfied with output | Set max iterations, define "good enough" |
+| **Superficial review** | Checking without actually evaluating | Specific, actionable criteria |
+| **Over-confidence** | Assuming output is correct | Default to skepticism |
+| **Reflection theater** | Going through motions without value | Genuine critical evaluation |
+
+---
+
+## Tool Use Patterns
+
+**Purpose:** Patterns for effective integration of external tools in LLM-based systems
+**When to use:** When LLMs need to interact with external systems, APIs, or capabilities
+**Related sections:** [Agentic Patterns](#agentic-patterns), [Error Recovery](#error-recovery-and-graceful-degradation)
+**Research basis:** Toolformer (Schick et al. 2023), OpenAI Function Calling, Anthropic Tool Use
+
+---
+
+### Core Concepts
+
+**What is tool use?** Enabling an LLM to call external functions, APIs, or capabilities to extend its abilities beyond text generation.
+
+**Why tools matter:**
+- LLMs can't do math reliably → Calculator tool
+- LLMs have knowledge cutoffs → Search tool
+- LLMs can't execute code → Code interpreter tool
+- LLMs can't access real-time data → API tools
+
+---
+
+### Tool Description Best Practices
+
+**Effective tool descriptions include:**
+
+1. **Clear name:** What it does in 2-3 words
+2. **Purpose:** When to use this tool
+3. **Parameters:** What inputs it accepts
+4. **Output:** What it returns
+5. **Limitations:** When NOT to use it
+
+<example>
+**❌ Poor tool description:**
+```
+name: search
+description: searches the web
+```
+
+**✅ Good tool description:**
+```
+name: web_search
+description: Search the web for current information. Use when you need:
+  - Facts that may have changed after your knowledge cutoff
+  - Current events, prices, or statistics
+  - Information about specific people, places, or things
+parameters:
+  query: Search query (be specific, include relevant context)
+returns: List of search results with titles, snippets, and URLs
+limitations:
+  - Cannot access paywalled content
+  - Results may not be comprehensive
+  - Verify important facts from multiple sources
+```
+</example>
+
+---
+
+### Pattern 1: Tool Selection Logic
+
+**Structure:** Explicit reasoning about which tool to use.
+
+```text
+"When you need to take an action:
+
+1. IDENTIFY: What capability do I need?
+2. SELECT: Which tool provides this capability?
+3. VALIDATE: Is this the right tool for this specific case?
+4. EXECUTE: Call the tool with appropriate parameters
+5. INTERPRET: Process the result appropriately"
+```
+
+**Decision matrix example:**
+```text
+Need information about...
+├── Current facts/events → web_search
+├── Code in this project → codebase_search
+├── Specific file content → read_file
+├── Mathematical result → calculator
+└── Code execution result → code_interpreter
+```
+
+---
+
+### Pattern 2: Tool Chaining
+
+**Structure:** Combine multiple tools to accomplish complex tasks.
+
+```text
+TASK: "Find the current stock price and calculate 10% of it"
+
+CHAIN:
+1. web_search("AAPL stock price") → $150
+2. calculator("150 * 0.10") → $15
+
+RESULT: 10% of AAPL's current price ($150) is $15
+```
+
+**Implementation:**
+```text
+"For complex tasks requiring multiple tools:
+
+1. Decompose the task into steps
+2. Identify which tool each step needs
+3. Execute tools in order, using outputs as inputs for subsequent steps
+4. Synthesize final answer from tool outputs"
+```
+
+---
+
+### Pattern 3: Tool Fallback
+
+**Structure:** Define fallback behavior when tools fail.
+
+```text
+"When using tools:
+
+PRIMARY: [preferred tool/approach]
+FALLBACK 1: If primary fails → [alternative tool]
+FALLBACK 2: If fallback 1 fails → [manual approach]
+FINAL: If all fail → [inform user, provide what's possible]"
+```
+
+<example>
+**For file operations:**
+```text
+PRIMARY: Use write_file tool
+FALLBACK 1: If write_file fails → try terminal command
+FALLBACK 2: If terminal fails → output content for manual creation
+FINAL: Always preserve the content, even if file creation fails
+```
+</example>
+
+---
+
+### Pattern 4: Tool Result Validation
+
+**Structure:** Verify tool results before using them.
+
+```text
+"After receiving tool results:
+
+1. CHECK: Did the tool return an error?
+2. VALIDATE: Does the result make sense?
+3. VERIFY: Does it answer what I asked?
+4. INTERPRET: What does this result mean for my task?
+
+If validation fails, retry with different parameters or try alternative approach."
+```
+
+<example>
+**Search result validation:**
+```text
+Result from search("Python release date"):
+"Python 3.12 was released on October 2, 2023"
+
+Validation:
+- Error? No ✓
+- Makes sense? Yes, reasonable date format ✓
+- Answers question? Yes, provides release date ✓
+- Interpretation: Python 3.12 is relatively recent
+```
+</example>
+
+---
+
+### Pattern 5: Minimal Tool Use
+
+**Principle:** Use tools only when necessary.
+
+```text
+"Before calling a tool, ask:
+
+1. Do I already know this information?
+2. Can I reason to the answer without a tool?
+3. Is the tool call worth the latency/cost?
+
+Call tools when:
+- Information is outside your knowledge
+- Precision is required (math, code execution)
+- Real-time data is needed
+- Action in external system is required"
+```
+
+---
+
+### Pattern 6: Tool Coordination
+
+**Structure:** Manage multiple tool calls efficiently.
+
+**Parallel when possible:**
+```text
+If tool calls are independent:
+- Call tool_A for task_1
+- Call tool_B for task_2  (parallel)
+- Call tool_C for task_3  (parallel)
+Then combine results
+```
+
+**Sequential when dependent:**
+```text
+If tool calls depend on each other:
+1. Call tool_A → get result_A
+2. Call tool_B(result_A) → get result_B
+3. Call tool_C(result_B) → get final result
+```
+
+---
+
+### Tool Use Anti-Patterns
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Tool addiction** | Using tools for everything | Check if tool needed first |
+| **Wrong tool** | Using search for math | Match tool to task type |
+| **Vague parameters** | search("stuff") | Specific, contextual queries |
+| **Ignoring errors** | Proceeding despite tool failure | Always check results |
+| **Redundant calls** | Same tool call repeated | Cache/remember results |
+| **Missing validation** | Trusting all tool outputs | Validate before using |
+
+---
+
+### Tool Description Template
+
+```text
+**Tool: [name]**
+
+**Purpose:** [when to use this tool - be specific]
+
+**Parameters:**
+- `param1` (required): [description, expected format]
+- `param2` (optional): [description, default value]
+
+**Returns:** [what the tool outputs, format]
+
+**Example:**
+```
+[tool_name](param1="value", param2="value")
+→ [example output]
+```
+
+**When to use:**
+- [scenario 1]
+- [scenario 2]
+
+**When NOT to use:**
+- [anti-scenario 1]
+- [anti-scenario 2]
+
+**Error handling:**
+- [error type 1]: [how to handle]
+- [error type 2]: [how to handle]
+```
+
+---
+
+## Deep Investigation Patterns
+
+**Purpose:** Structured approaches for thorough analysis and research within prompts
+**When to use:** When surface-level analysis is insufficient, when accuracy is critical, when exploring complex domains
+**Related sections:** [Agentic Patterns](#agentic-patterns), [Self-Reflection](#self-reflection-and-self-correction)
+
+---
+
+### When Deep Investigation is Needed
+
+**Trigger conditions:**
+- Initial analysis reveals unexpected complexity
+- Confidence is low about a critical decision
+- Multiple conflicting interpretations exist
+- Surface-level answer might be wrong
+- Stakes are high enough to justify thorough analysis
+
+**NOT needed when:**
+- Answer is straightforward
+- Cost of being wrong is low
+- Time constraints are tight
+- Standard patterns clearly apply
+
+---
+
+### Pattern 1: Layered Analysis
+
+**Structure:** Progressively deeper investigation levels.
+
+```text
+LEVEL 1: Surface Scan
+- Quick overview of relevant areas
+- Identify key components
+- Note obvious patterns
+→ Decision: Is deeper analysis needed?
+
+LEVEL 2: Targeted Investigation
+- Examine specific areas of interest
+- Trace connections and dependencies
+- Identify potential issues
+→ Decision: Is even deeper analysis needed?
+
+LEVEL 3: Deep Dive
+- Comprehensive analysis of critical areas
+- Edge case exploration
+- Validation against multiple sources
+→ Final conclusions
+```
+
+**Implementation:**
+```text
+"For complex analysis tasks:
+
+START with Level 1:
+- Spend 20% of effort on broad overview
+- Identify 3-5 areas that need deeper investigation
+- CHECKPOINT: Report findings, ask if deeper analysis needed
+
+IF deeper analysis approved, Level 2:
+- Spend 50% of effort on targeted investigation
+- Focus on identified areas
+- CHECKPOINT: Report findings, identify if Level 3 needed
+
+IF critical areas found, Level 3:
+- Spend 30% of effort on deep dive
+- Comprehensive analysis of critical areas only
+- FINAL: Complete findings and recommendations"
+```
+
+---
+
+### Pattern 2: Hypothesis-Driven Investigation
+
+**Structure:** Form hypotheses, then systematically test them.
+
+```text
+1. OBSERVE: What do I see in the initial data?
+2. HYPOTHESIZE: What could explain this?
+3. PREDICT: If hypothesis is true, what else should I find?
+4. TEST: Look for predicted evidence
+5. CONCLUDE: Was hypothesis supported or refuted?
+6. ITERATE: Form new hypothesis if needed
+```
+
+<example>
+**Task:** Investigate why tests are failing
+
+**Observation:** 3 tests in auth module failing since yesterday
+
+**Hypotheses:**
+- H1: Recent code change broke something
+- H2: Test environment configuration issue
+- H3: External dependency changed
+
+**Testing H1:**
+- Prediction: Git log should show recent changes to auth
+- Test: Check git history
+- Result: Found change to token validation yesterday
+- Conclusion: H1 likely correct
+
+**Verification:**
+- Revert change → tests pass
+- Conclusion confirmed: Recent change introduced bug
+</example>
+
+---
+
+### Pattern 3: Multi-Source Triangulation
+
+**Structure:** Verify findings from multiple independent sources.
+
+```text
+For critical findings:
+1. FIND: Initial source of information
+2. VERIFY: Seek independent confirmation
+3. TRIANGULATE: Look for third source
+4. RECONCILE: If sources conflict, investigate why
+5. CONCLUDE: Confidence level based on agreement
+```
+
+**Confidence levels:**
+```text
+- 3+ sources agree → High confidence
+- 2 sources agree → Medium confidence
+- 1 source only → Low confidence (note uncertainty)
+- Sources conflict → Investigate discrepancy before concluding
+```
+
+---
+
+### Pattern 4: Boundary Exploration
+
+**Structure:** Explicitly explore edge cases and boundaries.
+
+```text
+After finding the "normal" case:
+1. EXTREMES: What happens at extreme values?
+2. BOUNDARIES: Where exactly does behavior change?
+3. COMBINATIONS: What about unusual combinations?
+4. NEGATIVES: What about invalid/unexpected inputs?
+5. FAILURES: How does it fail? Is failure graceful?
+```
+
+<example>
+**Analyzing a function:**
+```text
+Normal case: process_data([1,2,3]) → works fine
+
+Boundary exploration:
+- Empty input: process_data([]) → returns [] ✓
+- Single item: process_data([1]) → works ✓
+- Large input: process_data([1..10000]) → slow but works ⚠️
+- None input: process_data(None) → crashes! ❌
+- Wrong type: process_data("abc") → crashes! ❌
+
+Finding: Function lacks input validation
+```
+</example>
+
+---
+
+### Pattern 5: Root Cause Analysis
+
+**Structure:** Dig beyond symptoms to underlying causes.
+
+```text
+1. SYMPTOM: What is the observable problem?
+2. IMMEDIATE: What directly causes this symptom?
+3. UNDERLYING: What causes that cause?
+4. ROOT: Keep asking "why" until reaching actionable root
+5. VERIFY: Confirm that addressing root would fix symptom
+```
+
+**The "5 Whys" technique:**
+```text
+Problem: Tests are slow
+
+Why? → Database queries take too long
+Why? → Each test creates fresh test data
+Why? → Tests don't share fixtures
+Why? → No fixture system implemented
+Why? → Team prioritized features over test infrastructure
+
+Root cause: Missing test infrastructure investment
+```
+
+---
+
+### Pattern 6: Documented Trail
+
+**Structure:** Leave clear trail of investigation process.
+
+```text
+INVESTIGATION LOG:
+- [timestamp] Started investigating [topic]
+- [timestamp] Examined [source]: found [finding]
+- [timestamp] Hypothesis: [hypothesis]
+- [timestamp] Tested by: [test method]
+- [timestamp] Result: [result]
+- [timestamp] Conclusion: [conclusion]
+- [timestamp] Confidence: [level] because [reason]
+```
+
+**Why documentation matters:**
+- Enables review by others
+- Prevents duplicate investigation
+- Supports reversal if new information emerges
+- Provides audit trail for decisions
+
+---
+
+### Investigation Scope Control
+
+**Problem:** Deep investigation can expand indefinitely.
+
+**Solution:** Set explicit boundaries.
+
+```text
+INVESTIGATION SCOPE:
+- Time budget: [X minutes/hours]
+- Depth limit: [Level 1/2/3]
+- Focus areas: [specific areas only]
+- Out of scope: [explicitly excluded areas]
+- Stop conditions: [when to stop investigating]
+
+If scope needs expansion:
+1. STOP at current point
+2. Document findings so far
+3. Request approval for expanded scope
+4. Do not proceed without explicit approval
+```
+
+---
+
+### Investigation Anti-Patterns
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Analysis paralysis** | Can't stop investigating | Set time/scope limits |
+| **Shallow diving** | Claiming deep analysis without doing it | Specific evidence requirements |
+| **Confirmation bias** | Only finding evidence for initial theory | Explicitly seek disconfirming evidence |
+| **Scope creep** | Investigation keeps expanding | Explicit boundaries, checkpoint for expansion |
+| **Undocumented findings** | Can't remember what was found | Document as you go |
+| **Premature conclusion** | Concluding without sufficient evidence | Minimum evidence thresholds |
+
+---
+
 ## Sources
 
 ### Official Documentation
@@ -4570,6 +5578,12 @@ TRACEABILITY:
 
 - Wei et al. "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (2022)
 - Brown et al. "Language Models are Few-Shot Learners" (2020)
+- Yao et al. "ReAct: Synergizing Reasoning and Acting in Language Models" (2022)
+- Yao et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (2023)
+- Shinn et al. "Reflexion: Language Agents with Verbal Reinforcement Learning" (2023)
+- Madaan et al. "Self-Refine: Iterative Refinement with Self-Feedback" (2023)
+- Karpas et al. "MRKL Systems: A modular, neuro-symbolic architecture" (2022)
+- Schick et al. "Toolformer: Language Models Can Teach Themselves to Use Tools" (2023)
 - Kojima et al. "Large Language Models are Zero-Shot Reasoners" (2022)
 - Yao et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (2023)
 
@@ -4584,9 +5598,10 @@ TRACEABILITY:
 ## End of Knowledge Base
 
 *Last updated: November 2025*
-*Version: 1.3*
+*Version: 1.4*
 
 ### Version History
+- **1.4** (Nov 2025): Added Tier 1 foundational sections based on research: Agentic Patterns (ReAct, Plan-and-Execute, MRKL, Hierarchical), Self-Reflection & Self-Correction (Reflexion, Self-Refine, Constitutional), Tool Use Patterns, Deep Investigation Patterns. Added 4 new categories: AGENTIC PATTERNS, SELF-IMPROVEMENT, TOOL INTEGRATION, INVESTIGATION. Updated Sources with research papers.
 - **1.3** (Nov 2025): Added 4 audit-focused sections: System Prompt Audit Framework, Multi-Prompt System Design, Checkpoint & Control Flow Design, Requirements-to-Prompt Translation. Added 3 new categories: AUDIT & QUALITY, SYSTEM ARCHITECTURE, REQUIREMENTS ENGINEERING. Structured for MCP server integration.
 - **1.2** (Nov 2025): Added 6 new sections: Nudging Techniques, Context Window Management, Instruction Hierarchy, Prompt Chaining, Error Recovery, Multi-turn Management. Added 3 new categories to Map.
 - **1.1** (Nov 2025): Initial structured knowledge base

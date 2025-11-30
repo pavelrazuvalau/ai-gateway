@@ -193,9 +193,10 @@ When creating files, follow strategies in priority order.
    - **Determine template path**: Use the path to the template file provided by user
 
 3. **Execute copy command:**
-   - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` where:
-     * Replace `[template_path]` with actual template file path (e.g., path to template file for PLAN artifact)
-     * Replace `[target_file]` with actual target file name (e.g., `IMPROVEMENT_PLAN.md`)
+   - Execute copy command using terminal command tool (copy template to target file)
+   - Replace placeholders with actual values:
+     * `[template_path]` → actual template file path (e.g., path to template file for PLAN artifact)
+     * `[target_file]` → actual target file name (e.g., `IMPROVEMENT_PLAN.md`)
 
 4. **Analyze command output:**
    - Read the command output
@@ -204,13 +205,13 @@ When creating files, follow strategies in priority order.
    - **If error is critical** (matches critical criteria) → Proceed to Priority 2
 
 5. **Verify file creation:**
-   - Verify file existence through `read_file("[target_file]")`
-   - **If file exists and is not empty** → Strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+   - Verify file existence using file reading tool
+   - **If file exists and is not empty** → Strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
    - **If file does NOT exist** → Proceed to Priority 2 (even if output didn't contain errors)
 
-<a id="strategy-05-template-copying-via-read_file--write-priority-2-second-step"></a>
+<a id="strategy-05-template-copying-via-file-reading-writing-priority-2-second-step"></a>
 
-**Strategy 0.5: Template Copying via read_file + write (Priority 2 - SECOND STEP)**
+**Strategy 0.5: Template Copying via file reading + file writing tools (Priority 2 - SECOND STEP)**
 
 **When to use**: If Priority 1 didn't work AND template meets objective criteria for Priority 2 (see criteria below).
 
@@ -232,12 +233,12 @@ When creating files, follow strategies in priority order.
    - **Determine template path**: Use the path to the template file provided by user
 
 3. **Read template and create file:**
-   - `read_file("[template_path]")` where `[template_path]` is replaced with actual template file path
-   - `write("[target_file]", template_content)` where `[target_file]` is replaced with actual target file name
+   - Read template using file reading tool (replace `[template_path]` with actual template file path)
+   - Create target file using file writing tool (replace `[target_file]` with actual target file name)
 
 4. **Verify file creation:**
-   - Verify file existence through `read_file("[target_file]")`
-   - **If file exists and is not empty** → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+   - Verify file existence using file reading tool
+   - **If file exists and is not empty** → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
    - **If file does NOT exist** → Proceed to Priority 3
 
 #### Edge Cases and Examples
@@ -269,7 +270,7 @@ When creating files, follow strategies in priority order.
 **Procedure:**
 
 1. **Execute command:**
-   - `run_terminal_cmd("cp [template_path] [target_file]")` with actual values replacing placeholders
+   - Execute copy command using terminal command tool (copy template to target file)
 
 2. **MANDATORY output analysis:**
    - Read the command output
@@ -279,7 +280,7 @@ When creating files, follow strategies in priority order.
      * Critical error (see criteria below)
 
 3. **MANDATORY result verification:**
-   - `read_file("[target_file]")` to verify file existence
+   - Verify file existence using file reading tool
    - Verify that file is not empty
    - This is MANDATORY even if output doesn't contain errors
 
@@ -374,13 +375,13 @@ An error is considered **critical** if it matches any of these patterns:
    - If does NOT match criteria → can fill all at once (but sequential filling is recommended for reliability)
 
 2. **Sequential filling:**
-   - Create the first list element via `search_replace`
-   - **MANDATORY:** Verify success via `read_file`
+   - Create the first list element using file modification tool
+   - **MANDATORY:** Verify success using file reading tool
    - Create the next element
    - Repeat until all elements are completed
 
 3. **Success verification after each element:**
-   - `read_file` to verify file existence
+   - Use file reading tool to verify file existence
    - Verify that file is not empty
    - Verify that element was added correctly (file contains the new element, structure is preserved)
    - If verification fails → retry with the same element (maximum 1-2 times)
@@ -439,11 +440,11 @@ Correct sequence:
 
 After creating or modifying any file (code, artifacts), **ALWAYS verify success**:
 
-1. Use `read_file` to check that the file exists
+1. Use file reading tool to check that the file exists
 2. Verify the file is not empty
 3. Verify the file contains expected content (at minimum: file exists and is not empty)
 4. If verification fails → File was not created/updated, but agent continues working (can inform user)
-5. If file exists but content is incomplete → Use `search_replace` to add missing content
+5. If file exists but content is incomplete → Use file modification tool to add missing content
 
 **When to verify (ALWAYS):**
 - After creating PLAN artifact
@@ -476,8 +477,8 @@ After creating or modifying any file (code, artifacts), **ALWAYS verify success*
    - Add empty sections or placeholders
 4. **Add content incrementally** (sequentially):
    - Part size: one section or logical group at a time (complete logical unit: section, phase, step group)
-   - Each part via `search_replace`
-   - **Verify success after each part** using `read_file`
+   - Each part using file modification tool
+   - **Verify success after each part** using file reading tool
    - If part fails → Retry only that part
 5. **Final verification**:
    - All sections added
@@ -1789,29 +1790,29 @@ Step 6: Instructions copied are for future use when working with artifacts
    - **FIRST STEP**: Priority 1: Try copying template through terminal (template is ALWAYS provided by user)
      * **Determine target file name**: Use File Naming Conventions - PLAN: `[TASK_NAME]_PLAN.md` (determine TASK_NAME from task description)
      * **Determine template path**: Use the path to the template file provided by user
-     * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
+     * Execute copy command using terminal command tool (copy template to target file)
      * **MANDATORY:** After executing the command, analyze the output:
        - Read the command output
        - Determine the result type: Success / Fixable error / Critical error (see "Terminal Command Execution and Analysis" section for exact criteria)
        - If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
        - If error is critical → proceed to SECOND STEP
-     * **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
-       - If file exists and is not empty → strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+     * **MANDATORY:** Verify file existence using file reading tool:
+       - If file exists and is not empty → strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
-     * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+     * If strategy successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
      * If strategy unsuccessful → Proceed to SECOND STEP
-   - **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+   - **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via file reading + file writing tools
      * **Determine target file name**: Same as FIRST STEP
      * **Determine template path**: Same as FIRST STEP
-     * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
-     * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+     * Read template using file reading tool, then create target file using file writing tool
+     * If successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
      * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Proceed to THIRD STEP
    - **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
      * This is the fallback strategy when Priority 1 and Priority 2 didn't work
      * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
-     * Create minimal file with basic structure (header, sections, placeholders)
-     * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) via `search_replace`
-     * **Verify success after each part** using `read_file`
+     * Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+     * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) using file modification tool
+     * **Verify success after each part** using file reading tool
 4. Create PLAN with all phases and steps (critical - permanent memory)
    - Include all required information: phases, steps (What, Where, Why, How, IMPACT), completion criteria
    - Set initial status: First step 🔵 READY FOR WORK, other steps ⚪ PENDING, PLAN status 🟡 IN PROGRESS (plan is ready for execution)
@@ -1878,79 +1879,79 @@ Step 6: Instructions copied are for future use when working with artifacts
      * **FIRST STEP**: Priority 1: Try copying template through terminal
        - **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description)
        - **Determine template path**: Use the path to the template file provided by user
-       - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
+       - Execute copy command using terminal command tool (copy template to target file)
        - **MANDATORY:** After executing the command, analyze the output:
          * Read the command output
          * Determine the result type: Success / Fixable error / Critical error
          * If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
          * If error is critical → proceed to SECOND STEP
-       - **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
-         * If file exists and is not empty → strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+       - **MANDATORY:** Verify file existence using file reading tool:
+         * If file exists and is not empty → strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
          * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
-       - If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+       - If strategy successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If strategy unsuccessful → Proceed to SECOND STEP
-     * **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+     * **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via file reading + file writing tools
        - **Determine target file name**: Same as FIRST STEP
        - **Determine template path**: Same as FIRST STEP
-       - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
-       - If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+       - Read template using file reading tool, then create target file using file writing tool
+       - If successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Proceed to THIRD STEP
      * **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
        - **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description)
        - Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
-       - Create minimal file with basic structure (header, sections, placeholders) using `write` with determined target file name
-       - Add content incrementally: one section or logical group at a time (complete logical unit: section, question group) via `search_replace`
-       - **Verify success after each part** using `read_file`
+       - Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+       - Add content incrementally: one section or logical group at a time (complete logical unit: section, question group) using file modification tool
+       - **Verify success after each part** using file reading tool
    - Include all identified questions with required information
    - Sort questions by priority: High → Medium → Low
    - Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content (see Section 3: Artifact Creation Procedures → Template Handling Rules)
      * Copy instructions AS-IS, do NOT modify or execute them (these are for future use when working with artifacts)
    - **Create ONE file at a time** - Wait for completion before proceeding
    - **Verify success (ALWAYS)**: After creating QUESTIONS:
-     * Use `read_file` to check that QUESTIONS file exists
+     * Use file reading tool to check that QUESTIONS file exists
      * Verify the file is not empty
      * Verify the file contains expected content (at minimum: file exists and is not empty, contains questions)
      * If verification fails → File was not created, but continue working (can inform user)
-     * If file exists but content is incomplete → Use `search_replace` to add missing content
+     * If file exists but content is incomplete → Use file modification tool to add missing content
 2. **CHANGELOG**: Create ONLY if there are completed steps to document
    - If no completed work exists yet, skip this artifact
    - If creating, **apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN (see Step 6):
      * **FIRST STEP**: Priority 1: Try copying template through terminal
        - **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description)
        - **Determine template path**: Use the path to the template file provided by user
-       - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
+       - Execute copy command using terminal command tool (copy template to target file)
        - **MANDATORY:** After executing the command, analyze the output:
          * Read the command output
          * Determine the result type: Success / Fixable error / Critical error
          * If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
          * If error is critical → proceed to SECOND STEP
-       - **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
-         * If file exists and is not empty → strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+       - **MANDATORY:** Verify file existence using file reading tool:
+         * If file exists and is not empty → strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
          * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
-       - If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+       - If strategy successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If strategy unsuccessful → Proceed to SECOND STEP
-     * **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+     * **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via file reading + file writing tools
        - **Determine target file name**: Same as FIRST STEP
        - **Determine template path**: Same as FIRST STEP
-       - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
-       - If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+       - Read template using file reading tool, then create target file using file writing tool
+       - If successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Proceed to THIRD STEP
      * **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
        - **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description)
        - Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
-       - Create minimal file with basic structure (header, sections, placeholders) using `write` with determined target file name
-       - Add content incrementally: one section or logical group at a time (complete logical unit: section, entry group) via `search_replace`
-       - **Verify success after each part** using `read_file`
+       - Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+       - Add content incrementally: one section or logical group at a time (complete logical unit: section, entry group) using file modification tool
+       - **Verify success after each part** using file reading tool
    - Include structure ready for execution phase entries
    - Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content (see Section 3: Artifact Creation Procedures → Template Handling Rules)
      * Copy instructions AS-IS, do NOT modify or execute them (these are for future use when working with artifacts)
    - **Create ONE file at a time** - Wait for completion before proceeding
    - **Verify success (ALWAYS)**: After creating CHANGELOG:
-     * Use `read_file` to check that CHANGELOG file exists
+     * Use file reading tool to check that CHANGELOG file exists
      * Verify the file is not empty
      * Verify the file contains expected content (at minimum: file exists and is not empty)
      * If verification fails → File was not created, but continue working (can inform user)
-     * If file exists but content is incomplete → Use `search_replace` to add missing content
+     * If file exists but content is incomplete → Use file modification tool to add missing content
 3. **STOP** - Wait for confirmation if all artifacts are ready, or proceed to validation
 
 **Step 8: Fill SESSION_CONTEXT After Planning**
@@ -1959,8 +1960,19 @@ Step 6: Instructions copied are for future use when working with artifacts
    - If SESSION_CONTEXT does NOT exist → **Create using template** (template is ALWAYS provided by user):
      * **Apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN (see Step 6):
        - **FIRST STEP**: Priority 1: Try copying template through terminal
-       - **SECOND STEP**: If terminal didn't work → Priority 2: Copy via `read_file` + `write`
+         * **Determine target file name**: Use File Naming Conventions - SESSION_CONTEXT: `[TASK_NAME]_SESSION_CONTEXT.md` (determine TASK_NAME from task description or use `SESSION_CONTEXT.md` if task name not applicable)
+         * **Determine template path**: Use the path to the template file provided by user
+         * Execute copy command using terminal command tool (copy template to target file)
+         * Verify file existence using file reading tool, if failed → proceed to SECOND STEP
+       - **SECOND STEP**: If terminal didn't work → Priority 2: Copy via file reading + file writing tools
+         * **Determine target file name**: Same as FIRST STEP
+         * **Determine template path**: Same as FIRST STEP
+         * Read template using file reading tool, then create target file using file writing tool
+         * If failed → proceed to THIRD STEP
        - **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK)
+         * **Determine target file name**: Use File Naming Conventions - SESSION_CONTEXT: `[TASK_NAME]_SESSION_CONTEXT.md` (determine TASK_NAME from task description)
+         * Create minimal file with basic structure using file writing tool
+         * Add content incrementally using file modification tool
      * **CRITICAL: Instructions section MUST be copied** - Locate "🤖 Instructions for AI agent" section in template and copy AS-IS into artifact at the end
    - This is operational memory for execution phase (and was used during planning for intermediate results)
    - Use universal SESSION_CONTEXT template (provided by user in context)
@@ -2275,30 +2287,30 @@ Step 6: Instructions copied are for future use when working with artifacts
    - **FIRST STEP**: Priority 1: Try copying template through terminal
      * **Determine target file name**: Use File Naming Conventions - PLAN: `[TASK_NAME]_PLAN.md` (determine TASK_NAME from task description or user input)
      * **Determine template path**: Use the path to the template file provided by user
-     * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
+     * Execute copy command using terminal command tool (copy template to target file)
      * **MANDATORY:** After executing the command, analyze the output:
        - Read the command output
        - Determine the result type: Success / Fixable error / Critical error (see "Terminal Command Execution and Analysis" section for exact criteria)
        - If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
        - If error is critical → proceed to SECOND STEP
-     * **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
-       - If file exists and is not empty → strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+     * **MANDATORY:** Verify file existence using file reading tool:
+       - If file exists and is not empty → strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
-     * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+     * If strategy successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
      * If strategy unsuccessful → Proceed to SECOND STEP
-   - **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for simple structure (≤ 3 main sections, ≤ 2 levels nesting, can be read entirely without search) → Copy via `read_file` + `write`
+   - **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for simple structure (≤ 3 main sections, ≤ 2 levels nesting, can be read entirely without search) → Copy via file reading + file writing tools
      * **Determine target file name**: Same as FIRST STEP
      * **Determine template path**: Same as FIRST STEP
-     * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
-     * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+     * Read template using file reading tool, then create target file using file writing tool
+     * If successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
      * If template does NOT meet objective criteria for simple structure (see Priority 2 criteria) → Proceed to THIRD STEP
    - **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
      * **Determine target file name**: Use File Naming Conventions - PLAN: `[TASK_NAME]_PLAN.md` (determine TASK_NAME from task description)
      * This is the fallback strategy when Priority 1 and Priority 2 didn't work
      * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
-     * Create minimal file with basic structure (header, sections, placeholders) using `write` with determined target file name
-     * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) via `search_replace`
-     * **Verify success after each part** using `read_file`
+     * Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+     * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) using file modification tool
+     * **Verify success after each part** using file reading tool
      * Standardize part size: one complete logical unit at a time (section, phase, step group)
 9. Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content:
    - **First**: Complete all artifact content (phases, steps, metadata, etc.)
@@ -2308,11 +2320,11 @@ Step 6: Instructions copied are for future use when working with artifacts
      * These instructions are for future use when working with artifacts, not for you to follow now
      * Include concepts: when to update, how to read, relationships with other artifacts (NOT formatting rules)
 10. **Verify success**: After creating PLAN:
-    - Use `read_file` to check that PLAN file exists
+    - Use file reading tool to check that PLAN file exists
     - Verify the file is not empty
     - Verify the file contains expected content (at minimum: file exists and is not empty, contains phases and steps)
     - If verification fails → File was not created, but continue working (can inform user, content saved in SESSION_CONTEXT)
-    - If file exists but content is incomplete → Use `search_replace` to add missing content
+    - If file exists but content is incomplete → Use file modification tool to add missing content
 
 **Validation Checklist**:
 - [ ] All phases and steps defined
@@ -2417,21 +2429,43 @@ Step 6: Instructions copied are for future use when working with artifacts
 - After task completion: Remove temporary information, keep only essential results
 - Minimize context clutter: Store only current, relevant information
 
-**MANDATORY: Add instructions section** ("🤖 Instructions for AI agent") - AFTER creating all content (see Section 3: Artifact Creation Procedures → Template Handling Rules)
-   - **CRITICAL**: Instructions section MUST be copied from template - it ensures artifact self-sufficiency
-   - **Procedure**:
-     * Locate "🤖 Instructions for AI agent" section in template (template is ALWAYS provided by user)
-     * Copy entire section AS-IS into artifact at the end
-     * Do NOT modify or execute instructions
-     * These instructions are for future use when working with artifacts, not for you to follow now
-   - **Important**: 
-     * Instructions section is REQUIRED for all artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
-     * Without instructions section, artifact is incomplete
-     * Template files are ALWAYS provided, so instructions section is ALWAYS available to copy
-**For SESSION_CONTEXT files with complex structure** (many sections, nested content): Use incremental addition strategy (Priority 3):
-   - Create minimal file with basic structure
-   - Add content incrementally: one section or logical group at a time (complete logical unit: section, subsection) via `search_replace`
-   - **Verify success after each part** using `read_file`
+**Apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN:
+- **FIRST STEP**: Priority 1: Try copying template through terminal
+  * **Determine target file name**: Use File Naming Conventions - SESSION_CONTEXT: `[TASK_NAME]_SESSION_CONTEXT.md` (determine TASK_NAME from task description or user input, or use `SESSION_CONTEXT.md` if task name not applicable)
+  * **Determine template path**: Use the path to the template file provided by user
+  * Execute copy command using terminal command tool (copy template to target file)
+  * **MANDATORY:** After executing the command, analyze the output:
+    - Read the command output
+    - Determine the result type: Success / Fixable error / Critical error
+    - If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
+    - If error is critical → proceed to SECOND STEP
+  * **MANDATORY:** Verify file existence using file reading tool:
+    - If file exists and is not empty → strategy successful, proceed to fill content using file modification tool
+    - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
+  * If strategy successful → File created, proceed to fill content using file modification tool
+  * If strategy unsuccessful → Proceed to SECOND STEP
+- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via file reading + file writing tools
+  * **Determine target file name**: Same as FIRST STEP
+  * **Determine template path**: Same as FIRST STEP
+  * Read template using file reading tool, then create target file using file writing tool
+  * If successful → File created, proceed to fill content using file modification tool
+  * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Proceed to THIRD STEP
+- **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
+  * **Determine target file name**: Use File Naming Conventions - SESSION_CONTEXT: `[TASK_NAME]_SESSION_CONTEXT.md` (determine TASK_NAME from task description)
+  * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
+  * Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+  * Add content incrementally: one section or logical group at a time (complete logical unit: section, subsection) using file modification tool
+  * **Verify success after each part** using file reading tool
+
+- Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content:
+  - **First**: Complete all artifact content
+  - **Then**: Add instructions section at the END (see Section 3: Artifact Creation Procedures → Template Handling Rules)
+  - **Important**: 
+    * Copy instructions AS-IS, do NOT modify or execute them
+    * These instructions are for future use when working with artifacts, not for you to follow now
+    * Instructions section is REQUIRED for all artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
+    * Without instructions section, artifact is incomplete
+
 **Verify success (ALWAYS)**: After creating/updating SESSION_CONTEXT - Use Strategy 1: Success Verification (see Section 1: File Creation Strategies)
 
 **Validation Checklist**:
@@ -2455,29 +2489,29 @@ Step 6: Instructions copied are for future use when working with artifacts
 - **FIRST STEP**: Priority 1: Try copying template through terminal
   * **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description or user input)
   * **Determine template path**: Use the path to the template file provided by user
-  * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
+  * Execute copy command using terminal command tool (copy template to target file)
   * **MANDATORY:** After executing the command, analyze the output:
     - Read the command output
     - Determine the result type: Success / Fixable error / Critical error
     - If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
     - If error is critical → proceed to SECOND STEP
-  * **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
-    - If file exists and is not empty → strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+  * **MANDATORY:** Verify file existence using file reading tool:
+    - If file exists and is not empty → strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
     - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
-  * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+  * If strategy successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If strategy unsuccessful → Proceed to SECOND STEP
-- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via file reading + file writing tools
   * **Determine target file name**: Same as FIRST STEP
   * **Determine template path**: Same as FIRST STEP
-  * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
-  * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+  * Read template using file reading tool, then create target file using file writing tool
+  * If successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Proceed to THIRD STEP
 - **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
   * **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description)
   * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
-  * Create minimal file with basic structure (header, sections, placeholders) using `write` with determined target file name
-  * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) via `search_replace`
-  * **Verify success after each part** using `read_file`
+  * Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+  * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) using file modification tool
+  * **Verify success after each part** using file reading tool
   * Standardize part size: one section or logical group at a time (complete logical unit: section, phase, step group)
 
 - Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content:
@@ -2543,29 +2577,29 @@ Step 6: Instructions copied are for future use when working with artifacts
 - **FIRST STEP**: Priority 1: Try copying template through terminal
   * **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description or user input)
   * **Determine template path**: Use the path to the template file provided by user
-  * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
+  * Execute copy command using terminal command tool (copy template to target file)
   * **MANDATORY:** After executing the command, analyze the output:
     - Read the command output
     - Determine the result type: Success / Fixable error / Critical error
     - If error is fixable (matches fixable criteria) → retry with the exact same command (maximum 1-2 attempts)
     - If error is critical → proceed to SECOND STEP
-  * **MANDATORY:** Verify file existence through `read_file("[target_file]")`:
-    - If file exists and is not empty → strategy successful, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+  * **MANDATORY:** Verify file existence using file reading tool:
+    - If file exists and is not empty → strategy successful, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
     - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
-  * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+  * If strategy successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If strategy unsuccessful → Proceed to SECOND STEP
-- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via file reading + file writing tools
   * **Determine target file name**: Same as FIRST STEP
   * **Determine template path**: Same as FIRST STEP
-  * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
-  * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
+  * Read template using file reading tool, then create target file using file writing tool
+  * If successful → File created, proceed to fill content using file modification tool (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Proceed to THIRD STEP
 - **THIRD STEP**: If previous steps didn't work → Priority 3: Minimal file + incremental addition (FALLBACK strategy)
   * **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description)
   * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
-  * Create minimal file with basic structure (header, sections, placeholders) using `write` with determined target file name
-  * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) via `search_replace`
-  * **Verify success after each part** using `read_file`
+  * Create minimal file with basic structure (header, sections, placeholders) using file writing tool
+  * Add content incrementally: one section or logical group at a time (complete logical unit: section, phase, step group) using file modification tool
+  * **Verify success after each part** using file reading tool
   * Standardize part size: one section or logical group at a time (complete logical unit: section, phase, step group)
 
 4. Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content:
@@ -2590,7 +2624,9 @@ Step 6: Instructions copied are for future use when working with artifacts
 
 ### 3.5: Working with Large Files
 
-**Important:** This section describes strategies for working with large files using standard development tools (`read_file`, `write`, `search_replace`, `grep`, `codebase_search`, `list_dir`, `read_lints`, `glob_file_search`). These tools are available in most modern IDEs and development environments.
+**Important:** This section describes strategies for working with large files using standard development tools (file reading tool, file writing tool, file modification tool, exact search tool, semantic search tool, directory listing tool, lint checking tool, file pattern search tool). These tools are available in most modern IDEs and development environments.
+
+**Note:** Examples in this section use specific syntax patterns for illustration. Actual syntax may vary depending on your environment. Focus on the strategy patterns, not specific tool names.
 
 **When to use:** When working with files that contain many sections, have complex structure, or are difficult to navigate.
 

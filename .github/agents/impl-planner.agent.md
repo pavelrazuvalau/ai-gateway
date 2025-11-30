@@ -1814,8 +1814,9 @@ Step 6: Instructions copied are for future use when working with artifacts
      * **Verify success after each part** using `read_file`
 4. Create PLAN with all phases and steps (critical - permanent memory)
    - Include all required information: phases, steps (What, Where, Why, How, IMPACT), completion criteria
-   - Set initial status: All steps ⚪ PENDING, PLAN status 🟡 IN PROGRESS (plan is ready for execution)
-   - If blockers identified → set affected steps to 🔴 BLOCKED, PLAN status to 🔴 BLOCKED
+   - Set initial status: First step 🔵 READY FOR WORK, other steps ⚪ PENDING, PLAN status 🟡 IN PROGRESS (plan is ready for execution)
+   - **Set "🎯 Current Focus" section**: Show first step with 🔵 READY FOR WORK status
+   - If blockers identified → set affected steps to 🔴 BLOCKED, PLAN status to 🔴 BLOCKED, update Current Focus accordingly
    - Include navigation/overview section
    - Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content (see Section 3: Artifact Creation Procedures → Template Handling Rules)
      * Copy instructions AS-IS, do NOT modify or execute them (these are for future use when working with artifacts)
@@ -1828,7 +1829,7 @@ Step 6: Instructions copied are for future use when working with artifacts
      - Specify concrete final result: PLAN artifact created with [N] phases and [M] steps
      - Specify concrete artifacts: PLAN artifact created/updated (with specific phases and steps)
      - Specify concrete checks: All required information included (phases, steps with What, Where, Why, How, IMPACT, completion criteria)
-     - Specify concrete statuses: PLAN status 🟡 IN PROGRESS (ready for execution), all steps ⚪ PENDING (or 🔴 BLOCKED if blockers identified)
+     - Specify concrete statuses: PLAN status 🟡 IN PROGRESS (ready for execution), first step 🔵 READY FOR WORK, other steps ⚪ PENDING (or 🔴 BLOCKED if blockers identified)
    - **What can be done next FROM PLAN:**
      - **CRITICAL:** Next steps MUST be from PLAN artifact (if PLAN contains next steps) or from workflow (if PLAN creation is complete)
      - If PLAN creation is complete: Next steps are creating additional artifacts (QUESTIONS if questions exist, CHANGELOG if needed) or proceeding to validation
@@ -2221,7 +2222,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 **Key clarification:**
 - When plan is created and ready for work → PLAN status = 🟡 IN PROGRESS (not PENDING!)
 - When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING!)
-- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for something"
+- ⚪ PENDING for steps means "future step, prerequisites not met", NOT "ready to work"
 
 **Types of blockers (all result in 🔴 BLOCKED):**
 - Waiting for question answer (question in QUESTIONS artifact)
@@ -2265,7 +2266,8 @@ Step 6: Instructions copied are for future use when working with artifacts
    - Completion criteria (measurable checkpoints)
 5. Identify blockers (if any) and their context
 6. Set initial status:
-   - All steps: ⚪ PENDING (not started yet)
+   - First step: 🔵 READY FOR WORK (ready to start)
+   - Other steps: ⚪ PENDING (not started yet)
    - PLAN-level status: 🟡 IN PROGRESS (plan is ready for execution)
    - If blockers identified during planning: set affected steps to 🔴 BLOCKED, PLAN status to 🔴 BLOCKED
 7. **Before creating PLAN**: Save PLAN content to SESSION_CONTEXT (MANDATORY - for state preservation - allows recovery if file doesn't get created)

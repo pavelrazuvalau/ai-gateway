@@ -1476,8 +1476,8 @@ Follow this workflow for every task:
    - Where to make changes
    - Completion criteria
 3. Check QUESTIONS for any blockers affecting this step
-4. Update step status: PENDING → IN PROGRESS
-5. Update phase status if needed: PENDING → IN PROGRESS
+4. Update step status: READY FOR WORK → IN PROGRESS
+5. Update phase status if needed: READY FOR WORK → IN PROGRESS (or PENDING → IN PROGRESS if first step of phase)
 6. Update metadata: current phase, step, last update date
    - **⚠️ CRITICAL:** "Last Update" must be **brief** (short-term memory principle, like Current Focus)
    - Format: `YYYY-MM-DD - [brief description of last change]` (date and 1-2 sentences only)
@@ -2413,7 +2413,7 @@ During execution, you may discover information that requires updating the PLAN. 
    - Verify previous step is complete (if not first step)
 
 3. **Update Status**:
-   - Update step status: PENDING → IN PROGRESS
+   - Update step status: READY FOR WORK → IN PROGRESS
    - Update PLAN metadata
      - **⚠️ CRITICAL:** "Last Update" must be **brief** (short-term memory principle, like Current Focus)
      - Format: `YYYY-MM-DD - [brief description of last change]` (date and 1-2 sentences only)

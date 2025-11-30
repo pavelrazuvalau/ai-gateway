@@ -47,7 +47,7 @@
 
 #### Step X.Y: [Step Name]
 
-**Status:** ⚪ Pending | 🟡 In Progress | 🟢 Done | 🔴 Blocked
+**Status:** ⚪ Pending | 🔵 Ready for Work | 🟡 In Progress | 🟢 Done | 🔴 Blocked
 
 **What needs to be done:**
 - [Specific action 1]
@@ -279,7 +279,7 @@ This artifact is part of a system of 4 required artifacts that work together:
    - Update metadata
    - **Update "🎯 Current Focus" section** with blocked status and set "Action Required: [specific action]" if needs user input (e.g., "Answer question in @*_QUESTIONS.md (QX.Y)")
 4. When starting work → update status to 🟡 In Progress:
-   - Change step status from ⚪ Pending to 🟡 In Progress
+   - Change step status from 🔵 Ready for Work to 🟡 In Progress
    - Update metadata
    - **Update "🎯 Current Focus" section** with In Progress status
 5. After changes → add entry to `*_CHANGELOG.md` (see CHANGELOG artifact instructions for procedure)

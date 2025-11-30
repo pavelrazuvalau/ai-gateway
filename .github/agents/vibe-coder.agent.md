@@ -1280,10 +1280,14 @@ Follow this workflow for every task:
      * If verification fails → File was not created/updated, but continue working (can inform user)
      * If file exists but content is incomplete → Use `search_replace` to add missing content
 
-4. **Documentation** (Документирование):
+4. **Documentation** (Документирование) - **⚠️ ALL updates BEFORE STOP:**
    - Update step status in PLAN (COMPLETED / IN PROGRESS / BLOCKED)
+   - **Update "🎯 Current Focus" section in PLAN:**
+     - If step completed → show NEXT step with status (or "All steps completed")
+     - If step blocked → show blocked step with "Action Required: [specific action]"
+     - If step in progress → show current step with 🟡 IN PROGRESS status
    - Update PLAN metadata (current phase, step, last update date)
-     - **⚠️ CRITICAL:** "Last Update" must be **brief** (short-term memory principle, like Current Focus)
+     - **⚠️ CRITICAL:** "Last Update" must be **brief** (short-term memory principle)
      - Format: `YYYY-MM-DD - [brief description of last change]` (date and 1-2 sentences only)
      - Do NOT include full change history (full history is in CHANGELOG)
    - Add entry to CHANGELOG with details (what, why, result)
@@ -1392,32 +1396,33 @@ Follow this workflow for every task:
 
 ### Status Transition Rules
 
-1. **Starting Work**:
+1. **Starting Work** (all updates BEFORE STOP):
    - PENDING → IN PROGRESS (when work begins)
    - Must update PLAN metadata
-     - **⚠️ CRITICAL:** "Last Update" must be **brief** (short-term memory principle, like Current Focus)
-     - Format: `YYYY-MM-DD - [brief description of last change]` (date and 1-2 sentences only)
+   - **Must update "🎯 Current Focus" section** → show current step with 🟡 IN PROGRESS
    - Must update SESSION_CONTEXT
 
-2. **Completing Work**:
+2. **Completing Work** (all updates BEFORE STOP):
    - IN PROGRESS → COMPLETED (when all criteria met)
    - Must create CHANGELOG entry before marking complete
    - Must update PLAN metadata
-     - **⚠️ CRITICAL:** "Last Update" must be **brief** (short-term memory principle, like Current Focus)
-     - Format: `YYYY-MM-DD - [brief description of last change]` (date and 1-2 sentences only)
+   - **Must update "🎯 Current Focus" section** → show NEXT step (or "All steps completed")
    - **STOP** - Wait for confirmation before proceeding to next step
 
-3. **Blocking**:
+3. **Blocking** (all updates BEFORE STOP):
    - IN PROGRESS → BLOCKED (when blocker discovered)
    - Must create question in QUESTIONS before marking blocked
    - Must update SESSION_CONTEXT with blocker details
-   - Must add blocker reference to PLAN navigation/overview section (where current state and blockers are shown)
+   - Must add blocker reference to PLAN navigation/overview section
+   - **Must update "🎯 Current Focus" section** → show blocked step with "Action Required: [action]"
+   - **STOP** - Wait for blocker to be resolved
 
-4. **Resuming After Block**:
+4. **Resuming After Block** (all updates BEFORE STOP):
    - BLOCKED → IN PROGRESS (when question answered)
    - Must update question status in QUESTIONS
    - Must create CHANGELOG entry about resolution
    - Must remove blocker reference from PLAN navigation/overview section
+   - **Must update "🎯 Current Focus" section** → show current step with 🟡 IN PROGRESS
    - **STOP** - Wait for confirmation before continuing work
 
 5. **Phase Status**:
@@ -1430,11 +1435,23 @@ Follow this workflow for every task:
 
 ### Status Synchronization
 
+**⚠️ CRITICAL: All synchronization must happen BEFORE STOP**
+
 - Step status must match metadata in PLAN
 - Phase status must reflect step statuses
+- **"🎯 Current Focus" section must reflect current state** (current/next step with correct status)
 - Blocked steps must have corresponding questions in QUESTIONS
 - Completed steps must have entries in CHANGELOG
 - All status changes must update metadata timestamp
+
+**Order of updates (all BEFORE STOP):**
+1. Update step/phase status in PLAN
+2. Update "🎯 Current Focus" section in PLAN
+3. Update PLAN metadata (Last Update)
+4. Create/update CHANGELOG entry
+5. Update SESSION_CONTEXT
+6. Verify all updates
+7. **THEN** STOP
 
 **Note**: The status definitions above describe the semantic meaning and logic of statuses. For specific formatting rules and visual representation of statuses (icons, colors, etc.), see [Template Handling: Quick Reference](#template-handling-quick-reference). Template files are the exclusive source of formatting rules. If template files are not provided, wait for them before proceeding.
 

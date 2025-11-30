@@ -470,7 +470,6 @@ After creating or modifying any file (code, artifacts), **ALWAYS verify success*
 1. **Before creation**: Save full content to SESSION_CONTEXT (MANDATORY for critical files like PLAN)
 2. **Assess content structure**:
    - If content contains many sections or complex structure → Use this strategy BY DEFAULT
-   - If template not provided → Use this strategy
 3. **Create minimal file**:
    - Create file with header/metadata
    - Add basic structure (sections, headings)
@@ -1149,12 +1148,10 @@ You must create artifacts step by step, prioritizing critical artifacts first. *
   - Template file for QUESTIONS artifact (typically named `IMPLEMENTATION_QUESTIONS.md` or similar)
   - Template file for SESSION_CONTEXT artifact (typically named `IMPLEMENTATION_SESSION_CONTEXT.md` or similar)
 
-**When template is provided:**
+**Template usage rules (templates are ALWAYS provided):**
 - Use template file for ALL formatting rules (icons, status indicators, structure, visual presentation)
 - Copy the "🤖 Instructions for AI agent" section from template into artifact
 - Follow template structure exactly when creating/updating artifacts
-
-**CRITICAL: Template files are ALWAYS provided by the user in the context.**
 - Template files are provided before artifact creation
 - Do not proceed without template files
 - If template is missing, inform user and wait for it to be provided
@@ -1876,7 +1873,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 1. **QUESTIONS**: Create ONLY if there are questions identified during planning
    - If no questions exist, skip this artifact
    - If creating, **apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN (see Step 6):
-     * **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
+     * **FIRST STEP**: Priority 1: Try copying template through terminal
        - **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description)
        - **Determine template path**: Use the path to the template file provided by user
        - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
@@ -1890,7 +1887,7 @@ Step 6: Instructions copied are for future use when working with artifacts
          * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
        - If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If strategy unsuccessful → Proceed to SECOND STEP
-     * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+     * **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
        - **Determine target file name**: Same as FIRST STEP
        - **Determine template path**: Same as FIRST STEP
        - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
@@ -1916,7 +1913,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 2. **CHANGELOG**: Create ONLY if there are completed steps to document
    - If no completed work exists yet, skip this artifact
    - If creating, **apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN (see Step 6):
-     * **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
+     * **FIRST STEP**: Priority 1: Try copying template through terminal
        - **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description)
        - **Determine template path**: Use the path to the template file provided by user
        - Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
@@ -1930,7 +1927,7 @@ Step 6: Instructions copied are for future use when working with artifacts
          * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
        - If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If strategy unsuccessful → Proceed to SECOND STEP
-     * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+     * **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
        - **Determine target file name**: Same as FIRST STEP
        - **Determine template path**: Same as FIRST STEP
        - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
@@ -2244,7 +2241,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 6. Set initial status: All steps PENDING
 7. **Before creating PLAN**: Save PLAN content to SESSION_CONTEXT (MANDATORY - for state preservation - allows recovery if file doesn't get created)
 8. **Apply multi-level file creation strategy (IN PRIORITY ORDER)**:
-   - **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
+   - **FIRST STEP**: Priority 1: Try copying template through terminal
      * **Determine target file name**: Use File Naming Conventions - PLAN: `[TASK_NAME]_PLAN.md` (determine TASK_NAME from task description or user input)
      * **Determine template path**: Use the path to the template file provided by user
      * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
@@ -2258,7 +2255,7 @@ Step 6: Instructions copied are for future use when working with artifacts
        - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
      * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
      * If strategy unsuccessful → Proceed to SECOND STEP
-   - **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for simple structure (≤ 3 main sections, ≤ 2 levels nesting, can be read entirely without search) → Copy via `read_file` + `write`
+   - **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for simple structure (≤ 3 main sections, ≤ 2 levels nesting, can be read entirely without search) → Copy via `read_file` + `write`
      * **Determine target file name**: Same as FIRST STEP
      * **Determine template path**: Same as FIRST STEP
      * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
@@ -2424,7 +2421,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 - Index or navigation by phases/steps (for future entries)
 
 **Apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN:
-- **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
+- **FIRST STEP**: Priority 1: Try copying template through terminal
   * **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description or user input)
   * **Determine template path**: Use the path to the template file provided by user
   * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
@@ -2438,7 +2435,7 @@ Step 6: Instructions copied are for future use when working with artifacts
     - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
   * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If strategy unsuccessful → Proceed to SECOND STEP
-- **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
   * **Determine target file name**: Same as FIRST STEP
   * **Determine template path**: Same as FIRST STEP
   * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
@@ -2512,7 +2509,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 7. Include question types reference (for future questions)
 
 **Apply multi-level file creation strategy (IN PRIORITY ORDER)** - same as for PLAN:
-- **FIRST STEP**: If template is provided → Priority 1: Try copying template through terminal
+- **FIRST STEP**: Priority 1: Try copying template through terminal
   * **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description or user input)
   * **Determine template path**: Use the path to the template file provided by user
   * Execute: `run_terminal_cmd("cp [template_path] [target_file]")` replacing placeholders with actual values
@@ -2526,7 +2523,7 @@ Step 6: Instructions copied are for future use when working with artifacts
     - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
   * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If strategy unsuccessful → Proceed to SECOND STEP
-- **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
+- **SECOND STEP**: If terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
   * **Determine target file name**: Same as FIRST STEP
   * **Determine template path**: Same as FIRST STEP
   * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders

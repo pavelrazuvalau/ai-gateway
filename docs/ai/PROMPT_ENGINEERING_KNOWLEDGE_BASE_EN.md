@@ -552,7 +552,7 @@ Knowledge Base
 **Purpose:** Ensure uniform terminology in the knowledge base  
 **When to use:** When creating or updating knowledge base sections for consistent term usage
 
-**⚠️ CRITICALLY IMPORTANT:** The glossary defines the language of communication between people and AI agents. All terms used in the knowledge base should be defined here. Read the glossary first to understand the terminology.
+**Important:** The glossary defines the language of communication between people and AI agents. All terms used in the knowledge base should be defined here. Read the glossary first to understand the terminology.
 
 ### Core Terms
 
@@ -662,18 +662,12 @@ In this knowledge base, Guard Rails are used for:
 - When writing → apply principles (clarity, structure, examples, uniformity, objectivity)
 - When checking → use the checklist from section [Conclusions and Recommendations](#ai-generated-prompts)
 
-**Sources:**
-- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) - Official OpenAI guide
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering) - Anthropic guide
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for creating effective prompts (2024)
-- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts) - Collection of real system prompts from ChatGPT, Claude, v0, Cursor, Manus, Bolt.new and others (2025)
-
 ---
 
 <a id="universality-principle"></a>
 
 ### System Prompt Universality Principle
-**⚠️ CRITICALLY IMPORTANT:** Even if system prompts are optimized for working with specific technologies (e.g., GitHub Copilot, Claude Sonnet 4.5, Cursor IDE), the system prompts themselves should NOT mention these specific technologies.
+**Important:** Even if system prompts are optimized for working with specific technologies (e.g., GitHub Copilot, Claude Sonnet 4.5, Cursor IDE), the system prompts themselves should NOT mention these specific technologies.
 
 **Why this matters:**
 - Mentioning specific technologies doesn't help the model make decisions
@@ -729,7 +723,7 @@ In this knowledge base, Guard Rails are used for:
 <a id="system-prompt-nature"></a>
 
 ### Nature of System Prompt: Instructions for Decision-Making, Not a Program
-**⚠️ CRITICALLY IMPORTANT:** A system prompt is **not a program**. Its task is to guide the model toward correct decision-making in many intermediate steps that the user may not be aware of.
+**Important:** A system prompt is **not a program**. Its task is to guide the model toward correct decision-making in many intermediate steps that the user may not be aware of.
 
 **Key concept:**
 - A system prompt provides **instructions** on how to gather context and how to use decision-making principles from that context to achieve the user's desired result
@@ -821,10 +815,6 @@ The model goes through a sequence of logical steps:
    - Provide criteria and principles, not deterministic instructions
    - Allow the model to apply principles in the context of a specific situation
    - Use objective criteria instead of subjective assessments
-
-**Sources:**
-- [Chain of Thought Prompting](https://arxiv.org/abs/2201.11903) - Technique guiding model through sequence of logical steps
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for creating effective prompts (2024)
 
 ---
 
@@ -1022,12 +1012,6 @@ Examples:
 - ❌ Don't include technical implementation details
 - ❌ Don't mention specific protocols or APIs
 
-**Sources:**
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) - Protocol for standardizing context exchange
-- [Retrieval-Augmented Generation (RAG)](https://arxiv.org/abs/2005.11401) - Original RAG work (2020)
-- [Function Calling / Tool Use](https://platform.openai.com/docs/guides/function-calling) - OpenAI Function Calling Guide
-- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts) - Examples of tool descriptions in real prompts
-
 **Related sections:**
 - [Nature of System Prompt](#system-prompt-nature) - Instructions for decision-making, not a program
 - [System Prompt Universality Principle](#universality-principle) - Universality without mentioning specific technologies
@@ -1169,12 +1153,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 **When to use:** When creating or evaluating system prompts, when making decisions about instruction detail level  
 **Related sections:** [System Prompt Structure](#system-prompt-structure), [Writing Principles](#writing-principles), [Output Size Optimization](#output-size-optimization)
 
-**Sources:**
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for creating effective prompts (2024)
-
----
-
-**⚠️ CRITICALLY IMPORTANT:** System prompt length itself is not a problem. The problem is **lack of structure** in a long prompt.
+**Important:** System prompt length itself is not a problem. The problem is **lack of structure** in a long prompt.
 
 **Key principles:**
 
@@ -1279,13 +1258,6 @@ If task seems complex → use Full Workflow (without clear criteria)
 **Purpose:** Describes the most common mistakes when writing system prompts and ways to avoid them  
 **When to use:** When checking prompt quality or when learning to write prompts  
 **Related sections:** [Style Guide](#style-guide), [Best Practices](#best-practices), [Anti-Patterns](#anti-patterns)
-
-**Sources:**
-- [OpenAI Best Practices](https://help.openai.com/en/articles/6654000-best-best-practices-for-prompt-engineering-with-openai-api) - Official OpenAI recommendations
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering) - Anthropic guide
-- [A Prompt Pattern Catalog to Enhance Prompt Engineering with ChatGPT](https://arxiv.org/abs/2302.11382) - Prompt pattern catalog (2023)
-
----
 
 ### 1. Ambiguous Formulations ❌
 
@@ -1930,7 +1902,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ## ✅ Sufficient Quality Gateway
 
-**⚠️ CRITICALLY IMPORTANT:** **Sufficient Quality Gateway SHOULD be used by default always and everywhere** when working with knowledge base and when making decisions about adding information. This allows precise analysis of when to stop and avoid duplications only in context of this file.
+**Important:** **Sufficient Quality Gateway SHOULD be used by default always and everywhere** when working with knowledge base and when making decisions about adding information. This allows precise analysis of when to stop and avoid duplications only in context of this file.
 
 **Purpose:** Systematic "good enough" check before critical workflow transitions, during planning, when making decisions, and when updating knowledge base  
 **When to use:** 
@@ -2110,20 +2082,104 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ---
 
+<a id="sources"></a>
+
 ## 📚 Sources
+
+**All external sources related to prompt engineering are consolidated in this section.**
 
 ### Official Documentation
 
-- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering)
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering)
-- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127)
+**OpenAI:**
+- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) - Comprehensive official guide on prompt engineering techniques
+- [OpenAI Best Practices](https://help.openai.com/en/articles/6654000-best-best-practices-for-prompt-engineering-with-openai-api) - Official OpenAI recommendations
+- [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling) - Guide on tool use and function calling
+- [OpenAI JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode) - JSON mode documentation
+- [OpenAI Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) - Structured Outputs API
+- [OpenAI Model Documentation](https://platform.openai.com/docs/models) - OpenAI models documentation
+- [OpenAI Chat Completions API](https://platform.openai.com/docs/api-reference/chat/create) - OpenAI message structure
+- [OpenAI Safety Best Practices](https://platform.openai.com/docs/guides/safety-best-practices) - OpenAI safety recommendations
+- [OpenAI Data Usage Policies](https://openai.com/policies/usage-policies) - Data usage policies
 
-### Software Development Principles
+**Anthropic:**
+- [Anthropic Claude Prompt Engineering Guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview) - Official Anthropic guide for Claude prompt engineering
+- [Anthropic Messages API](https://platform.claude.com/docs/en/api/messages) - Anthropic message structure
+- [Anthropic Structured Outputs](https://platform.claude.com/docs/en/build-with-claude/tool-use/structured-outputs) - Structured outputs documentation
+- [Anthropic Claude Documentation](https://platform.claude.com/docs/en) - Official Anthropic Claude documentation
+- [Anthropic Safety Documentation](https://platform.claude.com/docs/en/build-with-claude/safety) - Anthropic approach to safety
+- [Anthropic Data Privacy](https://www.anthropic.com/policies/privacy) - Anthropic privacy policies
 
-- [Good Enough Software](https://www.joelonsoftware.com/2000/05/14/strategy-letter-iii/)
-- [Analysis Paralysis](https://en.wikipedia.org/wiki/Analysis_paralysis)
-- [Pareto Principle (80/20 Rule)](https://en.wikipedia.org/wiki/Pareto_principle)
-- [YAGNI Principle](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)
+**Google:**
+- [Google Prompt Engineering Guide](https://ai.google.dev/gemini-api/docs/prompting-strategies) - Google prompting strategies
+- [Google Prompt Best Practices](https://ai.google.dev/docs/prompt_best_practices) - Recommendations for structuring prompts
+
+**GitHub:**
+- [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-prompting-with-github-copilot) - GitHub Copilot recommendations
+
+### Research Papers (arXiv)
+
+**Prompting Techniques:**
+- [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) - Original CoT paper (Wei et al., 2022)
+- [Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171) - Original Self-Consistency paper (2022)
+- [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601) - Original ToT paper (2023)
+
+**Surveys and Systematization:**
+- [The Prompt Report: A Systematic Survey of Prompting Techniques](https://arxiv.org/abs/2406.06608) - Comprehensive survey of prompting techniques (2024)
+- [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127) - Practical guide for effective prompts (Hewing & Leinhos, 2024)
+- [Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in NLP](https://arxiv.org/abs/2107.13586) - Systematic survey of prompting methods (2021)
+- [A Prompt Pattern Catalog to Enhance Prompt Engineering with ChatGPT](https://arxiv.org/abs/2302.11382) - Catalog of prompt patterns (White et al., 2023)
+- [A Systematic Survey of Prompt Engineering in Large Language Models](https://arxiv.org/abs/2402.07927) - Systematic survey of prompt engineering techniques and limitations (2024)
+
+**RAG and Information Processing:**
+- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) - Original RAG paper (2020)
+
+**Security and Hallucinations:**
+- [Survey of Hallucination in Natural Language Generation](https://arxiv.org/abs/2202.03629) - Survey of hallucinations in NLG (2022)
+- [Security Analysis of Large Language Models](https://arxiv.org/abs/2310.02059) - Comprehensive LLM security analysis (2023)
+
+### Community Resources
+
+- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts) - Collection of real system prompts from ChatGPT, Claude, v0, Cursor, Manus, Bolt.new and others (2025)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) - Protocol for standardizing context exchange
+- [JSON Schema](https://json-schema.org/) - JSON Schema specification
+
+### Security
+
+- [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/) - Top 10 LLM vulnerabilities
+- [Prompt Injection Attacks Against GPT-3](https://simonwillison.net/2022/Sep/12/prompt-injection/) - Prompt injection attack analysis
+
+### Code Quality and Development
+
+**Refactoring and Patterns:**
+- [Refactoring: Improving the Design of Existing Code](https://refactoring.com/) - Martin Fowler
+- [Refactoring Guru: Design Patterns](https://refactoring.guru/design-patterns) - Design patterns
+- [Refactoring Guru: Code Smells](https://refactoring.guru/refactoring/smells) - Code smells
+- [Refactoring Guru: SOLID](https://refactoring.guru/design-patterns/solid-principles) - SOLID principles
+- [Martin Fowler: Code Smells Catalog](https://refactoring.com/catalog/) - Code smells catalog
+
+**Development Principles:**
+- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID) - SOLID principles
+- [DRY Principle](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) - DRY principle
+- [KISS Principle](https://en.wikipedia.org/wiki/KISS_principle) - KISS principle
+- [YAGNI Principle](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it) - YAGNI principle
+- [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns) - Separation of concerns principle
+
+**Books and Classics:**
+- [Clean Code: A Handbook of Agile Software Craftsmanship](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882) - Robert C. Martin
+- [Clean Code Principles](https://www.freecodecamp.org/news/clean-code-principles/) - Clean code principles
+- [The Pragmatic Programmer](https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/) - 20th Anniversary Edition
+- [The Mythical Man-Month](https://en.wikipedia.org/wiki/The_Mythical_Man-Month) - Classic on software development (Frederick Brooks, 1975)
+- [Extreme Programming](https://en.wikipedia.org/wiki/Extreme_programming) - Extreme programming
+
+**Quality and Approaches:**
+- [Good Enough Software](https://www.joelonsoftware.com/2000/05/14/strategy-letter-iii/) - "Good enough" software concept (Joel Spolsky, 2000)
+- [Analysis Paralysis](https://en.wikipedia.org/wiki/Analysis_paralysis) - Analysis paralysis problem in software development
+- [Pareto Principle (80/20 Rule)](https://en.wikipedia.org/wiki/Pareto_principle) - Pareto principle: 80% of results from 20% of effort
+- [Semantic Versioning (SemVer)](https://semver.org/) - Semantic versioning specification
+
+**Error Handling:**
+- [Error Handling Best Practices](https://www.joyent.com/node-js/production/design/errors) - Error handling best practices
+- [Exception Handling in Programming](https://en.wikipedia.org/wiki/Exception_handling) - Exception handling
 
 ---
 

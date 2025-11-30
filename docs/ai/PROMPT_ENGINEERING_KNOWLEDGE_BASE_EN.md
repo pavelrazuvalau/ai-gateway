@@ -117,7 +117,9 @@
 
 **Guard Rails and Quality Criteria:**
 - [When to Stop](#when-to-stop) - **Core principles** of "good enough" criteria and improvement prioritization
+- [Informing About Further Development Vector](#informing-further-development) - Informing the user about optional improvements when "good enough" is achieved
 - [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects) - Preventing cyclical changes when working with code
+- [Guard Rails for Planning](#guard-rails-for-planning) - Preventing over-planning and analysis paralysis
 - [Sufficient Quality Gateway](#sufficient-quality-gateway) - Systematic "good enough" checks for critical transitions
 - [Production Code Quality](#production-code-quality-and-refactoring-criteria) - Code quality criteria and when to refactor
 
@@ -385,8 +387,10 @@ Knowledge Base (EN - condensed version)
 │
 ├── 🛑 Guard Rails
 │   ├── When to Stop (#when-to-stop) ← FOUNDATION
+│   ├── Informing About Further Development (#informing-further-development)
 │   ├── Sufficient Quality Gateway (#sufficient-quality-gateway)
-│   └── Guard Rails for Vibe Coding (#guard-rails-for-vibe-coding-on-large-projects)
+│   ├── Guard Rails for Vibe Coding (#guard-rails-for-vibe-coding-on-large-projects)
+│   └── Guard Rails for Planning (#guard-rails-for-planning)
 │
 ├── 💻 Code Quality
 │   └── Production Code Quality (#production-code-quality-and-refactoring-criteria)
@@ -1752,6 +1756,51 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ---
 
+<a id="informing-further-development"></a>
+
+### Informing About Further Development Vector
+
+**Important:**
+
+When the "good enough" success criterion is met, but there are optional improvement steps:
+
+**✅ CORRECT:**
+- ✅ **DO NOT ignore** optional steps in the output
+- ✅ **DO NOT start** them without explicit user consent
+- ✅ **Inform** the user about further development vector
+- ✅ Indicate optional improvements with their priorities (🟡 Important, 🟢 Non-critical)
+- ✅ Provide the user a choice: continue with optional improvements or stop
+
+**❌ INCORRECT:**
+- ❌ Ignore optional steps in the output (even if they are non-critical)
+- ❌ Start optional improvements without user consent
+- ❌ Hide information about possible improvements
+
+**Format for informing about further development vector:**
+
+```
+✅ Success criterion met: [description of what was completed]
+📊 Best practices compliance: 85-90%+
+
+📈 Further development vector (optional):
+- 🟡 [Important improvement]: [description] - [rationale]
+- 🟢 [Non-critical improvement]: [description] - [rationale]
+
+💡 Recommendation: [can continue with improvements / sufficient for current task]
+```
+
+**Application:**
+- When achieving "good enough" criterion in Sufficient Quality Gateway
+- When completing a step/phase with optional improvements available
+- When providing final summary after task completion
+
+**Purpose:**
+- Ensure transparency for the user about possible improvements
+- Give the user control over the choice: stop or continue
+- Prevent hiding information about possible improvements
+
+---
+
 <a id="guard-rails-for-vibe-coding-on-large-projects"></a>
 
 ## 🎨 Guard Rails for Vibe Coding on Large Projects
@@ -1842,6 +1891,153 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ---
 
+<a id="guard-rails-for-planning"></a>
+
+## 📋 Guard Rails for Planning
+
+**Purpose:** Define principles and guard rails for planning system prompts, preventing over-planning and analysis paralysis  
+**When to use:** When creating/improving system prompts for task planning, codebase analysis, preventing over-optimization during planning  
+**Related sections:** [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects), [When to Stop](#when-to-stop) (core principles and criteria), [Sufficient Quality Gateway](#sufficient-quality-gateway) (systematic checks)
+
+**📌 Note:** Core "good enough" principles, priority system (🔴 🟡 🟢 ⚪), and stopping criteria are described in section [When to Stop](#when-to-stop). This section focuses on applying these principles to the planning and analysis phase.
+
+**Context:** Preventing over-planning, analysis paralysis, balance between analysis completeness and practicality. Especially important for planning agents prone to deep analysis.
+
+### 🤖 Instructions for you
+
+**How to use this section:**
+- When analyzing codebase → apply analysis stopping criteria
+- When creating plans → use priority system (🔴 🟡 🟢 ⚪)
+- When planning → follow "good enough" rule (85-90%+ coverage)
+- When in doubt → use objective criteria (clear/unclear) instead of subjective assessments
+
+---
+
+### "Good Enough" Analysis Principle
+
+**Principle:**
+- Sufficient analysis is more important than exhaustive analysis
+- 80% understanding from 20% effort (Pareto principle)
+- Focus on main components and key dependencies, not all details
+
+**For AI agent:**
+```
+✅ CORRECT: Identify main components and key dependencies for task execution
+❌ INCORRECT: Try to analyze all files, all patterns, all edge cases
+
+✅ CORRECT: Analysis sufficient for plan creation (85-90%+ coverage)
+❌ INCORRECT: Endless analysis searching for 100% understanding
+```
+
+**Rationale:**
+- Exhaustive analysis requires significantly more time
+- Sufficient but quick analysis allows moving forward
+- Over-analysis delays plan creation without proportional benefit
+
+---
+
+### "Pragmatic vs Perfect" Planning Principle
+
+**Principle:**
+- Pragmatic plan solves the problem now
+- Perfect plan may be excessive
+- Focus on current requirements, not hypothetical scenarios
+
+**For AI agent:**
+```
+✅ CORRECT: Create plan covering main scenarios (85-90%+)
+❌ INCORRECT: Create plan for all possible edge cases "just in case"
+
+✅ CORRECT: Define actionable steps that can be executed
+❌ INCORRECT: Overcomplicate steps that are already clear
+```
+
+**Rationale:**
+- Simple plan is faster to create and understand
+- Excessive detail complicates plan unnecessarily
+- Current requirements are more important than hypothetical ones
+
+---
+
+### Guard Rails: Over-Planning Prevention
+
+#### Analysis Stopping Criteria
+
+**STOP analysis if:**
+- ✅ Main components identified (key system components, not all)
+- ✅ Key dependencies understood (critical relationships, not all)
+- ✅ Project structure studied (sufficient for planning, not exhaustive)
+- ✅ Task broken into phases (clear execution path, not overcomplicated)
+- ✅ 85-90%+ coverage of main aspects
+
+**DO NOT STOP only if:**
+- ❌ Critical gaps exist (🔴 - blocking issues)
+- ❌ Main components NOT identified
+- ❌ Key dependencies NOT understood
+
+#### Planning Stopping Criteria
+
+**STOP planning if:**
+- ✅ Phases defined with clear goals
+- ✅ Steps are actionable (can be executed)
+- ✅ No critical blockers (🔴)
+- ✅ 85-90%+ coverage of main scenarios
+
+**DO NOT STOP only if:**
+- ❌ Critical gaps exist (🔴 - blocking issues)
+- ❌ Phases have unclear goals
+- ❌ Steps are not actionable
+
+---
+
+### Priority System for Planning Issues
+
+**Use this system to evaluate issues found during analysis/planning:**
+
+🔴 **CRITICAL (resolve before continuing):**
+- Missing main requirements
+- Architectural conflicts
+- Blocking dependencies
+- No understanding of main components
+
+🟡 **IMPORTANT (document, but not blocking):**
+- Unclear requirements (can clarify during execution)
+- Missing dependencies (can discover during execution)
+- Alternative approaches (can evaluate during execution)
+
+🟢 **NON-CRITICAL (ignore, continue):**
+- Nice-to-have details
+- Edge cases (can handle during execution)
+- Minor optimizations
+
+⚪ **NOT REQUIRED (completely ignore):**
+- Over-optimization for hypothetical scenarios
+- Exhaustive analysis beyond task scope
+- Perfect plan instead of good enough plan
+
+---
+
+### Anti-Patterns for Planning
+
+**❌ Over-Analysis:**
+- Analyzing all files when main components are already clear
+- Searching for 100% understanding when 85-90% is sufficient
+- Deep diving into edge cases before main scenarios
+
+**❌ Over-Planning:**
+- Detailing steps that are already clear
+- Planning for all possible edge cases
+- Searching for perfect plan instead of good enough
+
+**❌ Analysis Paralysis:**
+- Unable to continue because analysis is "not complete"
+- Constantly finding new things to analyze
+- Postponing plan creation due to perceived gaps
+
+**Key principle:** A "good enough" plan created quickly is better than a "perfect" plan that will never be completed.
+
+---
+
 <a id="sufficient-quality-gateway"></a>
 
 ## ✅ Sufficient Quality Gateway
@@ -1855,7 +2051,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 - **During planning** when making decisions about plan structure, priorities, step detail
 - **When making decisions** at any work stage (about need for changes, improvements, continuing work)
 - **Mandatory** before adding any information to knowledge base  
-**Related sections:** [When to Stop](#when-to-stop) (core principles and criteria), [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects) (applying to code), [Production Code Quality](#production-code-quality-and-refactoring-criteria)
+**Related sections:** [When to Stop](#when-to-stop) (core principles and criteria), [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects) (applying to code), [Guard Rails for Planning](#guard-rails-for-planning) (applying to planning), [Production Code Quality](#production-code-quality-and-refactoring-criteria)
 
 ---
 

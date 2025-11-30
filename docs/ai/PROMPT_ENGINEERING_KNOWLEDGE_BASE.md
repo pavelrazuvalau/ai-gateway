@@ -69,7 +69,13 @@ Knowledge base as input context is a document or set of documents provided to an
 31. [Agent Loop Patterns](#agent-loop-patterns)
 32. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
 33. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
-34. [Sources](#sources)
+34. [Nudging Techniques: Guiding Models Toward Correct Decisions](#nudging-techniques-guiding-models-toward-correct-decisions)
+35. [Context Window Management](#context-window-management)
+36. [Instruction Hierarchy and Priority](#instruction-hierarchy-and-priority)
+37. [Prompt Chaining Patterns](#prompt-chaining-patterns)
+38. [Error Recovery and Graceful Degradation](#error-recovery-and-graceful-degradation)
+39. [Multi-turn Conversation Management](#multi-turn-conversation-management)
+40. [Sources](#sources)
 
 ---
 
@@ -175,10 +181,25 @@ KNOWLEDGE BASE
 │   └── Testing
 │
 ├── TECHNIQUES
-│   ├── Zero-shot
-│   ├── Few-shot
-│   ├── Chain-of-Thought
+│   ├── Zero-shot / Few-shot / Chain-of-Thought
+│   ├── Nudging Techniques ← NEW
+│   ├── Prompt Chaining Patterns ← NEW
 │   └── Other techniques
+│
+├── DECISION GUIDANCE ← NEW CATEGORY
+│   ├── Instruction Hierarchy and Priority
+│   ├── Nudging (defaults, criteria, escape hatches)
+│   └── Conflict Resolution
+│
+├── CONTEXT MANAGEMENT ← NEW CATEGORY
+│   ├── Context Window Management
+│   ├── Multi-turn Conversation Management
+│   └── State Tracking
+│
+├── ERROR HANDLING ← NEW CATEGORY
+│   ├── Error Recovery Patterns
+│   ├── Graceful Degradation
+│   └── Assumption Declaration
 │
 ├── SECURITY
 │   ├── Prompt Injection
@@ -2660,6 +2681,938 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 
 ---
 
+## Nudging Techniques: Guiding Models Toward Correct Decisions
+
+**Purpose:** Techniques for formulating instructions that guide models toward correct decisions without rigid deterministic rules
+**When to use:** When designing system prompts that should influence model behavior in subtle but effective ways
+**Related sections:** [Best Practices](#best-practices), [Conditional Logic](#conditional-logic-in-prompts), [Guard Rails](#guard-rails-for-planning)
+
+---
+
+### Core Concept: Nudging vs Commanding
+
+**Key Insight:** Models are probabilistic systems. Instead of commanding specific actions, effective prompts **nudge** the model toward correct decisions by:
+
+1. **Shaping the decision space** — making correct options more salient
+2. **Providing decision criteria** — giving clear evaluation frameworks
+3. **Setting defaults** — establishing what happens without explicit choice
+4. **Creating friction** — making incorrect paths harder to follow
+
+**Analogy:** Traffic design uses nudges (road narrowing, speed bumps) rather than just rules (speed limits). Both work, but nudges are more effective.
+
+---
+
+### Technique 1: Default Behavior Setting
+
+**Problem:** Models without clear defaults may make arbitrary choices or ask unnecessary questions.
+
+**Solution:** Explicitly state default behaviors that activate without user specification.
+
+<example>
+**❌ Bad (no default):**
+"If user wants tests, write tests."
+
+**✅ Good (with default):**
+"DEFAULT: Include unit tests for all new functions.
+OVERRIDE: Skip tests only if user explicitly says 'no tests' or 'quick prototype'."
+</example>
+
+**Pattern:**
+```text
+DEFAULT: [preferred behavior]
+OVERRIDE: [condition for alternative behavior]
+```
+
+**Why it works:**
+- Reduces decision fatigue for the model
+- Ensures consistent behavior across sessions
+- Makes exceptions explicit and traceable
+
+---
+
+### Technique 2: Decision Criteria Injection
+
+**Problem:** Models may use implicit or inconsistent criteria for decisions.
+
+**Solution:** Provide explicit evaluation criteria that the model should apply.
+
+<example>
+**❌ Bad (implicit criteria):**
+"Choose the best approach for this refactoring."
+
+**✅ Good (explicit criteria):**
+"Choose the refactoring approach by evaluating:
+1. **Backward compatibility** (highest priority) — existing tests must pass
+2. **Readability** — code should be clearer after refactoring
+3. **Performance** — no degradation unless justified
+4. **Scope** — minimize touched files
+
+Select the approach that scores highest across these criteria."
+</example>
+
+**Why it works:**
+- Makes decision-making transparent and reproducible
+- Aligns model's evaluation with user's priorities
+- Enables verification of reasoning
+
+---
+
+### Technique 3: Positive Framing Over Prohibition
+
+**Problem:** Negative instructions ("don't do X") are less effective than positive ones.
+
+**Solution:** Frame instructions as what TO do, not what NOT to do.
+
+<example>
+**❌ Bad (negative framing):**
+"Don't write verbose code."
+"Don't add unnecessary abstractions."
+"Don't ignore edge cases."
+
+**✅ Good (positive framing):**
+"Write concise code that expresses intent directly."
+"Add abstractions only when they reduce duplication or improve clarity."
+"Handle edge cases: null inputs, empty collections, boundary values."
+</example>
+
+**Why it works:**
+- Positive instructions provide clear direction
+- Negative instructions require the model to infer what TO do
+- Reduces ambiguity and cognitive load
+
+---
+
+### Technique 4: Anchoring with Examples
+
+**Problem:** Models may not understand the desired quality level or style.
+
+**Solution:** Anchor expectations with concrete examples of desired output.
+
+<example>
+**Pattern:**
+"Here is an example of the quality level I expect:
+
+[EXAMPLE_INPUT]
+User asks: 'Add error handling to this function'
+
+[EXAMPLE_OUTPUT]
+```python
+def fetch_user(user_id: str) -> User:
+    if not user_id:
+        raise ValueError("user_id cannot be empty")
+    
+    try:
+        response = api.get(f"/users/{user_id}")
+        response.raise_for_status()
+        return User.from_dict(response.json())
+    except requests.HTTPError as e:
+        if e.response.status_code == 404:
+            raise UserNotFoundError(user_id) from e
+        raise APIError(f"Failed to fetch user: {e}") from e
+```
+
+Apply this level of thoroughness to all error handling tasks."
+</example>
+
+**Why it works:**
+- Concrete examples eliminate ambiguity better than descriptions
+- Sets quality bar explicitly
+- Model can pattern-match to the example
+
+---
+
+### Technique 5: Escape Hatches
+
+**Problem:** Rigid rules create situations where the model cannot proceed sensibly.
+
+**Solution:** Provide explicit "escape hatches" — conditions under which normal rules don't apply.
+
+<example>
+**❌ Bad (no escape hatch):**
+"Always write tests for new code."
+
+**✅ Good (with escape hatch):**
+"Always write tests for new code.
+ESCAPE HATCH: If writing tests would require mocking more than 5 dependencies or the code is a one-time script, note 'Tests skipped: [reason]' and proceed."
+</example>
+
+**Pattern:**
+```text
+[RULE]
+ESCAPE HATCH: If [condition], then [alternative behavior] and document why.
+```
+
+**Why it works:**
+- Prevents the model from getting stuck
+- Makes exceptions explicit and documented
+- Maintains rule integrity while allowing flexibility
+
+---
+
+### Technique 6: Graduated Response Levels
+
+**Problem:** One-size-fits-all responses don't match varying user needs.
+
+**Solution:** Define graduated response levels based on task characteristics.
+
+<example>
+**Pattern:**
+"Adjust response depth based on task complexity:
+
+**QUICK (simple questions, small changes):**
+- Brief explanation (1-2 sentences)
+- Direct code change
+- No alternatives discussed
+
+**STANDARD (typical tasks):**
+- Context and approach explanation
+- Implementation with comments
+- Note any tradeoffs
+
+**THOROUGH (complex/critical tasks):**
+- Full analysis of options
+- Detailed implementation
+- Edge cases addressed
+- Testing strategy included
+
+Default to STANDARD. Use QUICK for obvious tasks, THOROUGH for architectural decisions or security-critical code."
+</example>
+
+---
+
+### Technique 7: Pre-mortem Prompting
+
+**Problem:** Models may not anticipate failure modes.
+
+**Solution:** Ask the model to consider what could go wrong BEFORE implementing.
+
+<example>
+**Pattern:**
+"Before implementing, briefly consider:
+1. What could go wrong with this approach?
+2. What assumptions am I making?
+3. What edge cases might break this?
+
+Then proceed with implementation, addressing the identified risks."
+</example>
+
+**Why it works:**
+- Activates critical thinking before commitment
+- Surfaces potential issues early
+- Improves solution robustness
+
+---
+
+### Technique 8: Confidence Calibration
+
+**Problem:** Models may present uncertain information with inappropriate confidence.
+
+**Solution:** Instruct the model to calibrate confidence levels explicitly.
+
+<example>
+**Pattern:**
+"When answering, indicate your confidence level:
+- **CERTAIN**: Well-documented facts, official documentation, verified code behavior
+- **LIKELY**: Common patterns, best practices, reasonable inference
+- **UNCERTAIN**: Edge cases, version-specific behavior, complex interactions
+
+If UNCERTAIN about something critical, say so and suggest verification steps."
+</example>
+
+---
+
+### Technique 9: Incremental Commitment
+
+**Problem:** Models may commit to large changes without validation checkpoints.
+
+**Solution:** Structure tasks to require incremental commitment with verification.
+
+<example>
+**❌ Bad (single large commitment):**
+"Refactor the entire authentication module."
+
+**✅ Good (incremental commitment):**
+"Refactor the authentication module incrementally:
+1. First, identify all authentication-related files and describe current architecture
+2. CHECKPOINT: Verify understanding before proceeding
+3. Propose refactoring plan with specific changes per file
+4. CHECKPOINT: Get approval before implementation
+5. Implement changes file by file, testing after each
+6. Final verification that all tests pass"
+</example>
+
+---
+
+### Nudging Anti-Patterns
+
+| Anti-Pattern | Problem | Better Approach |
+|--------------|---------|-----------------|
+| **Vague nudges** | "Try to be helpful" | Specific: "Prioritize working code over perfect code" |
+| **Contradictory nudges** | "Be thorough but brief" | Graduated: "Brief for simple, thorough for complex" |
+| **Hidden nudges** | Implicit expectations | Explicit: State all evaluation criteria |
+| **Rigid nudges** | No escape hatches | Flexible: "Unless [exception condition]" |
+| **Too many nudges** | Cognitive overload | Prioritized: Top 3-5 most important |
+
+---
+
+## Context Window Management
+
+**Purpose:** Strategies for effective use of limited context window in LLMs
+**When to use:** When designing system prompts for agents that work with large codebases or long conversations
+**Related sections:** [File Operation Practices](#file-operation-practices), [Knowledge Base as Database](#knowledge-base-as-database-search-and-retrieval-strategy)
+
+---
+
+### Understanding Context Window
+
+**Key Concept:** Context window is the total amount of text (tokens) that a model can process in a single request. This includes:
+- System prompt
+- Conversation history
+- Current user message
+- Retrieved context (files, search results)
+- Space for model's response
+
+**Practical Implication:** Context is a scarce resource that must be managed strategically.
+
+---
+
+### Context Budget Allocation
+
+**Principle:** Allocate context budget based on task requirements.
+
+**Recommended Allocation:**
+
+| Component | Typical % | Notes |
+|-----------|-----------|-------|
+| System prompt | 10-20% | Core instructions, should be optimized |
+| Conversation history | 10-30% | Summarize old turns, keep recent |
+| Current context (files, docs) | 40-60% | Most valuable for task completion |
+| Response space | 10-20% | Reserve for model output |
+
+<example>
+**For 100K token context window:**
+- System prompt: 10-20K tokens
+- History: 10-30K tokens
+- Working context: 40-60K tokens
+- Response: 10-20K tokens
+</example>
+
+---
+
+### Context Prioritization Strategies
+
+#### Strategy 1: Relevance-Based Loading
+
+**Principle:** Load only context relevant to current task.
+
+**Procedure:**
+1. Identify task requirements
+2. Search for relevant files/sections (grep, semantic search)
+3. Load only relevant portions with offset/limit
+4. Avoid loading entire files when only sections are needed
+
+<example>
+**❌ Bad:** Load entire 5000-line file to find one function
+
+**✅ Good:**
+1. Search: `grep "def target_function"`
+2. Get line number (e.g., line 245)
+3. Load context: `read_file(path, offset=230, limit=50)`
+</example>
+
+#### Strategy 2: Conversation Summarization
+
+**Principle:** Summarize older conversation turns instead of keeping full history.
+
+**When to apply:**
+- Conversation exceeds 5-10 turns
+- Earlier turns are informational, not actively referenced
+- Context budget is tight
+
+**Pattern:**
+```text
+[CONVERSATION SUMMARY]
+- User requested: Feature X implementation
+- Completed: Steps 1-3 of implementation
+- Current state: Working on step 4, database migration
+- Key decisions: Using PostgreSQL, following existing patterns in /src/db/
+
+[RECENT MESSAGES - Full detail]
+...last 3-5 turns...
+```
+
+#### Strategy 3: Progressive Detail Loading
+
+**Principle:** Start with high-level overview, drill down as needed.
+
+**Procedure:**
+1. **Level 1:** File structure and key file names
+2. **Level 2:** Function/class signatures and docstrings
+3. **Level 3:** Full implementation of specific functions
+4. **Level 4:** Related files and dependencies
+
+<example>
+"Understanding codebase progressively:
+1. First, list directory structure → identify relevant modules
+2. Read module's __init__.py or index files → understand exports
+3. Read specific class/function signatures → understand interfaces
+4. Load full implementation only for functions being modified"
+</example>
+
+---
+
+### Context Refresh Patterns
+
+**Problem:** Long-running conversations accumulate stale context.
+
+**Solution:** Implement context refresh at strategic points.
+
+**Refresh Triggers:**
+- Task phase completion
+- Significant codebase changes
+- Context approaching capacity
+- Topic/focus shift
+
+**Refresh Pattern:**
+```text
+[CONTEXT REFRESH]
+Previous work summary: [brief summary]
+Current objective: [current goal]
+Fresh context: [newly loaded relevant content]
+```
+
+---
+
+### Anti-Patterns in Context Management
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Context hoarding** | Loading everything "just in case" | Load on demand, release when done |
+| **History bloat** | Keeping full history of all turns | Summarize older turns |
+| **Redundant loading** | Same file loaded multiple times | Track what's already in context |
+| **Insufficient context** | Not enough info to complete task | Verify context sufficiency before acting |
+
+---
+
+## Instruction Hierarchy and Priority
+
+**Purpose:** Define how to handle conflicting or overlapping instructions in system prompts
+**When to use:** When designing complex system prompts with multiple rule sets
+**Related sections:** [Style Guide](#style-guide-for-system-prompts), [Conditional Logic](#conditional-logic-in-prompts)
+
+---
+
+### The Priority Problem
+
+**Problem:** Complex system prompts often contain instructions that can conflict:
+- "Be thorough" vs "Be concise"
+- "Follow user requests" vs "Maintain safety guidelines"
+- "Use existing patterns" vs "Improve code quality"
+
+**Solution:** Establish explicit instruction hierarchy.
+
+---
+
+### Standard Priority Hierarchy
+
+**Recommended hierarchy (highest to lowest):**
+
+```text
+1. SAFETY & SECURITY (Non-negotiable)
+   - Never execute harmful actions
+   - Protect sensitive data
+   - Follow security best practices
+
+2. CORRECTNESS (Functional requirements)
+   - Code must work correctly
+   - Logic must be sound
+   - Tests must pass
+
+3. USER INTENT (Explicit requests)
+   - Direct user instructions
+   - Stated preferences
+   - Explicit constraints
+
+4. SYSTEM CONVENTIONS (Project standards)
+   - Code style guidelines
+   - Architectural patterns
+   - Naming conventions
+
+5. QUALITY OPTIMIZATIONS (Nice-to-have)
+   - Performance improvements
+   - Code elegance
+   - Documentation
+```
+
+---
+
+### Conflict Resolution Rules
+
+**Rule 1: Higher priority wins**
+```text
+IF safety conflicts with user request → prioritize safety
+IF correctness conflicts with conventions → prioritize correctness
+```
+
+**Rule 2: Explicit overrides implicit**
+```text
+IF user explicitly says "skip tests" AND it doesn't compromise safety
+→ follow user request
+```
+
+**Rule 3: Document conflicts**
+```text
+IF following one instruction requires violating another
+→ document the conflict and explain resolution
+```
+
+<example>
+**Conflict scenario:**
+- User says: "Make this code as short as possible"
+- Convention says: "Use descriptive variable names"
+
+**Resolution:**
+"I'll make the code concise while maintaining readable variable names. 
+Extremely short names like `x`, `t` would harm maintainability.
+Result: Reduced from 50 to 35 lines while keeping clear naming."
+</example>
+
+---
+
+### Implementing Hierarchy in Prompts
+
+**Pattern 1: Explicit Priority Statement**
+```text
+"When instructions conflict, apply this priority:
+1. Security requirements (highest)
+2. Functional correctness
+3. User preferences
+4. Code conventions
+5. Optimizations (lowest)"
+```
+
+**Pattern 2: Override Keywords**
+```text
+"MUST: Non-negotiable requirements
+SHOULD: Strong recommendations, override only with justification  
+MAY: Optional improvements
+MUST NOT: Absolute prohibitions"
+```
+
+**Pattern 3: Conditional Priority**
+```text
+"For production code: prioritize reliability over brevity
+For prototypes: prioritize speed over polish
+For security-sensitive code: apply maximum caution"
+```
+
+---
+
+## Prompt Chaining Patterns
+
+**Purpose:** Patterns for connecting multiple prompts to accomplish complex tasks
+**When to use:** When single prompts are insufficient for complex multi-stage tasks
+**Related sections:** [Agent Loop Patterns](#agent-loop-patterns), [Adaptive Plan Updates](#adaptive-plan-updates)
+
+---
+
+### Why Chain Prompts
+
+**Single prompts fail when:**
+- Task requires multiple distinct stages
+- Output of one stage is input to another
+- Different stages need different contexts
+- Quality control needed between stages
+
+**Chaining benefits:**
+- Focused context per stage
+- Verification checkpoints
+- Easier debugging
+- Better output quality
+
+---
+
+### Chain Pattern 1: Sequential Pipeline
+
+**Use when:** Stages must execute in order, each depending on previous.
+
+```text
+[STAGE 1: Analysis]
+Input: Raw requirements
+Output: Structured task breakdown
+→ Verify: Task breakdown is complete and unambiguous
+
+[STAGE 2: Design]
+Input: Task breakdown from Stage 1
+Output: Technical design document
+→ Verify: Design addresses all tasks
+
+[STAGE 3: Implementation]
+Input: Design from Stage 2
+Output: Working code
+→ Verify: Code matches design, tests pass
+```
+
+<example>
+**Implementing a feature:**
+1. **Analyze**: Parse user request → extract requirements
+2. **Plan**: Requirements → implementation steps
+3. **Implement**: Steps → code changes
+4. **Verify**: Code → test results
+5. **Document**: Code + tests → documentation
+</example>
+
+---
+
+### Chain Pattern 2: Parallel Fan-Out
+
+**Use when:** Independent subtasks can be processed simultaneously.
+
+```text
+[STAGE 1: Decomposition]
+Input: Complex task
+Output: Independent subtasks A, B, C
+
+[STAGE 2: Parallel Processing]
+- Process A → Result A
+- Process B → Result B  
+- Process C → Result C
+
+[STAGE 3: Aggregation]
+Input: Results A, B, C
+Output: Combined final result
+```
+
+<example>
+**Code review:**
+1. **Decompose**: Identify files to review
+2. **Parallel**: Review each file independently
+3. **Aggregate**: Combine findings into single report
+</example>
+
+---
+
+### Chain Pattern 3: Iterative Refinement
+
+**Use when:** Output needs progressive improvement.
+
+```text
+[ITERATION 1]
+Input: Initial requirements
+Output: Draft v1
+Feedback: Quality check → issues found
+
+[ITERATION 2]
+Input: Draft v1 + feedback
+Output: Draft v2
+Feedback: Quality check → minor issues
+
+[ITERATION 3]
+Input: Draft v2 + feedback  
+Output: Final version
+Feedback: Quality check → approved
+```
+
+---
+
+### Chain Pattern 4: Router Pattern
+
+**Use when:** Different inputs require different processing paths.
+
+```text
+[ROUTER STAGE]
+Input: User request
+Analysis: Classify request type
+Routes:
+  - Bug fix → Bug Fix Chain
+  - New feature → Feature Chain
+  - Refactoring → Refactoring Chain
+  - Question → Q&A Chain
+```
+
+---
+
+### State Passing Between Chain Stages
+
+**Problem:** Each stage needs relevant context from previous stages.
+
+**Solution:** Define explicit state objects passed between stages.
+
+```text
+ChainState:
+  - original_request: string     # Never modified
+  - current_stage: string        # Stage identifier
+  - artifacts: map               # Outputs from each stage
+  - decisions: list              # Key decisions made
+  - open_questions: list         # Unresolved issues
+```
+
+<example>
+**State after Stage 2:**
+```json
+{
+  "original_request": "Add user authentication",
+  "current_stage": "design_complete",
+  "artifacts": {
+    "requirements": ["login", "logout", "session management"],
+    "design": {"approach": "JWT", "files_to_modify": [...]}
+  },
+  "decisions": [
+    "Using JWT over sessions for statelessness"
+  ],
+  "open_questions": [
+    "Token expiration policy?"
+  ]
+}
+```
+</example>
+
+---
+
+## Error Recovery and Graceful Degradation
+
+**Purpose:** Patterns for handling errors and failures in agent operations
+**When to use:** When designing robust system prompts for agents that interact with external tools and systems
+**Related sections:** [Working with Tools](#9-working-with-tools-and-file-creation), [Agent Loop Patterns](#agent-loop-patterns)
+
+---
+
+### Error Categories
+
+| Category | Examples | Recovery Strategy |
+|----------|----------|-------------------|
+| **Tool failures** | File not found, API error, timeout | Retry, alternative tool, graceful skip |
+| **Context errors** | Missing info, ambiguous requirements | Ask clarification, make assumptions explicit |
+| **Logic errors** | Wrong approach, incorrect solution | Backtrack, try alternative |
+| **External errors** | Network issues, service unavailable | Wait and retry, inform user |
+
+---
+
+### Recovery Pattern 1: Retry with Backoff
+
+**Use when:** Transient failures that may resolve on retry.
+
+```text
+On tool failure:
+1. First attempt fails → wait 1s, retry
+2. Second attempt fails → wait 3s, retry  
+3. Third attempt fails → report error, suggest alternatives
+```
+
+<example>
+"If file operation fails:
+1. Verify path is correct
+2. Retry once after brief pause
+3. If still failing, check permissions and report specific error
+4. Suggest alternative: 'Could not write file. Content saved in response for manual creation.'"
+</example>
+
+---
+
+### Recovery Pattern 2: Alternative Strategies
+
+**Use when:** Primary approach fails but alternatives exist.
+
+```text
+PRIMARY: Use tool X for operation
+FALLBACK 1: If X fails, try tool Y
+FALLBACK 2: If Y fails, try manual approach
+FINAL: If all fail, report and provide workaround
+```
+
+<example>
+**File creation fallbacks:**
+1. **Primary**: `write_file` tool
+2. **Fallback 1**: `run_terminal_cmd("cat > file << 'EOF'...")`
+3. **Fallback 2**: Output content for user to save manually
+</example>
+
+---
+
+### Recovery Pattern 3: Graceful Degradation
+
+**Use when:** Full solution impossible but partial solution valuable.
+
+**Principle:** Deliver maximum value despite limitations.
+
+```text
+IDEAL: Complete feature with tests and documentation
+DEGRADED 1: Feature works, tests exist, no docs
+DEGRADED 2: Feature works, no tests (note: needs testing)
+DEGRADED 3: Partial feature, clearly documented what's missing
+MINIMUM: Clear explanation of blocker and next steps
+```
+
+<example>
+"Implementing search feature:
+- ✅ Basic text search working
+- ⚠️ Fuzzy search skipped (dependency unavailable)
+- ❌ Advanced filters blocked (API limitation)
+
+Delivered: Basic search. Documented blockers for remaining features."
+</example>
+
+---
+
+### Recovery Pattern 4: Explicit Assumption Declaration
+
+**Use when:** Missing information requires assumptions.
+
+```text
+When information is missing:
+1. State what information is missing
+2. Declare assumption being made
+3. Explain reasoning for assumption
+4. Proceed with explicit assumption
+5. Note how to adjust if assumption is wrong
+```
+
+<example>
+"**Missing info**: Database schema for users table not provided.
+**Assumption**: Using standard schema with id, email, password_hash, created_at.
+**Reasoning**: Common pattern, matches User model in codebase.
+**If wrong**: Adjust the migration script to match actual schema."
+</example>
+
+---
+
+### Error Communication Template
+
+```text
+**Error Encountered**: [specific error message/description]
+
+**Context**: [what was being attempted]
+
+**Impact**: [what this prevents]
+
+**Recovery Attempted**: [what was tried]
+
+**Status**: [resolved/workaround applied/blocked]
+
+**Next Steps**: [what user can do, or what agent will try next]
+```
+
+---
+
+## Multi-turn Conversation Management
+
+**Purpose:** Strategies for maintaining coherence and context across multi-turn conversations
+**When to use:** When designing agents for interactive, multi-step tasks
+**Related sections:** [Context Window Management](#context-window-management), [Agent Loop Patterns](#agent-loop-patterns)
+
+---
+
+### Multi-turn Challenges
+
+1. **Context drift** — conversation gradually loses focus
+2. **State confusion** — unclear what has been done vs pending
+3. **Instruction decay** — early instructions forgotten
+4. **Assumption accumulation** — implicit context becomes unclear
+
+---
+
+### Pattern 1: State Tracking Header
+
+**Principle:** Maintain explicit state header that updates each turn.
+
+```text
+[CONVERSATION STATE]
+Original goal: [initial user request]
+Current phase: [where we are in the process]
+Completed: [what's done]
+Pending: [what remains]
+Blockers: [any issues]
+Last action: [most recent action taken]
+```
+
+<example>
+**Turn 5 state:**
+```text
+[CONVERSATION STATE]
+Original goal: Implement user authentication system
+Current phase: Implementation - JWT token generation
+Completed: ✓ User model, ✓ Password hashing, ✓ Login endpoint
+Pending: Token refresh, Logout endpoint, Tests
+Blockers: None
+Last action: Created JWT utility functions in auth/jwt.py
+```
+</example>
+
+---
+
+### Pattern 2: Periodic Summarization
+
+**Principle:** At key points, summarize progress and reset context.
+
+**When to summarize:**
+- Every 5-10 turns
+- At phase transitions
+- When user asks "where are we?"
+- Before major decisions
+
+**Summary format:**
+```text
+[PROGRESS SUMMARY - Turn N]
+
+**Accomplished:**
+- [list of completed items]
+
+**Current state:**
+- [description of where we are]
+
+**Remaining:**
+- [list of pending items]
+
+**Key decisions made:**
+- [important choices that affect future work]
+```
+
+---
+
+### Pattern 3: Reference Anchoring
+
+**Principle:** Create clear references for important decisions/artifacts.
+
+<example>
+"Created authentication module. Reference: **AUTH-MODULE**
+
+Later turns can refer to:
+'Updating **AUTH-MODULE** to add rate limiting...'"
+</example>
+
+**Benefits:**
+- Clear references across turns
+- Easier to track what's being modified
+- Reduces ambiguity about which code/file
+
+---
+
+### Pattern 4: Explicit Context Requests
+
+**Principle:** When context is stale, request refresh rather than assume.
+
+```text
+"Before proceeding, I should verify the current state.
+[Reading current implementation...]
+
+Confirmed: File X has been modified with Y changes.
+Proceeding with next step..."
+```
+
+---
+
+### Turn Management Anti-Patterns
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Assume previous context** | "Continuing from where we left off" without verification | Explicitly check current state |
+| **Infinite history** | Loading all previous turns | Summarize + keep recent |
+| **No state tracking** | Losing track of what's done | Maintain explicit state |
+| **Zombie tasks** | Tasks mentioned but never completed/cancelled | Regular status review |
+| **Context assumptions** | "As I mentioned earlier..." for things not in context | Re-state important points |
+
+---
+
 ## Sources
 
 ### Official Documentation
@@ -2686,4 +3639,8 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 ## End of Knowledge Base
 
 *Last updated: November 2025*
-*Version: 1.1*
+*Version: 1.2*
+
+### Version History
+- **1.2** (Nov 2025): Added 6 new sections: Nudging Techniques, Context Window Management, Instruction Hierarchy, Prompt Chaining, Error Recovery, Multi-turn Management. Added 3 new categories to Map.
+- **1.1** (Nov 2025): Initial structured knowledge base

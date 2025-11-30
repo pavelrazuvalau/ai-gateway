@@ -11,8 +11,6 @@
 **Current Phase:** Phase X  
 **Current Step:** Step X.Y  
 **Last Update:** YYYY-MM-DD  
-**Execution Mode:** step-by-step | autonomous  
-**Note:** Execution Mode defaults to step-by-step. Use autonomous mode only when explicitly requested by the user.  
 **How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
 
 ---
@@ -219,30 +217,18 @@ This artifact is part of a system of 4 required artifacts that work together:
 - QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
 - SESSION_CONTEXT tracks current PLAN phase/step and active questions
 
-**Execution Modes:**
+**Execution:**
 
-**CRITICAL:** By default, work step-by-step with stops after each step/phase. Autonomous mode is allowed ONLY when explicitly requested by the user.
+**CRITICAL:** Work step-by-step with stops after each step/phase. Wait for explicit user confirmation before proceeding to the next step.
 
-**How to determine execution mode:**
-1. Check PLAN metadata field "Execution Mode" (if present)
-2. Check user instructions for explicit request (e.g., "execute autonomously", "autonomous mode", "run all steps", "выполни автономно")
-3. Default: step-by-step mode
-
-**Step-by-Step Mode (default):**
+**Step-by-Step Execution:**
 - Stop after each step/phase
 - Wait for explicit user confirmation before proceeding to the next step
 - Provide clear final results and indicate next step from PLAN
 - Update PLAN metadata after each step completion
 
-**Autonomous Mode (ONLY by explicit user command):**
-- Continue without stops between steps
-- Provide brief summary after each step
-- Provide detailed summary after each phase
-- Stop only at blockers or explicit user request
-- Update PLAN metadata after each step/phase (as appropriate)
-
 **When to update artifacts:**
-- **PLAN**: When step status changes, when starting/completing steps, when blocked, when execution mode changes
+- **PLAN**: When step status changes, when starting/completing steps, when blocked
 - **CHANGELOG**: When step completes, when question is resolved, when approach changes
 - **QUESTIONS**: When creating new question, when answering question
 - **SESSION_CONTEXT**: When starting step, when discovering blocker, when completing step, when making intermediate decisions

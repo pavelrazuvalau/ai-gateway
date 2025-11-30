@@ -9,8 +9,6 @@
 **How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
 
 **Universal Usage:**
-- **Simplified Workflow**: Primary artifact (only artifact needed for trivial tasks)
-- **Full Workflow**: Short-term memory during planning (intermediate results) and execution (current state)
 - **Planning Phase**: Store intermediate analysis results (temporary, cleared after planning)
 - **Execution Phase**: Track current work state (only current step, cleared after step completion)
 
@@ -40,12 +38,10 @@
 ## Current Session
 
 **Quick Reference:** 
-- **For Simplified Workflow**: This is the primary artifact (no PLAN needed for trivial tasks)
-- **For Full Workflow**: This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
+- This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
 - For full instructions on working with this artifact, see "🤖 Instructions for AI agent" section at the end of this document.
 
 **Date:** YYYY-MM-DD  
-**Task Type:** [Trivial | Complex]  
 **Focus:** [Current session focus]  
 **Goal:** [Session goal]
 
@@ -119,10 +115,6 @@
 - **CHANGELOG:** Reference to last entry (only link, NOT full entry content)
 
 **Short-term Memory Principle:** Store only references/links to artifacts, NOT full information. Full information is in artifacts themselves (long-term memory).
-
-**For Simplified Workflow:**
-- No PLAN exists (this is the primary artifact)
-- Add links to related files or code (include only if they are relevant to the current task and used right now)
 
 ---
 
@@ -231,8 +223,7 @@
 - **Cleanup mandatory**: After step completion → check criticality → **FIX critical info to long-term memory** (CHANGELOG/PLAN/QUESTIONS) → clear all temporary data
 
 **Update this file during work (both planning and execution phases)**
-- **For Simplified Workflow**: This is the primary artifact - contains all task information
-- **For Full Workflow**: This is short-term memory - complements PLAN, CHANGELOG, QUESTIONS (long-term memory)
+- This is short-term memory - complements PLAN, CHANGELOG, QUESTIONS (long-term memory)
 - **Minimize context clutter**: Store only information used RIGHT NOW in current step
 - **⚠️ CRITICAL: Cleanup after step completion**: Check criticality → **FIX critical info to long-term memory** (PLAN/CHANGELOG/QUESTIONS) → remove all temporary information
 - Maximum 5 entries in "Last Actions" (only for current work context)
@@ -260,32 +251,23 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
 
 **Artifact System Overview:**
 
-**Universal Usage:**
-- **Simplified Workflow**: SESSION_CONTEXT is the primary artifact (no PLAN, CHANGELOG, or QUESTIONS needed for trivial tasks)
-- **Full Workflow**: SESSION_CONTEXT is part of a 4-artifact system that works together:
-  1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
-  2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-  3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
-  4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
+SESSION_CONTEXT is part of a 4-artifact system that works together:
+1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
+2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
+3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
+4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
 
 **Artifact Relationships:**
-- **For Full Workflow**:
-  - PLAN references blockers in QUESTIONS and recent changes in CHANGELOG
-  - CHANGELOG entries link to PLAN steps and related questions in QUESTIONS
-  - QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
-   - SESSION_CONTEXT tracks current PLAN phase/step (only reference, not full plan) and current blocking question (only reference, not all questions)
-- **For Simplified Workflow**:
-  - SESSION_CONTEXT contains all task information (task description, files to change, action plan)
-  - No other artifacts needed
+- PLAN references blockers in QUESTIONS and recent changes in CHANGELOG
+- CHANGELOG entries link to PLAN steps and related questions in QUESTIONS
+- QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
+- SESSION_CONTEXT tracks current PLAN phase/step (only reference, not full plan) and current blocking question (only reference, not all questions)
 
 **When to update artifacts:**
-- **For Full Workflow**:
-  - **PLAN**: When step status changes, when starting/completing steps, when blocked
-  - **CHANGELOG**: When step completes, when question is resolved, when approach changes
-  - **QUESTIONS**: When creating new question, when answering question
-   - **SESSION_CONTEXT**: During planning (intermediate analysis results, cleared after planning), when starting step (only current step info), when discovering blocker (only current blocker), when completing step (cleanup and **FIX critical info to long-term memory**), when making intermediate decisions (only decisions for current step)
-- **For Simplified Workflow**:
-  - **SESSION_CONTEXT**: When gathering context, when making changes, when completing task
+- **PLAN**: When step status changes, when starting/completing steps, when blocked
+- **CHANGELOG**: When step completes, when question is resolved, when approach changes
+- **QUESTIONS**: When creating new question, when answering question
+- **SESSION_CONTEXT**: During planning (intermediate analysis results, cleared after planning), when starting step (only current step info), when discovering blocker (only current blocker), when completing step (cleanup and **FIX critical info to long-term memory**), when making intermediate decisions (only decisions for current step)
 
 **How to read artifacts (created from this template):**
 1. Check "Current Session" for current focus and goal
@@ -298,32 +280,8 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
 
 **How to update artifacts (created from this template):**
 
-**For Simplified Workflow:**
-1. When gathering context → update:
-   - "Current Session": Date, Task Type (Trivial), Focus, Goal
-   - "Active Context": Files analyzed, context gathered
-   - "Analysis Context": Files analyzed, search queries used, directions explored, key findings
-   - "Temporary Notes": Key findings from analysis
-2. When creating action plan → update:
-   - "Next Steps": Simple action plan (1-3 steps)
-   - "Active Context": Files to be changed
-3. When making changes → update:
-   - "Work State": Add action with status
-   - "Active Context": Update with changes made
-4. When completing task → cleanup (Short-term Memory cleanup principle):
-   - **⚠️ CRITICAL: Short-term memory loses information without fixation**
-   - **MANDATORY**: Check criticality of all information (needed for justification?)
-   - **MANDATORY**: **FIX critical information to long-term memory** (CHANGELOG/PLAN/QUESTIONS)
-   - **MANDATORY**: Remove all temporary information (after fixing critical info to long-term memory)
-   - Without fixation - information is **lost forever**
-   - **MANDATORY**: Clear "Temporary Notes" and "Intermediate Decisions" (after fixing critical info to long-term memory)
-   - **MANDATORY**: Clear "Analysis Context"
-   - **MANDATORY**: Clear "Files in Focus"
-   - Leave only artifact links if needed for future reference (only links, not content)
-
-**For Full Workflow:**
 1. During planning (intermediate results) → update:
-   - "Current Session": Date, Task Type (Complex), Focus, Goal
+   - "Current Session": Date, Focus, Goal
    - "Analysis Context": Files analyzed, search queries used, directions explored, key findings (CRITICAL: show where you're looking)
    - "Temporary Notes": Analysis findings
    - "Intermediate Decisions": Decisions made during analysis
@@ -398,18 +356,12 @@ When updating this artifact, especially for large sections, follow these technic
 **For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (planning agent or execution agent) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **Update triggers:**
-- **For Simplified Workflow**:
-  - Gathering context (store analysis results)
-  - Creating action plan (document plan)
-  - Making changes (track progress)
-  - Completing task (cleanup)
-- **For Full Workflow**:
-  - During planning (store intermediate analysis results)
-  - Starting new step (add current task focus)
-  - Discovering blocker (document blocker state)
-  - Completing step (prepare for cleanup)
-  - Making intermediate decision (document decision)
-  - Significant context change (update active context when files in focus change or target structure changes)
+- During planning (store intermediate analysis results)
+- Starting new step (add current task focus)
+- Discovering blocker (document blocker state)
+- Completing step (prepare for cleanup)
+- Making intermediate decision (document decision)
+- Significant context change (update active context when files in focus change or target structure changes)
 
 **When to use this file:**
 - When checking current work state

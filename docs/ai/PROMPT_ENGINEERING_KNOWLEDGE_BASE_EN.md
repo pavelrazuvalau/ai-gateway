@@ -2110,6 +2110,594 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ---
 
+---
+
+<a id="guard-rails-for-planning"></a>
+
+## 📋 Guard Rails for Planning
+
+**Purpose:** Define principles and guard rails for planning system prompts, preventing over-planning and analysis paralysis  
+**When to use:** When creating/improving system prompts for task planning, codebase analysis, preventing over-optimization during planning  
+**Related sections:** [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects), [When to Stop](#when-to-stop), [Sufficient Quality Gateway](#sufficient-quality-gateway)
+
+**📌 Note:** Core "good enough" principles, priority system (🔴 🟡 🟢 ⚪), and stopping criteria are described in [When to Stop](#when-to-stop). This section focuses on applying these principles to the planning and analysis phase.
+
+---
+
+### "Good Enough" Analysis Principle
+
+**Principle:**
+- Sufficient analysis is more important than exhaustive analysis
+- 80% understanding from 20% effort (Pareto principle)
+- Focus on main components and key dependencies, not all details
+
+**For AI Agent:**
+```
+✅ CORRECT: Identify main components and key dependencies for task completion
+❌ INCORRECT: Try to analyze all files, all patterns, all edge cases
+
+✅ CORRECT: Analysis sufficient for plan creation (85-90%+ coverage)
+❌ INCORRECT: Endless analysis seeking 100% understanding
+```
+
+---
+
+### Guard Rails: Over-Planning Prevention
+
+#### Analysis Stopping Criteria
+
+**STOP analysis if:**
+- ✅ Main components identified (key system components, not all)
+- ✅ Key dependencies understood (critical relationships, not all)
+- ✅ Project structure studied (sufficient for planning, not exhaustive)
+- ✅ Task broken into phases (clear execution path, not over-complicated)
+- ✅ 85-90%+ coverage of main aspects
+
+**DO NOT STOP only if:**
+- ❌ Critical gaps exist (🔴 - blocking issues)
+- ❌ Main components NOT identified
+- ❌ Key dependencies NOT understood
+
+#### Planning Stopping Criteria
+
+**STOP planning if:**
+- ✅ Phases defined with clear goals
+- ✅ Steps are actionable (can be executed)
+- ✅ No critical blockers (🔴)
+- ✅ 85-90%+ coverage of main scenarios
+
+---
+
+### Anti-Patterns for Planning
+
+**❌ Over-Analysis:**
+- Analyzing all files when main components are already clear
+- Seeking 100% understanding when 85-90% is sufficient
+- Deep dive into edge cases before main scenarios
+
+**❌ Over-Planning:**
+- Detailing steps that are already clear
+- Planning for all possible edge cases
+- Seeking perfect plan instead of good enough
+
+**❌ Analysis Paralysis:**
+- Unable to continue because analysis is "not complete"
+- Constantly finding new things to analyze
+- Postponing plan creation due to perceived gaps
+
+**Key principle:** "Good enough" plan created quickly is better than "perfect" plan that will never be completed.
+
+---
+
+<a id="file-operations-research"></a>
+
+## 🔧 Research: File Operations Strategies
+
+**Purpose:** Describe optimized file operations strategies for standard development tools in system prompts  
+**When to use:** When optimizing file and codebase operations, when working with large files  
+**Related sections:** [Best Practices](#best-practices)
+
+---
+
+### File Operations Strategies for Standard Development Tools
+
+#### 1. Reading Large Files
+
+**Problem:** Reading entire large file (> 2000 lines, many sections) takes a lot of context and is inefficient.
+
+**Strategy: Reading by chunks via file reading tool with offset/limit parameters**
+
+**Procedure:**
+
+**Option A: If file has markers (section headers, anchor links, end markers):**
+1. **Use exact search tool to find needed section:**
+   - Search anchor links: use search tool with pattern `"id=\"anchor-name\""`
+   - Search section headers: use search tool with pattern `"## Section Name"`
+2. **Read only needed parts via file reading tool with offset/limit**
+
+**Option B: If file has NO markers (code without structured headers):**
+1. **Use exact search tool to find specific text/code:**
+   - Search functions/classes: use search tool with pattern `"def function_name|class ClassName"`
+2. **Use semantic search tool for meaning-based search**
+3. **Read context around found location via file reading tool with offset and limit parameters**
+
+#### 2. Finding Insertion Location
+
+**Problem:** In large file, it's difficult to find location for new content insertion.
+
+**Strategy: Use exact search tool for markers before reading**
+
+#### 3. Precise Modifications in Large Files
+
+**Problem:** Modifying existing content in large file requires precise search and sufficient context.
+
+**Strategy: Search → Read file with offset/limit → Modify file with large context**
+
+---
+
+### Best Practices for Working with Large Files
+
+**"Large file" criteria (after reading via file reading tool):**
+- File > 2000 lines OR
+- File contains many sections/divisions OR
+- File is difficult to navigate without search
+
+⚠️ **Note:** File size in KB is unavailable to model. Use line count or structural characteristics.
+
+**General recommendations:**
+1. **Always use exact search tool first** to find target location before reading
+2. **Read by chunks** via file reading tool with offset/limit instead of reading entire file
+3. **Use large context** (10-20 lines) in file modification tool for uniqueness
+4. **Verify modifications** via file reading tool with offset/limit
+5. **Avoid reading entire file** if only part is needed
+
+---
+
+<a id="output-size-optimization"></a>
+
+## 📏 Output Size Optimization in Tokens
+
+**Purpose:** Define strategies for controlling and optimizing AI agent output size in tokens through system prompts  
+**When to use:** When designing system prompts, when optimizing reports and summaries, when controlling agent response size
+
+---
+
+### Output Size Control Strategies
+
+#### 1. Explicit Instructions About Brevity
+
+**Example instructions:**
+```markdown
+**Output Format:**
+- Be concise and structured
+- Use bullet points for lists
+- Limit summary to 5-7 key points
+- Focus on essential information only
+```
+
+#### 2. Standardized Summary Format
+
+```markdown
+**Summary:**
+- ✅ Files analyzed: [N] files ([list key files])
+- 🔍 Search queries: [N] queries ([list key queries])
+- 📊 Key findings: 
+  - [Finding 1]
+  - [Finding 2]
+  - [Finding 3]
+
+**Next step:** Step [X+1] - [Step name]
+```
+
+#### 3. Information Hierarchy (Executive Summary → Details)
+
+- Use information hierarchy: executive summary → details
+- Executive summary contains only key information
+- Details available in artifacts (plans, changelogs, question lists)
+
+#### 4. Using Links Instead of Duplication
+
+- Use links to artifacts instead of duplicating information
+- Specify sections in artifacts for details
+- Focus on key changes in summary
+
+---
+
+<a id="role-definition-structure"></a>
+
+## 👤 Role Definition in System Prompts: Structure and Components
+
+**Purpose:** Define optimal structure and components for role definition in AI agent system prompts  
+**When to use:** When creating system prompts, when defining agent role, when optimizing "Role and Context" section
+
+---
+
+### Role Definition Components
+
+#### 1. Base Role (Who you are)
+
+**Example:**
+```markdown
+You are an expert software architect with deep knowledge of software engineering best practices, modern development workflows, and various programming languages and technologies.
+```
+
+#### 2. Primary Responsibility
+
+```markdown
+Your primary responsibility is to analyze codebases, understand project structure, and create structured artifacts that break down tasks into actionable phases and steps.
+```
+
+#### 3. Key Responsibilities
+
+```markdown
+**Important**: Your role is to:
+- Analyze available repository files
+- Create structured artifacts based on code analysis
+- Break down tasks into phases and steps
+- Note questions at ANY stage of planning
+- Identify questions and blockers upfront
+```
+
+---
+
+<a id="agent-agnostic-knowledge-base"></a>
+
+## 🤖 Agent-Agnostic Knowledge Base and Coding Agent Tools
+
+**Purpose:** Define universal tools and approaches for creating agent-agnostic knowledge base working with any coding agents and platforms  
+**When to use:** When creating system prompts for different platforms (AWS Bedrock, local agents, cloud services)
+
+---
+
+### Universal Coding Agent Tools
+
+#### Category 1: File Operations
+
+**Universal tools:**
+- **File reading** - `read_file`, `readFile`, `file.read()` - read file contents
+- **File creation** - `write`, `writeFile`, `file.create()` - create new files
+- **File modification** - `search_replace`, `replace`, `file.update()` - modify existing files
+
+#### Category 2: Codebase Search and Analysis
+
+**Universal tools:**
+- **Semantic search** - `codebase_search`, `semanticSearch` - search by meaning
+- **Exact search** - `grep`, `grepSearch` - search by exact match
+- **File search** - `glob_file_search`, `findFiles` - search files by pattern
+- **Structure viewing** - `list_dir`, `listDirectory` - view directory structure
+
+#### Category 3: Validation and Checking
+
+**Universal tools:**
+- **Error checking** - `read_lints`, `checkLints` - check for errors after modifications
+
+---
+
+### Agent-Agnostic Approaches
+
+#### 1. Universal Tool Descriptions
+
+- Use functional descriptions instead of concrete tool names
+- Describe what tool does, not what it's called
+- Provide alternative names if known
+
+#### 2. Conditional Instructions for Optional Tools
+
+- Separate required and optional tools
+- Provide alternative approaches for optional tools
+- Use conditional instructions ("if available")
+
+#### 3. Patterns Instead of Concrete Implementations
+
+- Describe usage patterns, not specific calls
+- Provide examples for different platforms
+- Focus on logic, not syntax
+
+---
+
+<a id="agent-loop-patterns"></a>
+
+## 🔄 Agent Loop Patterns
+
+**Purpose:** Describe structured patterns for iterative task execution by AI agents  
+**When to use:** When designing system prompts for agents that execute multi-step tasks using tools
+
+---
+
+### Basic Agent Loop Pattern
+
+```text
+**Agent Loop:**
+
+1. **Analyze** - Analyze current state and context
+2. **Plan** - Determine next action
+3. **Execute** - Execute ONE action
+4. **Evaluate** - Evaluate result
+5. **Iterate or Stop** - Decision to continue
+   - If goal achieved → STOP
+   - If additional actions needed → return to step 1
+   - If iteration limit exceeded → STOP with message
+```
+
+---
+
+### Key Agent Loop Rules
+
+**1. One tool call per iteration:**
+```
+✅ CORRECT: Execute ONE action → Wait for result → Evaluate → Choose next action
+❌ INCORRECT: Execute multiple actions simultaneously without evaluating results
+```
+
+**2. Explicit exit conditions:**
+```
+✅ CORRECT:
+**Loop termination conditions:**
+- Task completed fully
+- User requested stop
+- Blocking error discovered
+- Iteration limit reached (N)
+- No progress for K iterations
+
+❌ INCORRECT: Continue until done. (without explicit conditions)
+```
+
+---
+
+<a id="system-prompt-consistency"></a>
+
+## ✅ System Prompt Consistency Checklist
+
+**Purpose:** Ensure consistency between system prompts and documentation during updates  
+**When to use:** When updating system prompts, when adding new instructions, when changing common procedures
+
+---
+
+### Consistency Checklist
+
+#### 1. Common Instructions Consistency
+- [ ] Common instructions are identical in all prompts (or reference single source)
+- [ ] Common procedures are consistent
+- [ ] Common rules are uniform
+
+#### 2. Section Structure Consistency
+- [ ] Main section structure is identical in all prompts
+- [ ] Section order is consistent
+- [ ] Section names are uniform
+
+#### 3. Terminology Consistency
+- [ ] Terms are used identically in all prompts
+- [ ] Artifact names are consistent
+- [ ] Procedure names are uniform
+
+#### 4. External Source Reference Consistency
+- [ ] Links to external sources are current and working
+- [ ] Anchor links are correct
+
+#### 5. Version and Metadata Consistency
+- [ ] Prompt versions are updated
+- [ ] Last update dates are current
+
+---
+
+<a id="anti-pattern-file-sizes"></a>
+
+## ⚠️ Anti-Pattern: Mentioning File Sizes in Bytes/Kilobytes in Prompts
+
+**Purpose:** Identify problem of using specific file sizes (KB, bytes) in prompts and propose alternative approaches
+
+---
+
+### Problem: Models Don't Have Access to File Size in Bytes/KB
+
+**Critical problem:**
+- ❌ Models don't have direct access to file metadata (size in bytes/KB)
+- ❌ Models work with **tokens and text**, not physical file sizes
+
+---
+
+### Correct Approach: Structural and Behavioral Characteristics
+
+#### 1. Structural File Characteristics
+
+**✅ CORRECT:**
+- File contains many sections/divisions
+- File has complex structure (many nesting levels)
+- File is difficult to navigate (many sections, complex structure)
+
+**❌ INCORRECT:**
+- File > 10 KB
+- File > 200 lines
+
+#### 2. Behavioral Characteristics
+
+**✅ CORRECT:**
+- Reading entire file is inefficient (only part needed)
+- File is difficult to navigate without search
+- File requires search before reading (many sections)
+
+**❌ INCORRECT:**
+- File is large (> 10 KB)
+- File is long (> 200 lines)
+
+---
+
+<a id="explicit-final-outcomes-anti-pattern"></a>
+
+## ⚠️ Anti-Pattern: Absence of Explicit Final Outcomes and Next Step from Plan
+
+**Purpose:** Identify problem of absent explicit final outcomes in instructions and propose solutions
+
+---
+
+### Problem: Agent May Invent Next Step Instead of Following Plan
+
+**Critical problem:**
+- ❌ Instructions contain "Indicate what needs to be done next" - but don't explicitly indicate this should be step **FROM PLAN**
+- ❌ Agent may interpret "next step" as inventing new step based on context
+- ❌ Without explicit final outcomes, agent may invent next step instead of following plan
+
+---
+
+### Correct Approach: Explicit Final Outcomes and Next Step from Plan
+
+**✅ CORRECT:**
+- Specify concrete next step **FROM PLAN** (Phase X, Step Y)
+- Indicate that next step should be from plan, not invented
+- Indicate that if plan doesn't contain next step, work is complete
+
+**❌ INCORRECT:**
+- "Indicate what needs to be done next" (without indicating it's from plan)
+- "Proceed to next step" (without specifying concrete step from plan)
+
+---
+
+<a id="interactive-questions-with-recommendations"></a>
+
+## 💬 Interactive Questions with Recommendations and Answer Markup
+
+**Purpose:** Define practices for creating questions with answer options, recommendations, and interactive markup for direct user response in artifact
+
+---
+
+### Correct Approach: Answer Options with Recommendations
+
+#### 1. Context Analysis Before Creating Question
+
+**✅ CORRECT:**
+- Analyze available context (code, documentation, artifacts)
+- Determine if can answer based on context
+- If can partially answer → propose options based on analysis
+- If cannot answer → explicitly indicate user input is needed
+
+#### 2. Answer Options Based on Context Analysis
+
+**✅ CORRECT:**
+- Propose minimum 2-3 answer options based on context analysis
+- Each option should have: Brief description, Pros, Cons, When applicable
+- If cannot propose options based on context → explicitly indicate "User input required"
+
+#### 3. Mandatory Recommendation with Rationale
+
+**✅ CORRECT:**
+- Always indicate recommended option (if can determine based on context)
+- Provide clear rationale for recommendation
+- Indicate confidence level in recommendation
+
+---
+
+<a id="date-determination-issue"></a>
+
+## ⚠️ Date Determination Problem for AI Agents
+
+**Purpose:** Identify the problem of current date determination by AI agents and propose solution  
+**When to use:** When creating/updating artifacts with date fields, when working with templates containing date placeholders  
+**Related sections:** [Working with Tools and Creating Files](#file-creation-best-practices), [Best Practices](#best-practices), [Using Templates in Prompts](#template-usage)
+
+**Context:** AI agents don't have direct access to current system date and may incorrectly determine date when creating/updating artifacts, using outdated dates from context or leaving placeholders.
+
+---
+
+### Problem: Agents Don't Have Access to Current Date
+
+**Problem essence:**
+- AI agents don't have direct access to current system date
+- Artifact templates use placeholder `YYYY-MM-DD`
+- System prompts may contain outdated dates in metadata
+- Agents may use outdated dates from context instead of real date
+
+**Consequences:**
+1. Agents may leave `YYYY-MM-DD` as is (not replace placeholder)
+2. Agents may use outdated date from context (e.g., from system prompts)
+3. Agents may guess date incorrectly
+4. Date inconsistency across different artifacts
+
+---
+
+### Solution: Use `date` Command in Terminal
+
+**Procedure:**
+1. **Before creating/updating artifact with date:**
+   - Execute command: `date +%Y-%m-%d`
+   - Get current date in `YYYY-MM-DD` format
+2. **Replace placeholder:**
+   - Find all `YYYY-MM-DD` occurrences in artifact
+   - Replace with obtained date
+3. **Verify correctness:**
+   - Ensure date is in `YYYY-MM-DD` format
+   - Ensure `YYYY-MM-DD` placeholder is not left in artifact
+   - Ensure date is not outdated
+
+**Example:**
+```bash
+# Step 1: Get current date
+date +%Y-%m-%d
+# Output: 2024-01-15 (example)
+
+# Step 2: Replace in artifact
+**Date:** YYYY-MM-DD → **Date:** 2024-01-15
+```
+
+---
+
+### Rules for Agents
+
+**CRITICAL:** When creating/updating artifacts with date field:
+
+1. **ALWAYS** use `date +%Y-%m-%d` command to get current date
+2. **DO NOT use** dates from context (system prompts, knowledge base, other artifacts)
+3. **DO NOT leave** placeholder `YYYY-MM-DD` as is
+4. **REPLACE** `YYYY-MM-DD` with real date in `YYYY-MM-DD` format
+
+**Checklist:**
+- [ ] Execute `date +%Y-%m-%d` to get current date
+- [ ] Replace all `YYYY-MM-DD` with obtained date
+- [ ] Verify date is in `YYYY-MM-DD` format
+- [ ] Ensure date is not outdated (not from context)
+- [ ] Verify `YYYY-MM-DD` placeholder is not left in artifact
+
+---
+
+### Correct and Incorrect Usage Examples
+
+**✅ Correct:**
+```bash
+# Get current date
+date +%Y-%m-%d
+# Output: 2024-01-15
+
+# Replace in artifact
+**Date:** 2024-01-15
+```
+
+**❌ Incorrect:**
+```markdown
+# Leave placeholder
+**Date:** YYYY-MM-DD
+
+# Use outdated date from context
+**Date:** 2023-06-15
+
+# Guess date
+**Date:** 2024-01-01
+```
+
+---
+
+### Application to Artifacts
+
+**CHANGELOG:**
+- Entry headers: `## YYYY-MM-DD - Phase X, Step X.Y` → `## 2024-01-15 - Phase X, Step X.Y`
+- Metadata: `**Last Adaptation Date:** YYYY-MM-DD` → `**Last Adaptation Date:** 2024-01-15`
+
+**SESSION_CONTEXT:**
+- Metadata: `**Date:** YYYY-MM-DD` → `**Date:** 2024-01-15`
+
+**PLAN:**
+- Metadata: if contains date, replace `YYYY-MM-DD` with real date
+
+---
+
 ## 📚 Sources
 
 ### Official Documentation
@@ -2117,6 +2705,9 @@ If task seems complex → use Full Workflow (without clear criteria)
 - [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering)
 - [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering)
 - [The Prompt Canvas: A Literature-Based Practitioner Guide](https://arxiv.org/abs/2412.05127)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
+- [Awesome AI System Prompts](https://github.com/dontriskit/awesome-ai-system-prompts)
+- [The Prompt Report: A Systematic Survey of Prompting Techniques](https://arxiv.org/abs/2406.06608)
 
 ### Software Development Principles
 
@@ -2124,10 +2715,13 @@ If task seems complex → use Full Workflow (without clear criteria)
 - [Analysis Paralysis](https://en.wikipedia.org/wiki/Analysis_paralysis)
 - [Pareto Principle (80/20 Rule)](https://en.wikipedia.org/wiki/Pareto_principle)
 - [YAGNI Principle](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)
+- [SOLID Principles](https://refactoring.guru/design-patterns/solid-principles)
+- [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
+- [Adaptive Planning](https://en.wikipedia.org/wiki/Adaptive_planning)
 
 ---
 
-## End of Knowledge Base
+## 🔚 End of Knowledge Base
 
 This document is actively maintained and updated based on practical experience and new research in the field of prompt engineering.
 

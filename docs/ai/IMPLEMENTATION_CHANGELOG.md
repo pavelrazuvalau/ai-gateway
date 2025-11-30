@@ -45,7 +45,7 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - [Measurable result 1]
 - [Measurable result 2]
 
-**Related:** QX.Y in @*_QUESTIONS.md (if any)
+**Related:** QX.Y in @*_QUESTIONS.md (include this field only if question exists for this step)
 ```
 
 **Required fields:**
@@ -54,7 +54,7 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - Changes: Specific files with changes (use backticks for file paths)
 - Why this solution: Explanation with alternatives considered
 - Result: Measurable/verifiable outcomes
-- Related: Links to questions if applicable
+- Related: Links to questions (include this field only if question exists for this entry)
 
 ### ❌ Stopped Entry Format
 
@@ -81,7 +81,7 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - Reason for blocking
 - Blocker type (use blocker type icons)
 - Created question (link to QUESTIONS)
-- Completed before blocking (if any)
+- Completed before blocking: List all partial work completed before blocker was discovered (include this field only if partial work exists)
 - Expected actions
 
 ### 🔧 Approach Changed Entry Format
@@ -107,7 +107,7 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - Original plan
 - Why changed (rationale)
 - New approach
-- Related questions (if any)
+- Related questions: QX.Y in @*_QUESTIONS.md (include this field only if question exists for this entry)
 
 ### 📐 Formatting Reference
 
@@ -152,13 +152,20 @@ Your job is to COPY this entire section into the artifact as-is, at the end of t
 These instructions will be used later when working with the artifact during execution phase.
 Do NOT follow "How to update" or "When to update" instructions during artifact creation.
 
+**Contract Definition:**
+- This template defines the contract for working with artifacts
+- Template (View layer) = Structure and formatting rules
+- Artifact (Model layer) = Data + Copied instructions (self-sufficient)
+- Instructions in this section define how to work with artifacts
+- Model follows contract: uses artifacts according to instructions, generates responses in expected format
+
 **Artifact System Overview:**
 
 This artifact is part of a system of 4 required artifacts that work together:
 
 1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
 2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-3. **QUESTIONS** (`*_QUESTIONS.md`) - Knowledge base for doubts and solutions. Contains active questions (blockers) and resolved questions.
+  3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
 4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
 
 **Artifact Relationships:**
@@ -193,12 +200,12 @@ This artifact is part of a system of 4 required artifacts that work together:
    - Changes (specific files with changes)
    - Why this solution (explanation with alternatives considered)
    - Result (measurable/verifiable outcomes)
-   - Related (links to questions if any)
+   - Related: QX.Y in @*_QUESTIONS.md (include this field only if question exists for this entry)
 4. Entry types:
    - ✅ Completed: Step completed successfully
    - ❌ Stopped: Work stopped due to blocker (include reason, question link)
    - 🔧 Approach Changed: Initial approach changed (include original plan, why changed, new approach)
-5. Add links to related questions (if any):
+5. Add links to related questions (only if question exists for this entry):
    - Format: `QX.Y in @*_QUESTIONS.md`
 6. Update index by phases/steps:
    - Add entry to index section
@@ -232,7 +239,7 @@ When updating this artifact, especially for long lists of entries, follow these 
    - If verification fails → retry with the same entry (maximum 1-2 times)
    - If after 1-2 attempts entry not added → continue with next entry (do not block entire process)
 
-**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (planning agent or execution agent) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **When to use this file:**
 - When checking history of completed changes

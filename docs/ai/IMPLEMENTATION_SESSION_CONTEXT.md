@@ -10,9 +10,30 @@
 
 **Universal Usage:**
 - **Simplified Workflow**: Primary artifact (only artifact needed for trivial tasks)
-- **Full Workflow**: Operational memory during planning (intermediate results) and execution (current state)
-- **Planning Phase**: Store intermediate analysis results
-- **Execution Phase**: Track current work state
+- **Full Workflow**: Short-term memory during planning (intermediate results) and execution (current state)
+- **Planning Phase**: Store intermediate analysis results (temporary, cleared after planning)
+- **Execution Phase**: Track current work state (only current step, cleared after step completion)
+
+**⚠️ CRITICAL: Short-term Memory (SESSION_CONTEXT) - Poor Memory**
+- Information in SESSION_CONTEXT **is lost** without fixation to long-term memory
+- Long-term memory (PLAN, CHANGELOG, QUESTIONS) - **very good**, can recall details
+- **ALWAYS** fix important information to long-term memory
+- Without fixation - information is **lost forever**
+
+**Short-term Memory Principles:**
+- **Only active data**: Store only information used in current step/operation
+- **⚠️ Poor memory**: Information is lost without fixation to long-term memory
+- **Temporary storage**: Clear after step completion (FIX critical info to long-term memory first)
+- **Limited volume**: Only minimum necessary for current work
+- **Current operation only**: No history, no future steps, no completed work
+- **Fast access**: Quick reference to current context only
+
+**What NOT to store (this is in other artifacts):**
+- ❌ History of all actions (this is in CHANGELOG)
+- ❌ All questions (this is in QUESTIONS)
+- ❌ Full plan (this is in PLAN)
+- ❌ Information about completed steps (this is in CHANGELOG)
+- ❌ Information about future steps (this is in PLAN)
 
 ---
 
@@ -54,7 +75,7 @@
 
 ## Analysis Context (Where Agent is Looking)
 
-**Purpose**: This section provides visibility into where the agent is looking for information, what files are being analyzed, and what search queries are being used. This is critical for developers to understand the agent's focus and provide guidance if needed.
+**Purpose**: This section provides visibility into where the agent is looking for information, what files are being analyzed, and what search queries are being used. This is critical for developers to understand the agent's focus and provide guidance when the agent is looking in wrong places or missing important context.
 
 ### Files Analyzed
 - `file1.[ext]` - [what was analyzed, what was found]
@@ -93,13 +114,15 @@
 ## Artifact Links
 
 **For Full Workflow only:**
-- **PLAN:** Phase X, Step Y
-- **QUESTIONS:** [Active questions if any]
-- **CHANGELOG:** Last entry - Phase X, Step Y
+- **PLAN:** Phase X, Step Y (only reference to current step, NOT full plan information)
+- **QUESTIONS:** Only current blocking question (QX.Y) if exists. If no blocking question exists, write "No blocking question"
+- **CHANGELOG:** Reference to last entry (only link, NOT full entry content)
+
+**Short-term Memory Principle:** Store only references/links to artifacts, NOT full information. Full information is in artifacts themselves (long-term memory).
 
 **For Simplified Workflow:**
 - No PLAN exists (this is the primary artifact)
-- Add links to related files or code if needed
+- Add links to related files or code (include only if they are relevant to the current task and used right now)
 
 ---
 
@@ -138,17 +161,17 @@
 **Temporary Notes:**
 - Bullet list format
 - Clear when step completes
-- Move to CHANGELOG when step completes (all temporary notes and decisions should be moved)
+- **FIX to long-term memory** (CHANGELOG) when step completes (all temporary notes and decisions should be fixed to long-term memory)
 
 **Intermediate Decisions:**
 - Format: `- [Decision] - [rationale]`
 - Document decisions made during work
-- Move to CHANGELOG when step completes (all temporary notes and decisions should be moved)
+- **FIX to long-term memory** (CHANGELOG) when step completes (all temporary notes and decisions should be fixed to long-term memory)
 
-**Artifact Links:**
-- PLAN: Phase X, Step Y
-- QUESTIONS: List active questions if any
-- CHANGELOG: Last entry - Phase X, Step Y
+**Artifact Links (Short-term Memory Principle - only references, not full information):**
+- PLAN: Phase X, Step Y (only reference to current step)
+- QUESTIONS: Only current blocking question (QX.Y) if exists
+- CHANGELOG: Reference to last entry (only link, not content)
 
 **Next Steps:**
 - Bullet list format
@@ -179,7 +202,7 @@
 **Anchor Generation Rules**:
 - Markdown automatically creates anchors from headings
 - Format: lowercase, spaces converted to hyphens, special characters removed
-- Example: `#### Step 4.3: E2E тесты` → anchor `#step-43-e2e-тесты`
+- Example: `#### Step 4.3: E2E Tests` → anchor `#step-43-e2e-tests`
 - For headings with special characters, use the exact heading text and let Markdown generate the anchor
 
 **Usage**:
@@ -188,16 +211,31 @@
 
 **Important**: Always verify anchor links point to existing headings in the artifact.
 
-## Work Rules
+## Work Rules (Short-term Memory Principles)
 
-- Update this file during work (both planning and execution phases)
+**⚠️ CRITICAL: Short-term Memory (SESSION_CONTEXT) - Poor Memory**
+- Information in SESSION_CONTEXT **is lost** without fixation to long-term memory
+- Long-term memory (PLAN, CHANGELOG, QUESTIONS) - **very good**, can recall details
+- **ALWAYS** fix important information to long-term memory
+- Without fixation - information is **lost forever**
+
+**Short-term Memory Rules:**
+- **Only current step**: Store only information needed for current step/operation
+- **⚠️ Poor memory**: Information is lost without fixation to long-term memory
+- **Temporary storage**: All information is temporary, cleared after step completion
+- **Limited volume**: Maximum 5 entries in "Last Actions", only files in current focus
+- **No history**: Do not store information about completed steps (this is in CHANGELOG - long-term memory)
+- **No future**: Do not store information about future steps (this is in PLAN - long-term memory)
+- **No duplicates**: Do not duplicate information from other artifacts (use links/references only)
+- **⚠️ CRITICAL: Before deletion → check criticality → if critical for justification → FIX to long-term memory (PLAN/CHANGELOG/QUESTIONS) → then delete**
+- **Cleanup mandatory**: After step completion → check criticality → **FIX critical info to long-term memory** (CHANGELOG/PLAN/QUESTIONS) → clear all temporary data
+
+**Update this file during work (both planning and execution phases)**
 - **For Simplified Workflow**: This is the primary artifact - contains all task information
-- **For Full Workflow**: This is operational memory - complements PLAN, CHANGELOG, QUESTIONS
-- Clear temporary information when task completes or new session starts
-- Use for quick navigation to current context
-- **Minimize context clutter**: Store only current, relevant information
-- **Cleanup after completion**: Remove temporary notes and intermediate decisions after task completion
-- Maximum 5 entries in "Last Actions"
+- **For Full Workflow**: This is short-term memory - complements PLAN, CHANGELOG, QUESTIONS (long-term memory)
+- **Minimize context clutter**: Store only information used RIGHT NOW in current step
+- **⚠️ CRITICAL: Cleanup after step completion**: Check criticality → **FIX critical info to long-term memory** (PLAN/CHANGELOG/QUESTIONS) → remove all temporary information
+- Maximum 5 entries in "Last Actions" (only for current work context)
 
 ---
 
@@ -213,6 +251,13 @@ Your job is to COPY this entire section into the artifact as-is, at the end of t
 These instructions will be used later when working with the artifact during execution phase.
 Do NOT follow "How to update" or "When to update" instructions during artifact creation.
 
+**Contract Definition:**
+- This template defines the contract for working with artifacts
+- Template (View layer) = Structure and formatting rules
+- Artifact (Model layer) = Data + Copied instructions (self-sufficient)
+- Instructions in this section define how to work with artifacts
+- Model follows contract: uses artifacts according to instructions, generates responses in expected format
+
 **Artifact System Overview:**
 
 **Universal Usage:**
@@ -220,7 +265,7 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
 - **Full Workflow**: SESSION_CONTEXT is part of a 4-artifact system that works together:
   1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
   2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-  3. **QUESTIONS** (`*_QUESTIONS.md`) - Knowledge base for doubts and solutions. Contains active questions (blockers) and resolved questions.
+  3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
   4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
 
 **Artifact Relationships:**
@@ -228,7 +273,7 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
   - PLAN references blockers in QUESTIONS and recent changes in CHANGELOG
   - CHANGELOG entries link to PLAN steps and related questions in QUESTIONS
   - QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
-  - SESSION_CONTEXT tracks current PLAN phase/step and active questions
+   - SESSION_CONTEXT tracks current PLAN phase/step (only reference, not full plan) and current blocking question (only reference, not all questions)
 - **For Simplified Workflow**:
   - SESSION_CONTEXT contains all task information (task description, files to change, action plan)
   - No other artifacts needed
@@ -238,7 +283,7 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
   - **PLAN**: When step status changes, when starting/completing steps, when blocked
   - **CHANGELOG**: When step completes, when question is resolved, when approach changes
   - **QUESTIONS**: When creating new question, when answering question
-  - **SESSION_CONTEXT**: During planning (intermediate analysis results), when starting step, when discovering blocker, when completing step, when making intermediate decisions
+   - **SESSION_CONTEXT**: During planning (intermediate analysis results, cleared after planning), when starting step (only current step info), when discovering blocker (only current blocker), when completing step (cleanup and **FIX critical info to long-term memory**), when making intermediate decisions (only decisions for current step)
 - **For Simplified Workflow**:
   - **SESSION_CONTEXT**: When gathering context, when making changes, when completing task
 
@@ -248,7 +293,7 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
 3. Check "Active Context" for files in focus and target structure
 4. **Review "Analysis Context" for visibility into where agent is looking** (files analyzed, search queries, directions explored)
 5. Review "Temporary Notes" and "Intermediate Decisions" for context
-6. Check "Artifact Links" for current phase/step and active questions
+6. Check "Artifact Links" for current phase/step reference and current blocking question reference (not full information)
 7. Review "Next Steps" for immediate actions
 
 **How to update artifacts (created from this template):**
@@ -265,10 +310,16 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
 3. When making changes → update:
    - "Work State": Add action with status
    - "Active Context": Update with changes made
-4. When completing task → cleanup:
-   - Remove all temporary information
-   - Keep only essential results (if needed)
-   - Clear "Temporary Notes" and "Intermediate Decisions"
+4. When completing task → cleanup (Short-term Memory cleanup principle):
+   - **⚠️ CRITICAL: Short-term memory loses information without fixation**
+   - **MANDATORY**: Check criticality of all information (needed for justification?)
+   - **MANDATORY**: **FIX critical information to long-term memory** (CHANGELOG/PLAN/QUESTIONS)
+   - **MANDATORY**: Remove all temporary information (after fixing critical info to long-term memory)
+   - Without fixation - information is **lost forever**
+   - **MANDATORY**: Clear "Temporary Notes" and "Intermediate Decisions" (after fixing critical info to long-term memory)
+   - **MANDATORY**: Clear "Analysis Context"
+   - **MANDATORY**: Clear "Files in Focus"
+   - Leave only artifact links if needed for future reference (only links, not content)
 
 **For Full Workflow:**
 1. During planning (intermediate results) → update:
@@ -276,24 +327,38 @@ Do NOT follow "How to update" or "When to update" instructions during artifact c
    - "Analysis Context": Files analyzed, search queries used, directions explored, key findings (CRITICAL: show where you're looking)
    - "Temporary Notes": Analysis findings
    - "Intermediate Decisions": Decisions made during analysis
-2. After planning complete → update:
-   - "Artifact Links": Link to PLAN (first phase, first step)
-   - "Next Steps": First step from PLAN
+2. After planning complete → cleanup and update:
+   - **MANDATORY**: Check criticality of analysis results (needed for plan justification?)
+   - **MANDATORY**: Move critical analysis results to PLAN (if needed for justification)
+   - **MANDATORY**: Clear "Analysis Context" (planning complete, not needed anymore, after moving critical info)
+   - **MANDATORY**: Check criticality of "Temporary Notes" (needed for plan justification?)
+   - **MANDATORY**: Move critical temporary notes to PLAN (if needed for justification)
+   - **MANDATORY**: Clear "Temporary Notes" (after moving critical info)
+   - "Artifact Links": Link to PLAN (first phase, first step - only reference)
+   - "Next Steps": First step from PLAN (only next step, not all steps)
 3. When starting new step → update:
    - "Current Session": Date, Focus, Goal
    - "Artifact Links": Current PLAN phase/step
    - "Next Steps": Immediate actions
-4. When discovering blocker → document:
-   - "Work State": Add blocker action
-   - "Temporary Notes": Blocker details
-   - "Artifact Links": Link to created question
-5. When completing step → cleanup:
-   - Move relevant info from SESSION_CONTEXT to CHANGELOG
-   - Clear temporary notes (move to CHANGELOG when step completes)
-   - Clear intermediate decisions (move to CHANGELOG when step completes)
-   - Remove completed actions from "Last Actions"
-   - Update "Artifact Links" to reflect completion
-   - Update "Next Steps" for next step
+4. When discovering blocker → document (only current blocker):
+   - "Work State": Add blocker action (only current blocker)
+   - "Temporary Notes": Blocker details (only current blocker, will be moved to CHANGELOG)
+   - "Artifact Links": Link to created question (only current blocking question reference, not all questions)
+5. When completing step → cleanup (Short-term Memory cleanup principle):
+   - **⚠️ CRITICAL: Short-term memory loses information without fixation**
+   - **MANDATORY**: Check criticality of all information (needed for justification of decisions/approach?)
+   - **MANDATORY**: **FIX critical information to long-term memory**:
+     * Temporary notes → **FIX to** CHANGELOG (if critical for "Why this solution")
+     * Intermediate decisions → **FIX to** CHANGELOG (if critical for "Why this solution")
+     * Analysis results → **FIX to** CHANGELOG (if critical for justification)
+   - **MANDATORY**: Clear "Temporary Notes" (after fixing critical info to long-term memory)
+   - **MANDATORY**: Clear "Intermediate Decisions" (after fixing critical info to long-term memory)
+   - Without fixation - information is **lost forever**
+   - **MANDATORY**: Remove completed actions from "Last Actions" (keep only last 5, remove oldest)
+   - **MANDATORY**: Clear "Analysis Context" if not needed for next step (after moving critical info)
+   - **MANDATORY**: Clear "Files in Focus" if files are no longer being edited
+   - Update "Artifact Links" to next step (only reference, not full information)
+   - Update "Next Steps" for next step (only next step, not all future steps)
 6. When making intermediate decision → document:
    - "Intermediate Decisions": Add decision with rationale
 7. Update "Last Actions" (keep last 5):
@@ -330,7 +395,7 @@ When updating this artifact, especially for large sections, follow these technic
    - If verification fails → retry with the same section (maximum 1-2 times)
    - If after 1-2 attempts section not added → continue with next section (do not block entire process)
 
-**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (planning agent or execution agent) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **Update triggers:**
 - **For Simplified Workflow**:
@@ -344,7 +409,7 @@ When updating this artifact, especially for large sections, follow these technic
   - Discovering blocker (document blocker state)
   - Completing step (prepare for cleanup)
   - Making intermediate decision (document decision)
-  - Significant context change (update active context)
+  - Significant context change (update active context when files in focus change or target structure changes)
 
 **When to use this file:**
 - When checking current work state

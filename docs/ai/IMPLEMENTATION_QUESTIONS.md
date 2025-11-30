@@ -4,7 +4,7 @@
 
 **Artifact Version:** 0.2.0  
 **Last Adaptation Date:** YYYY-MM-DD  
-**Purpose:** Knowledge base (doubts and solutions)  
+**Purpose:** Repository for doubts and solutions  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
 **How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
 
@@ -44,9 +44,32 @@
 **Why important:**
 [Explanation of how answer will affect further work]
 
+**Context analysis:**
+- [What was analyzed: code, documentation, artifacts, SESSION_CONTEXT]
+- [What was found: patterns, libraries, existing solutions]
+- [Can answer be determined from context: yes/no/partially]
+
 **Solution options:**
-1. [Option A] - pros/cons
-2. [Option B] - pros/cons
+
+- [ ] **Option 1:** [Description] - pros/cons
+- [x] **⭐ Option 2 (Recommended):** [Description] - pros/cons
+- [ ] **Option 3:** [Description] - pros/cons
+
+**Recommendation and justification:**
+⭐ **Option X is recommended** for the following reasons:
+- **Comparison with Option Y:** [Comparison]
+- **Advantages of recommended option:** [Advantages]
+- **When other options are preferable:** [When other options are better]
+
+**Your answer:**
+- [ ] Use Option 1
+- [x] Use Option 2 - Recommended
+- [ ] Use Option 3
+- [ ] Provide custom answer:
+
+```
+[Place for your answer]
+```
 
 **Status:** ⏳ Pending
 ```
@@ -58,15 +81,32 @@
 - Context: Detailed situation description
 - Question: Specific question text
 - Why important: Impact explanation
-- Solution options: List with pros/cons (at least one option)
+- **Context analysis:** Analysis of available context (code, documentation, artifacts) - MANDATORY
+- **Solution options:** List with interactive checkboxes, pros/cons, when applicable (at least one option) - MANDATORY
+- **Recommendation and justification:** Recommended option with justification through comparison - MANDATORY if options can be proposed based on context
+- **Your answer:** Interactive markup for user response - MANDATORY
 - Status: ⏳ Pending (for active questions)
+
+**Special case: When input from user is required:**
+If context analysis shows that answer cannot be determined from available context, use this format:
+
+```
+**⚠️ User input required:**
+- Context analysis cannot determine the answer
+- Requirements/preferences clarification needed
+- Please provide your answer below:
+
+```
+[Place for your answer]
+```
+```
 
 **Question criteria:**
 - Cannot be resolved by code analysis alone
 - Requires user input, architectural decision, or external information
 - Has clear impact on work progress
 - Has at least one solution option (even if "wait for user")
-- If uncertain and might hallucinate an answer → create question instead
+- If uncertain and risk hallucinating an answer (cannot determine answer from available context) → create question instead of guessing
 
 ### Example: QX.Y: [Question Title] (Phase X, Step Y)
 
@@ -83,15 +123,51 @@
 **Why important:**
 [Explanation of how answer will affect further work]
 
+**Context analysis:**
+- Analyzed codebase: Found existing authentication implementation using JWT tokens in `src/auth/jwt.ts`
+- Analyzed dependencies: OAuth2 library available in `package.json`
+- Analyzed artifacts: No existing API keys implementation found
+- **Can answer be determined from context:** Partially - can propose options based on analysis
+
 **Solution options:**
-1. [Option A] - pros/cons
-2. [Option B] - pros/cons
+
+- [ ] **Option 1: JWT Tokens**
+  - **Pros:** Already used in project, aligns with current architecture, simple integration
+  - **Cons:** Requires token management, may be less secure for some scenarios
+  - **When applicable:** For internal APIs, when simple integration with existing system is needed
+
+- [x] **⭐ Option 2: OAuth2 (Recommended)**
+  - **Pros:** More secure approach, standardized protocol, better for external APIs, library already available
+  - **Cons:** More complex implementation, requires additional configuration
+  - **When applicable:** For external APIs, when high security is needed
+
+- [ ] **Option 3: API Keys**
+  - **Pros:** Simple implementation, easy to use
+  - **Cons:** Less secure approach, no standardization in project
+  - **When applicable:** For internal APIs with low security requirements
+
+**Recommendation and justification:**
+⭐ **Option 2 (OAuth2) is recommended** for the following reasons:
+- **Comparison with Option 1 (JWT):** OAuth2 is more secure for external APIs, although JWT is easier to integrate. For a new external API, security is more important than simplicity.
+- **Comparison with Option 3 (API Keys):** OAuth2 provides a standardized approach, while API Keys are less secure. OAuth2 library is already available in the project.
+- **Advantages of recommended option:** Aligns with best practices for external APIs, library already available, provides high security.
+- **When other options are preferable:** JWT may be preferable if quick implementation for internal API is needed. API Keys may be preferable for simple internal services.
+
+**Your answer:**
+- [ ] Use Option 1 (JWT Tokens)
+- [x] Use Option 2 (OAuth2) - Recommended
+- [ ] Use Option 3 (API Keys)
+- [ ] Provide custom answer:
+
+```
+[Place for your answer]
+```
 
 **Status:** ⏳ Pending
 
 ---
 
-## Answered Questions (knowledge base)
+## Answered Questions
 
 ### Answered Question Format
 
@@ -167,7 +243,7 @@
 **Anchor Generation Rules**:
 - Markdown automatically creates anchors from headings
 - Format: lowercase, spaces converted to hyphens, special characters removed
-- Example: `### Q2.1: E2E тесты - моки провайдеров` → anchor `#q21-e2e-тесты---моки-провайдеров`
+- Example: `### Q2.1: E2E Tests - Provider Mocks` → anchor `#q21-e2e-tests---provider-mocks`
 - For headings with special characters, use the exact heading text and let Markdown generate the anchor
 
 **Usage**:
@@ -194,13 +270,20 @@ Your job is to COPY this entire section into the artifact as-is, at the end of t
 These instructions will be used later when working with the artifact during execution phase.
 Do NOT follow "How to update" or "When to update" instructions during artifact creation.
 
+**Contract Definition:**
+- This template defines the contract for working with artifacts
+- Template (View layer) = Structure and formatting rules
+- Artifact (Model layer) = Data + Copied instructions (self-sufficient)
+- Instructions in this section define how to work with artifacts
+- Model follows contract: uses artifacts according to instructions, generates responses in expected format
+
 **Artifact System Overview:**
 
 This artifact is part of a system of 4 required artifacts that work together:
 
 1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
 2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-3. **QUESTIONS** (`*_QUESTIONS.md`) - Knowledge base for doubts and solutions. Contains active questions (blockers) and resolved questions.
+  3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
 4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
 
 **Artifact Relationships:**
@@ -250,7 +333,7 @@ This artifact is part of a system of 4 required artifacts that work together:
      - Applied in: CHANGELOG link
    - Move question from "Active Questions" to "Answered Questions"
    - Create CHANGELOG entry about resolution
-   - **Update "🎯 Current Focus" section** to show next highest priority question (if any)
+   - **Update "🎯 Current Focus" section**: If another active question exists → show next highest priority question, if no active questions → show "No active questions requiring your answer"
 5. Update question status (⏳ Pending → ✅ Resolved) when answered
 
 **How to update Current Focus section:**
@@ -319,14 +402,14 @@ When updating this artifact, especially for long lists of questions, follow thes
    - If verification fails → retry with the same question (maximum 1-2 times)
    - If after 1-2 attempts question not added → continue with next question (do not block entire process)
 
-**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (planning agent or execution agent) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
 
 **When to use this file:**
 - When discovering blocker or unclear requirements
 - When searching for solutions to similar problems
 - When checking active questions before starting work
 - When making architectural decisions
-- When uncertain and might hallucinate an answer (create question instead)
+- When uncertain and risk hallucinating an answer (cannot determine answer from available context) → create question instead of guessing
 
 **Related artifacts:**
 - `*_PLAN.md` - for understanding question context (phase/step)

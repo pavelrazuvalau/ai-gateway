@@ -11,6 +11,8 @@
 **Current Phase:** Phase X  
 **Current Step:** Step X.Y  
 **Last Update:** YYYY-MM-DD  
+**Execution Mode:** step-by-step | autonomous  
+**Note:** Execution Mode defaults to step-by-step. Use autonomous mode only when explicitly requested by the user.  
 **How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
 
 ---
@@ -19,7 +21,7 @@
 
 > **Current Step:** [Phase X, Step Y: Step Name](#phase-x-step-xy-step-name)  
 > **Status:** 🟡 IN PROGRESS | 🔴 BLOCKED | ⚪ PENDING  
-> **Requires Action:** [Yes/No - if BLOCKED and needs user input]
+> **Action Required:** [No action required | Answer question in @*_QUESTIONS.md (QX.Y) | Review and approve plan | Other specific action]
 
 ---
 
@@ -53,12 +55,22 @@
 - [Specific action 1]
 - [Specific action 2]
 
-**Why this approach:**
-[Justification of approach - critical for AI agent to understand context and avoid hallucinations]
-
 **Where to make changes:**
 - Files: `path/to/file.[ext]`, `docs/section.md`
 - Functions/Classes: `ClassName.method_name()`
+
+**Why this approach:**
+[Justification of approach - critical for AI agent to understand context and avoid hallucinations]
+
+**How:**
+1. Action 1
+2. Action 2
+3. Action 3
+
+**IMPACT:**
+- [Measurable result 1]
+- [Measurable result 2]
+- [Measurable result 3]
 
 **Completion criteria:**
 - [ ] [Checkpoint 1]
@@ -80,7 +92,7 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 **For Steps and Phases:**
 - 🟢 **COMPLETED** / **Done** - All completion criteria met, changes documented in CHANGELOG, no blocking issues
-- 🟡 **IN PROGRESS** / **In Progress** - Actively working on this step, some criteria may be incomplete
+- 🟡 **IN PROGRESS** / **In Progress** - Actively working on this step, completion criteria are being worked on (not all criteria met yet)
 - 🔴 **BLOCKED** / **Blocked** - Cannot proceed due to blocking issue, question created in QUESTIONS, waiting for resolution
 - ⚪ **PENDING** / **Pending** - Not started yet, waiting for prerequisites or previous steps
 
@@ -126,10 +138,12 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 - Must include sections:
   - Status (with icon)
   - What needs to be done (bullet list)
-  - Why this approach (paragraph)
   - Where to make changes (bullet list with files/functions)
+  - Why this approach (paragraph)
+  - How (numbered list of actions)
+  - IMPACT (bullet list of measurable results)
   - Completion criteria (checklist)
-  - Related questions (if any)
+  - Related questions: QX.Y in @*_QUESTIONS.md (include only if question exists for this step)
 
 ### Cross-Artifact Links
 
@@ -155,7 +169,7 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 **Anchor Generation Rules**:
 - Markdown automatically creates anchors from headings
 - Format: lowercase, spaces converted to hyphens, special characters removed
-- Example: `#### Step 4.3: E2E тесты` → anchor `#step-43-e2e-тесты`
+- Example: `#### Step 4.3: E2E Tests` → anchor `#step-43-e2e-tests`
 - For headings with special characters, use the exact heading text and let Markdown generate the anchor
 
 **Usage**:
@@ -183,13 +197,20 @@ Your job is to COPY this entire section into the artifact as-is, at the end of t
 These instructions will be used later when working with the artifact during execution phase.
 Do NOT follow "How to update" or "When to update" instructions during artifact creation.
 
+**Contract Definition:**
+- This template defines the contract for working with artifacts
+- Template (View layer) = Structure and formatting rules
+- Artifact (Model layer) = Data + Copied instructions (self-sufficient)
+- Instructions in this section define how to work with artifacts
+- Model follows contract: uses artifacts according to instructions, generates responses in expected format
+
 **Artifact System Overview:**
 
 This artifact is part of a system of 4 required artifacts that work together:
 
 1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
 2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-3. **QUESTIONS** (`*_QUESTIONS.md`) - Knowledge base for doubts and solutions. Contains active questions (blockers) and resolved questions.
+3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
 4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
 
 **Artifact Relationships:**
@@ -198,8 +219,30 @@ This artifact is part of a system of 4 required artifacts that work together:
 - QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
 - SESSION_CONTEXT tracks current PLAN phase/step and active questions
 
+**Execution Modes:**
+
+**CRITICAL:** By default, work step-by-step with stops after each step/phase. Autonomous mode is allowed ONLY when explicitly requested by the user.
+
+**How to determine execution mode:**
+1. Check PLAN metadata field "Execution Mode" (if present)
+2. Check user instructions for explicit request (e.g., "execute autonomously", "autonomous mode", "run all steps", "выполни автономно")
+3. Default: step-by-step mode
+
+**Step-by-Step Mode (default):**
+- Stop after each step/phase
+- Wait for explicit user confirmation before proceeding to the next step
+- Provide clear final results and indicate next step from PLAN
+- Update PLAN metadata after each step completion
+
+**Autonomous Mode (ONLY by explicit user command):**
+- Continue without stops between steps
+- Provide brief summary after each step
+- Provide detailed summary after each phase
+- Stop only at blockers or explicit user request
+- Update PLAN metadata after each step/phase (as appropriate)
+
 **When to update artifacts:**
-- **PLAN**: When step status changes, when starting/completing steps, when blocked
+- **PLAN**: When step status changes, when starting/completing steps, when blocked, when execution mode changes
 - **CHANGELOG**: When step completes, when question is resolved, when approach changes
 - **QUESTIONS**: When creating new question, when answering question
 - **SESSION_CONTEXT**: When starting step, when discovering blocker, when completing step, when making intermediate decisions
@@ -219,13 +262,13 @@ This artifact is part of a system of 4 required artifacts that work together:
    - Change step status to 🟢 Done
    - Update phase status if all steps complete
    - Update metadata fields
-   - **Update "🎯 Current Focus" section** to next step (if any) or mark as completed
+   - **Update "🎯 Current Focus" section**: If next step exists → show next step with status, if all steps completed → show "All steps completed"
 3. When blocked → update status (🔴 Blocked) and add blocker reference:
    - Change step status to 🔴 Blocked
-   - Update phase status to 🔴 BLOCKED if needed
+   - Update phase status to 🔴 BLOCKED (if this is the first blocked step in the phase, or if phase status is not already BLOCKED)
    - Add blocker reference to "🚦 Quick Navigation for AI agent" section
    - Update metadata
-   - **Update "🎯 Current Focus" section** with blocked status and set "Requires Action: Yes" if needs user input
+   - **Update "🎯 Current Focus" section** with blocked status and set "Action Required: [specific action]" if needs user input (e.g., "Answer question in @*_QUESTIONS.md (QX.Y)")
 4. When starting work → update status to 🟡 In Progress:
    - Change step status from ⚪ Pending to 🟡 In Progress
    - Update metadata
@@ -239,7 +282,7 @@ This artifact is part of a system of 4 required artifacts that work together:
 **Procedure:**
 1. Find the first step with status: 🟡 IN PROGRESS, 🔴 BLOCKED, or ⚪ PENDING (in order of phases and steps)
 2. Update "🎯 Current Focus" section with that step's link and status
-3. If step is BLOCKED and needs user input → set "Requires Action: Yes"
+3. If step is BLOCKED and needs user input → set "Action Required: [specific action]" (e.g., "Answer question in @*_QUESTIONS.md (QX.Y)")
 4. If all steps completed → show "All steps completed"
 
 **Examples:**
@@ -250,7 +293,7 @@ This artifact is part of a system of 4 required artifacts that work together:
 
 > **Current Step:** [Phase 1, Step 1.1: Setup environment](#phase-1-step-11-setup-environment)
 > **Status:** 🟡 IN PROGRESS
-> **Requires Action:** No
+> **Action Required:** No action required
 ```
 
 **Example 2: Step blocked**
@@ -259,7 +302,7 @@ This artifact is part of a system of 4 required artifacts that work together:
 
 > **Current Step:** [Phase 2, Step 2.3: Implement feature](#phase-2-step-23-implement-feature)
 > **Status:** 🔴 BLOCKED
-> **Requires Action:** Yes
+> **Action Required:** Answer question in @*_QUESTIONS.md (Q2.3)
 ```
 
 **Example 3: All completed**
@@ -270,13 +313,13 @@ This artifact is part of a system of 4 required artifacts that work together:
 ```
 
 **Anchor link format:** `[Phase X, Step Y: Step Name](#phase-x-step-xy-step-name)` (Markdown auto-creates anchors from headings)
-   - Example: `#### Step 4.3: E2E тесты` → `#step-43-e2e-тесты`
+   - Example: `#### Step 4.3: E2E Tests` → `#step-43-e2e-tests`
    - For steps with special characters, use the exact heading text and let Markdown generate the anchor
    - To find the correct anchor, look at the actual heading in the document and use the format shown above
 
 **Formatting rules:**
 - Use exact status icons as defined in "📐 Formatting Reference" section above
-- Follow structure: Phase → Step → What/Why/Where/Completion criteria
+- Follow structure: Phase → Step → What/Where/Why/How/IMPACT/Completion criteria
 - Use consistent phase/step numbering (Phase X, Step X.Y)
 - Links to other artifacts use `@[ARTIFACT_NAME]` notation
 - Metadata fields must be updated when status changes
@@ -303,7 +346,107 @@ When updating this artifact, especially for long lists of phases and steps, foll
    - If verification fails → retry with the same element (maximum 1-2 times)
    - If after 1-2 attempts element not added → continue with next element (do not block entire process)
 
-**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (impl-planner.agent.md or vibe-coder.agent.md) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
+**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (planning agent or execution agent) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
+
+**Plan Compliance Check:**
+
+**When to conduct compliance check:**
+- When creating a new plan
+- When updating an existing plan
+- When adding new phases/steps
+- Periodically (when reference documentation is significantly updated)
+
+**What to check (universal - always applicable):**
+- Presence of all structure elements (What, Where, Why, How, Impact)
+- Completeness and clarity of step descriptions
+- Consistency of terminology and formatting
+
+**What to check (if reference documentation is available):**
+- Alignment of tasks with latest reference documentation updates
+- Accuracy of links to reference documentation sections
+- Compliance with documented best practices and concepts
+
+**Procedure for compliance check:**
+1. **Check step structure (always):**
+   - Verify each step contains all required fields: What, Where, Why, How, Impact
+   - Use file reading tool to analyze plan structure
+   - Identify steps missing required fields
+
+2. **Check alignment with reference sources (if available):**
+   - If MCP servers with business context are available: Use MCP resources tool to check alignment with business requirements
+   - If user context is available: Verify alignment with user-provided requirements
+   - Compare plan tasks with proven practices from available sources
+   - Identify discrepancies or outdated approaches
+
+3. **Check link accuracy (if reference documentation is available):**
+   - Use exact search tool to verify links to reference sections exist
+   - Use file reading tool to verify linked sections are current
+   - Identify broken or outdated links
+
+4. **Check concept compliance (if reference documentation is available):**
+   - Verify plan follows documented concepts and best practices
+   - Verify plan uses universal formulations (not project-specific)
+   - Verify plan follows agent-agnostic principles
+
+5. **Create compliance report:**
+   - Summary of check (status, number of steps checked)
+   - Critical issues (if any)
+   - Important notes (if any)
+   - Recommendations for fixes
+
+6. **Fix non-compliance:**
+   - Fix identified issues in the plan
+   - Add missing fields (Impact, Why if missing)
+   - Update outdated links (if applicable)
+   - Align with available best practices
+   - Or add to plan as tasks if fixes require significant work
+
+**Success criteria:**
+- All steps contain complete structure (What, Where, Why, How, Impact)
+- All links to reference documentation are accurate (if applicable)
+- Tasks align with proven practices from available sources (if applicable)
+- Concepts comply with documented best practices (if applicable)
+
+**Compliance report format:**
+- Summary of check (status, number of steps checked)
+- Critical issues (if any)
+- Important notes (if any)
+- Recommendations for fixes
+
+**Examples of correct step structure with IMPACT:**
+
+```markdown
+#### Step X.Y: [Step Name]
+
+**What:** [Description of what needs to be done]
+
+**Where:** 
+- `path/to/file.[ext]` - description of changes
+- `path/to/another/file.[ext]` - description of changes
+
+**Why:** 
+- Justification 1
+- Justification 2
+- Justification 3
+
+**How:**
+1. Action 1
+2. Action 2
+3. Action 3
+
+**IMPACT:**
+- Improvement of system prompts universality (removal of project-specific references)
+- Increased reusability of artifact templates
+- Reduced risk of project-specific information appearing in artifacts
+- Measurable results: 100% of templates without project-specific references
+```
+
+**Important:** When checking compliance:
+- Always check step structure (universal requirement)
+- If reference documentation is available, use it as a reference of proven practices
+- If MCP servers with business context are available, use them to verify alignment with business requirements
+- If user context is available, verify alignment with user-provided requirements
+- Adapt compliance check to available resources in the project
 
 **When to use this file:**
 - When starting work on a task from the plan

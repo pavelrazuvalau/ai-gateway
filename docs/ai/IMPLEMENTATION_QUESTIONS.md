@@ -62,9 +62,7 @@
 - **When other options are preferable:** [When other options are better]
 
 **Your answer:**
-- [ ] Use Option 1
-- [x] Use Option 2 - Recommended
-- [ ] Use Option 3
+- [ ] Use one of the options above (check your choice in Solution options)
 - [ ] Provide custom answer:
 
 ```
@@ -154,9 +152,7 @@ If context analysis shows that answer cannot be determined from available contex
 - **When other options are preferable:** JWT may be preferable if quick implementation for internal API is needed. API Keys may be preferable for simple internal services.
 
 **Your answer:**
-- [ ] Use Option 1 (JWT Tokens)
-- [x] Use Option 2 (OAuth2) - Recommended
-- [ ] Use Option 3 (API Keys)
+- [x] Use one of the options above (checked Option 2 in Solution options)
 - [ ] Provide custom answer:
 
 ```

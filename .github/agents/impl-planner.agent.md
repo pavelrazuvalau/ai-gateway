@@ -2501,10 +2501,10 @@ Step 6: Instructions copied are for future use when working with artifacts
    - Indicate disadvantages of other options
    - Indicate when other options may be preferable
 5. **MANDATORY: Add interactive markup for user response:**
-   - Add "Ваш ответ" section with interactive checkboxes
-   - Include option for custom answer if needed
-   - Format: `- [ ] Использовать Вариант X` for each option
-   - Add field for custom answer: `- [ ] Предоставить собственный ответ:` followed by code block for user input
+   - Add "Ваш ответ" section with TWO options only (avoid duplicating options):
+     * `- [ ] Использовать один из вариантов выше` (user checks their choice directly in Solution options)
+     * `- [ ] Предоставить собственный ответ:` followed by code block for user input
+   - User selects their preferred option by checking the checkbox directly in "Solution options" section above
 6. Sort questions by priority: High → Medium → Low
 7. Include question types reference (for future questions)
 

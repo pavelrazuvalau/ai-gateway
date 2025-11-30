@@ -6,13 +6,13 @@
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Git-like history of completed changes  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
-**How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
+**How to use:** See section "🤖 Instructions for you" at the end of this document
 
 ---
 
 ## 📑 Index by Phases and Steps
 
-**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for AI agent" section at the end of this document.
+**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for you" section at the end of this document.
 
 **Quick navigation:**
 - **Phase X: [Name]**
@@ -140,7 +140,7 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 
 ---
 
-## 🤖 Instructions for AI agent
+## 🤖 Instructions for you
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
 

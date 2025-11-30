@@ -11,7 +11,7 @@
 **Current Phase:** Phase X  
 **Current Step:** Step X.Y  
 **Last Update:** YYYY-MM-DD  
-**How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
+**How to use:** See section "🤖 Instructions for you" at the end of this document
 
 ---
 
@@ -27,9 +27,9 @@
 
 [Brief description of the task, goals, and business value]
 
-## 🚦 Quick Navigation for AI agent
+## 🚦 Quick Navigation
 
-**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for AI agent" section at the end of this document.
+**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for you" section at the end of this document.
 
 - **Start here:** Phase X, Step Y
 - **Blockers:** See @*_QUESTIONS.md (section [X])
@@ -58,7 +58,7 @@
 - Functions/Classes: `ClassName.method_name()`
 
 **Why this approach:**
-[Justification of approach - critical for AI agent to understand context and avoid hallucinations]
+[Justification of approach - critical for understanding context and avoiding hallucinations]
 
 **How:**
 1. Action 1
@@ -183,7 +183,7 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 ### Anchor Links for Navigation
 
-**Concept**: Anchor links provide fast navigation for both AI agents and humans. They enable quick jumping to specific sections within artifacts.
+**Concept**: Anchor links provide fast navigation. They enable quick jumping to specific sections within artifacts.
 
 **Format**: `[Text](#anchor-name)` where anchor is generated from heading text.
 
@@ -206,7 +206,7 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 ---
 
-## 🤖 Instructions for AI agent
+## 🤖 Instructions for you
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
 
@@ -257,7 +257,7 @@ This artifact is part of a system of 4 required artifacts that work together:
 - **SESSION_CONTEXT**: When starting step, when discovering blocker, when completing step, when making intermediate decisions
 
 **How to read artifacts (created from this template):**
-1. Start with section "🚦 Quick Navigation for AI agent" to understand current state (blockers are referenced here)
+1. Start with section "🚦 Quick Navigation" to understand current state (blockers are referenced here)
 2. Study current step in section "Implementation Phases"
 3. Follow the instructions in this section for working with the artifact
 
@@ -275,7 +275,7 @@ This artifact is part of a system of 4 required artifacts that work together:
 3. When blocked → update status (🔴 Blocked) and add blocker reference:
    - Change step status to 🔴 Blocked
    - Update phase status to 🔴 BLOCKED (if this is the first blocked step in the phase, or if phase status is not already BLOCKED)
-   - Add blocker reference to "🚦 Quick Navigation for AI agent" section
+   - Add blocker reference to "🚦 Quick Navigation" section
    - Update metadata
    - **Update "🎯 Current Focus" section** with blocked status and set "Action Required: [specific action]" if needs user input (e.g., "Answer question in @*_QUESTIONS.md (QX.Y)")
 4. When starting work → update status to 🟡 In Progress:

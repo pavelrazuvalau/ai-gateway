@@ -1,6 +1,6 @@
 # Artifact Management System Prompts
 
-**Version:** 0.3.0  
+**Version:** 0.3.1  
 **Date:** 2025-01-28  
 **Purpose:** Documentation explaining the artifact management system architecture with separation of concerns
 
@@ -43,8 +43,8 @@
 The artifact management system follows MVC-like architecture with clear separation of concerns:
 
 1. **System Prompts (Controller)** - Logic, procedures, workflow
-   - **`impl-planner.agent.md`** (v0.2.0) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
-   - **`vibe-coder.agent.md`** (v0.2.0) - Execution and artifact maintenance (frequent stops for developer control)
+   - **`impl-planner.agent.md`** (v0.3.1) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
+   - **`vibe-coder.agent.md`** (v0.3.1) - Execution and artifact maintenance (frequent stops for developer control)
 
 2. **Template Files (View)** - Formatting, structure, presentation
    - `docs/ai/IMPLEMENTATION_PLAN.md` - PLAN artifact template
@@ -132,7 +132,7 @@ This separation provides clearer responsibilities, eliminates duplication, and e
 
 4. **Step 6: Create PLAN Artifact** (STOP after completion):
    - Create PLAN with phases and steps
-   - Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content
+   - Add instructions section ("🤖 Instructions for you") - AFTER creating all content
    - **STOP IMMEDIATELY** and provide summary
    - **Wait for user confirmation**
 
@@ -197,8 +197,8 @@ You can switch between prompts as needed:
 - Detailed structure definitions
 
 **Files:**
-- `impl-planner.agent.md` (v0.2.0) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
-- `vibe-coder.agent.md` (v0.2.0) - Execution and artifact maintenance (frequent stops for developer control)
+- `impl-planner.agent.md` (v0.3.1) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
+- `vibe-coder.agent.md` (v0.3.1) - Execution and artifact maintenance (frequent stops for developer control)
 
 ### Template Files (View)
 **Responsibility:** Formatting, structure, presentation, examples
@@ -237,7 +237,7 @@ You can switch between prompts as needed:
 
 | Aspect | impl-planner.agent.md | vibe-coder.agent.md |
 |--------|----------------------|---------------------|
-| **Version** | 0.2.0 | 0.2.0 |
+| **Version** | 0.3.1 | 0.3.1 |
 | **Focus** | Analysis and planning | Implementation and execution |
 | **Input** | Task description, codebase (plan draft, Jira ticket, business description) | Existing artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT) |
 | **Output** | PLAN + artifacts | Code changes + updated artifacts |
@@ -272,7 +272,7 @@ Both prompts share:
 
 ## Key Features
 
-### impl-planner.agent.md (v0.2.0)
+### impl-planner.agent.md (v0.3.1)
 - Code-first analysis approach (repository files as primary source)
 - **MANDATORY Context Gathering**: Steps 1-5 must be completed before creating PLAN
   - Each step requires STOP and summary with standardized format (files analyzed, search queries, key findings, directions explored)
@@ -289,7 +289,7 @@ Both prompts share:
 - Universal and technology-agnostic
 - References template files for formatting (no formatting rules in prompt)
 
-### vibe-coder.agent.md (v0.2.0)
+### vibe-coder.agent.md (v0.3.1)
 - **Core Workflow**: Analysis → Solution → Action → Documentation
 - **Two Workflow Modes**: Works with both Simplified (SESSION_CONTEXT only) and Full (PLAN + artifacts) workflows
 - **Sequential Operations**: Create/modify files ONE at a time, update artifacts sequentially, but context gathering can be parallel
@@ -317,7 +317,7 @@ Both prompts reference template files in `docs/ai/`:
 **Template files contain:**
 - Complete formatting rules (icons, statuses, priority indicators)
 - Structure definitions (sections, metadata fields, entry formats)
-- Instructions for AI agents (how to read, how to update, when to use)
+- Instructions (how to read, how to update, when to use)
 - **Technical Update Procedures**: Sequential content filling for long lists (criteria, procedures, success verification) - ensures artifacts are self-sufficient
 - Formatting reference (complete formatting guide)
 - Examples for each artifact type
@@ -329,7 +329,7 @@ Both prompts reference template files in `docs/ai/`:
 **Important MVC principle:** 
 - **Templates (View)** contain instructions and structure for copying into artifacts
 - **Artifacts (Model)** contain data AND copied instructions (for self-sufficiency)
-- When creating artifacts, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+- When creating artifacts, **COPY the instruction section** ("🤖 Instructions for you") from templates into artifacts
 - This ensures artifacts are self-sufficient and can be used independently of templates
 - Instructions in artifacts are copied from templates, making templates the source of truth
 
@@ -371,7 +371,7 @@ If you have existing artifacts created with the old prompt, they are compatible 
    - **Context gathering**: Can be parallel (reading multiple files for analysis is OK)
 
 2. **Instructions in Artifacts**: 
-   - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+   - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for you") from templates into artifacts
    - This includes **Technical Update Procedures** section (sequential content filling for long lists, success verification)
    - If template is NOT provided, create instructions based on artifact descriptions in system prompts
    - This ensures artifacts are self-sufficient and can be used independently
@@ -437,7 +437,7 @@ If you have existing artifacts created with the old prompt, they are compatible 
    - STOP after each creation phase
 
 2. **Instructions in Artifacts**:
-   - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for AI agent") from templates into artifacts
+   - When creating artifacts from templates, **COPY the instruction section** ("🤖 Instructions for you") from templates into artifacts
    - This includes **Technical Update Procedures** section (sequential content filling for long lists, success verification)
    - If template is NOT provided, create instructions based on artifact descriptions
    - Artifacts (Model) contain data (metadata, phases, steps, entries, questions, context) AND copied/created instructions

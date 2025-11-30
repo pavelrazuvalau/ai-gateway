@@ -6,7 +6,7 @@
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Repository for doubts and solutions  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
-**How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
+**How to use:** See section "🤖 Instructions for you" at the end of this document
 
 ---
 
@@ -22,7 +22,7 @@
 
 ## Active Questions (require answer)
 
-**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for AI agent" section at the end of this document.
+**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for you" section at the end of this document.
 
 > **📌 Note:** Questions are sorted by priorities: 🔴 High → 🟡 Medium → 🟢 Low. Within same priority, order by question numbers is preserved.
 
@@ -232,7 +232,7 @@ If context analysis shows that answer cannot be determined from available contex
 
 ### Anchor Links for Navigation
 
-**Concept**: Anchor links provide fast navigation for both AI agents and humans. They enable quick jumping to specific sections within artifacts.
+**Concept**: Anchor links provide fast navigation. They enable quick jumping to specific sections within artifacts.
 
 **Format**: `[Text](#anchor-name)` where anchor is generated from heading text.
 
@@ -254,7 +254,7 @@ If context analysis shows that answer cannot be determined from available contex
 
 ---
 
-## 🤖 Instructions for AI agent
+## 🤖 Instructions for you
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
 

@@ -6,7 +6,7 @@
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Universal operational memory for managing current task state  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
-**How to use for AI agent:** See section "🤖 Instructions for AI agent" at the end of this document
+**How to use:** See section "🤖 Instructions for you" at the end of this document
 
 **Universal Usage:**
 - **Planning Phase**: Store intermediate analysis results (temporary, cleared after planning)
@@ -20,7 +20,7 @@
 
 **Short-term Memory Principles:**
 - **Only active data**: Store only information used in current step/operation
-- **⚠️ Poor memory**: Information is lost without fixation to long-term memory
+- **Poor memory**: Information is lost without fixation to long-term memory
 - **Temporary storage**: Clear after step completion (FIX critical info to long-term memory first)
 - **Limited volume**: Only minimum necessary for current work
 - **Current operation only**: No history, no future steps, no completed work
@@ -39,7 +39,7 @@
 
 **Quick Reference:** 
 - This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT)
-- For full instructions on working with this artifact, see "🤖 Instructions for AI agent" section at the end of this document.
+- For full instructions on working with this artifact, see "🤖 Instructions for you" section at the end of this document.
 
 **Date:** YYYY-MM-DD  
 **Focus:** [Current session focus]  
@@ -187,7 +187,7 @@
 
 ### Anchor Links for Navigation
 
-**Concept**: Anchor links provide fast navigation for both AI agents and humans. They enable quick jumping to specific sections within artifacts.
+**Concept**: Anchor links provide fast navigation. They enable quick jumping to specific sections within artifacts.
 
 **Format**: `[Text](#anchor-name)` where anchor is generated from heading text.
 
@@ -213,28 +213,28 @@
 
 **Short-term Memory Rules:**
 - **Only current step**: Store only information needed for current step/operation
-- **⚠️ Poor memory**: Information is lost without fixation to long-term memory
+- **Poor memory**: Information is lost without fixation to long-term memory
 - **Temporary storage**: All information is temporary, cleared after step completion
 - **Limited volume**: Maximum 5 entries in "Last Actions", only files in current focus
 - **No history**: Do not store information about completed steps (this is in CHANGELOG - long-term memory)
 - **No future**: Do not store information about future steps (this is in PLAN - long-term memory)
 - **No duplicates**: Do not duplicate information from other artifacts (use links/references only)
-- **⚠️ CRITICAL: Before deletion → check criticality → if critical for justification → FIX to long-term memory (PLAN/CHANGELOG/QUESTIONS) → then delete**
+- Before deletion → check criticality → if critical for justification → FIX to long-term memory (PLAN/CHANGELOG/QUESTIONS) → then delete
 - **Cleanup mandatory**: After step completion → check criticality → **FIX critical info to long-term memory** (CHANGELOG/PLAN/QUESTIONS) → clear all temporary data
 
 **Update this file during work (both planning and execution phases)**
 - This is short-term memory - complements PLAN, CHANGELOG, QUESTIONS (long-term memory)
 - **Minimize context clutter**: Store only information used RIGHT NOW in current step
-- **⚠️ CRITICAL: Cleanup after step completion**: Check criticality → **FIX critical info to long-term memory** (PLAN/CHANGELOG/QUESTIONS) → remove all temporary information
+- **Cleanup after step completion**: Check criticality → FIX critical info to long-term memory (PLAN/CHANGELOG/QUESTIONS) → remove all temporary information
 - Maximum 5 entries in "Last Actions" (only for current work context)
 
 ---
 
-## 🤖 Instructions for AI agent
+## 🤖 Instructions for you
 
 **Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
 
-**⚠️ IMPORTANT FOR CREATION AGENT (planning agent):**
+**IMPORTANT FOR CREATION AGENT (planning agent):**
 
 These instructions are for FUTURE USE by the execution agent.
 DO NOT try to execute these instructions while creating the artifact.
@@ -303,7 +303,7 @@ SESSION_CONTEXT is part of a 4-artifact system that works together:
    - "Temporary Notes": Blocker details (only current blocker, will be moved to CHANGELOG)
    - "Artifact Links": Link to created question (only current blocking question reference, not all questions)
 5. When completing step → cleanup (Short-term Memory cleanup principle):
-   - **⚠️ CRITICAL: Short-term memory loses information without fixation**
+   - Short-term memory loses information without fixation
    - **MANDATORY**: Check criticality of all information (needed for justification of decisions/approach?)
    - **MANDATORY**: **FIX critical information to long-term memory**:
      * Temporary notes → **FIX to** CHANGELOG (if critical for "Why this solution")

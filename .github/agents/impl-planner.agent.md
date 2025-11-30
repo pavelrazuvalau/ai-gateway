@@ -2213,8 +2213,15 @@ Step 6: Instructions copied are for future use when working with artifacts
 
 **Key clarification:**
 - When plan is created and ready for work → PLAN status = 🟡 IN PROGRESS (not PENDING!)
-- When waiting for question answer → Step status = 🔴 BLOCKED (not PENDING!)
-- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for question"
+- When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING!)
+- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for something"
+
+**Types of blockers (all result in 🔴 BLOCKED):**
+- Waiting for question answer (question in QUESTIONS artifact)
+- Waiting for user decision/approval
+- External dependency not available
+- Technical issue blocking progress
+- Missing information that requires clarification
 
 **Note**: These definitions describe the semantic meaning and logic of statuses. For specific formatting rules and visual representation of statuses (icons, colors, etc.), see [Template Handling: Quick Reference](#template-handling-quick-reference). Template files are the exclusive source of formatting rules. If template files are not provided, wait for them before proceeding.
 

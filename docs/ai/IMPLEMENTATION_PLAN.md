@@ -102,8 +102,15 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 **Key clarification:**
 - When plan is created and ready → PLAN status = 🟡 IN PROGRESS (not PENDING!)
-- When waiting for question answer → Step status = 🔴 BLOCKED (not PENDING!)
-- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for question"
+- When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING!)
+- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for something"
+
+**Types of blockers (all result in 🔴 BLOCKED):**
+- Waiting for question answer (question in QUESTIONS artifact)
+- Waiting for user decision/approval
+- External dependency not available
+- Technical issue blocking progress
+- Missing information that requires clarification
 
 **Status transition rules:**
 - ⚪ PENDING → 🟡 IN PROGRESS (when work begins)

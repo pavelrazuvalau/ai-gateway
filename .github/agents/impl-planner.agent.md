@@ -2407,7 +2407,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 **Verify success (ALWAYS)**: After creating/updating SESSION_CONTEXT - Use Strategy 1: Success Verification (see Section 1: File Creation Strategies)
 
 **Validation Checklist**:
-- [ ] Structure ready for current workflow mode
+- [ ] Structure ready for artifact creation
 - [ ] All information from artifact description can be accommodated
 - [ ] Instructions section included
 - [ ] Format is clear and consistent
@@ -3045,7 +3045,6 @@ Plans are created based on initial context and may become outdated when new fact
 
 **Steps:**
 1. **Identify required artifacts:**
-   - Based on workflow mode (Simplified vs Full)
    - Based on task state (questions exist, steps completed, etc.)
 
 2. **Verify existence:**

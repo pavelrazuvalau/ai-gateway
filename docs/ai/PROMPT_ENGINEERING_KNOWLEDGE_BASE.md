@@ -12099,12 +12099,12 @@ date +%Y-%m-%d
 - [OpenAI Data Usage Policies](https://openai.com/policies/usage-policies) - Политики использования данных
 
 **Anthropic:**
-- [Anthropic Claude Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering) - Руководство Anthropic по prompt engineering
-- [Anthropic Messages API](https://docs.anthropic.com/claude/reference/messages_post) - Структура сообщений Anthropic
-- [Anthropic Structured Outputs](https://docs.anthropic.com/claude/docs/structured-outputs) - Документация по структурированному выводу
-- [Anthropic Claude Documentation](https://docs.anthropic.com/claude/docs) - Официальная документация Anthropic Claude
-- [Anthropic Safety Documentation](https://docs.anthropic.com/claude/docs/safety) - Подход Anthropic к безопасности
-- [Anthropic Data Privacy](https://www.anthropic.com/data-usage) - Политики конфиденциальности Anthropic
+- [Anthropic Claude Prompt Engineering Guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview) - Руководство Anthropic по prompt engineering
+- [Anthropic Messages API](https://platform.claude.com/docs/en/api/messages) - Структура сообщений Anthropic
+- [Anthropic Structured Outputs](https://platform.claude.com/docs/en/build-with-claude/tool-use/structured-outputs) - Документация по структурированному выводу
+- [Anthropic Claude Documentation](https://platform.claude.com/docs/en) - Официальная документация Anthropic Claude
+- [Anthropic Safety Documentation](https://platform.claude.com/docs/en/build-with-claude/safety) - Подход Anthropic к безопасности
+- [Anthropic Data Privacy](https://www.anthropic.com/policies/privacy) - Политики конфиденциальности Anthropic
 
 **Google:**
 - [Google Prompt Engineering Guide](https://ai.google.dev/gemini-api/docs/prompting-strategies) - Стратегии промптинга Google

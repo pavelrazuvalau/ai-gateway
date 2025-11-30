@@ -5,24 +5,35 @@
 **Artifact Version:** 0.2.0  
 **Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** Git-like history of completed changes  
-**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.  
-**How to use:** See section "🤖 Instructions for you" at the end of this document
+**Status:** Template file (View layer)  
+**How to use:** See "🤖 Instructions for you" at the end
 
 ---
 
 ## 📑 Index by Phases and Steps
 
-**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for you" section at the end of this document.
-
 **Quick navigation:**
 - **Phase X: [Name]**
-  - Step X.Y: [Name] (line ~N)
+  - Step X.Y: [Name] → [link to entry](#anchor)
 
 ---
 
-## Entry Format
+## 📜 Change History
 
-Each entry answers questions: **WHAT** was done, **WHY** it was done this way, **WHAT** result
+<!-- Entries are added here - newest first -->
+<!-- Use entry formats from "📐 Entry Formats Reference" section below -->
+
+---
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🤖 AI REFERENCE SECTION - Templates, formats, and instructions below        -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+## 📐 Entry Formats Reference
+
+> **Note:** This section contains templates for AI. For humans, see actual entries in "Change History" above.
+
+Each entry answers: **WHAT** was done, **WHY** this way, **WHAT** result
 
 ### ✅ Completed Entry Format
 
@@ -109,7 +120,7 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - New approach
 - Related questions: QX.Y in @*_QUESTIONS.md (include this field only if question exists for this entry)
 
-### 📐 Formatting Reference
+### Formatting Rules
 
 **Date format:** YYYY-MM-DD (e.g., 2025-01-27)
 
@@ -119,12 +130,10 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 - `@[TASK_NAME]_QUESTIONS.md` - link to QUESTIONS
 - `QX.Y in @[TASK_NAME]_QUESTIONS.md` - link to specific question
 
-**Anchor Links for Navigation:**
-- Anchor links provide fast navigation within artifacts
+**Anchor Links:**
 - Format: `[Text](#anchor-name)` where anchor is generated from heading text
 - Markdown automatically creates anchors from headings (lowercase, spaces to hyphens)
 - Example: `## YYYY-MM-DD - Phase 1, Step 1.1` → anchor `#yyyy-mm-dd---phase-1-step-11`
-- Use anchor links in index/navigation sections for quick access to entries
 
 **Entry types:**
 - ✅ Completed - Step completed successfully
@@ -142,113 +151,48 @@ Each entry answers questions: **WHAT** was done, **WHY** it was done this way, *
 
 ## 🤖 Instructions for you
 
-**Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
+> **Quick Reference:** This artifact is part of a 4-artifact system. Entries go in "📜 Change History" section. Entry templates are in "📐 Entry Formats Reference" section above.
 
-**⚠️ IMPORTANT FOR CREATION AGENT (planning agent):**
-
-These instructions are for FUTURE USE by the execution agent.
-DO NOT try to execute these instructions while creating the artifact.
-Your job is to COPY this entire section into the artifact as-is, at the end of the document.
-These instructions will be used later when working with the artifact during execution phase.
-Do NOT follow "How to update" or "When to update" instructions during artifact creation.
-
-**Contract Definition:**
-- This template defines the contract for working with artifacts
+**Template Contract:**
 - Template (View layer) = Structure and formatting rules
 - Artifact (Model layer) = Data + Copied instructions (self-sufficient)
-- Instructions in this section define how to work with artifacts
-- Model follows contract: uses artifacts according to instructions, generates responses in expected format
+- When creating artifacts: COPY this entire section into the artifact at the end
 
-**Artifact System Overview:**
+**Artifact System (4 artifacts):**
 
-This artifact is part of a system of 4 required artifacts that work together:
-
-1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
-2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-  3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
-4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
+| Artifact | Purpose | Key Content |
+|----------|---------|-------------|
+| PLAN | Execution roadmap | Phases, steps, status |
+| CHANGELOG | Change history | What, why, result |
+| QUESTIONS | Blockers & solutions | Active/resolved questions |
+| SESSION_CONTEXT | Current state | Temporary notes, decisions |
 
 **Artifact Relationships:**
-- PLAN references blockers in QUESTIONS and recent changes in CHANGELOG
-- CHANGELOG entries link to PLAN steps and related questions in QUESTIONS
-- QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
-- SESSION_CONTEXT tracks current PLAN phase/step and active questions
+- PLAN → references blockers in QUESTIONS, recent changes in CHANGELOG
+- CHANGELOG → links to PLAN steps and QUESTIONS
+- QUESTIONS → links to PLAN steps and CHANGELOG entries
+- SESSION_CONTEXT → tracks current PLAN phase/step
 
-**When to update artifacts:**
-- **PLAN**: When step status changes, when starting/completing steps, when blocked
-- **CHANGELOG**: When step completes, when question is resolved, when approach changes
-- **QUESTIONS**: When creating new question, when answering question
-- **SESSION_CONTEXT**: When starting step, when discovering blocker, when completing step, when making intermediate decisions
+**When to update:**
+- When step completes
+- When question is resolved
+- When approach changes
 
-**How to read artifacts (created from this template):**
-1. Entries are sorted by date (newest first, chronological order)
-2. Each entry contains: Description, Changes, Why this solution, Result
-3. Use index by phases/steps for quick search
-4. Check links to related questions in entries
-5. Entry types: ✅ Completed, ❌ Stopped, 🔧 Approach Changed
+**How to update:**
+1. Add new entry in "📜 Change History" section (newest first)
+2. Use format from "📐 Entry Formats Reference" section
+3. Update "📑 Index by Phases and Steps" section
 
-**How to update artifacts (created from this template):**
-1. When step completes → add new entry at the top (after metadata):
-   - Add entry immediately after metadata section
-   - Use format: `## YYYY-MM-DD - Phase X, Step X.Y`
-   - Include all required sections (see "Entry Format" section above)
-2. Entry format: `## YYYY-MM-DD - Phase X, Step X.Y`
-   - Date format: YYYY-MM-DD
-   - Phase/Step reference: Phase X, Step X.Y
-3. Required sections for ✅ Completed entries:
-   - Description (brief summary)
-   - Changes (specific files with changes)
-   - Why this solution (explanation with alternatives considered)
-   - Result (measurable/verifiable outcomes)
-   - Related: QX.Y in @*_QUESTIONS.md (include this field only if question exists for this entry)
-4. Entry types:
-   - ✅ Completed: Step completed successfully
-   - ❌ Stopped: Work stopped due to blocker (include reason, question link)
-   - 🔧 Approach Changed: Initial approach changed (include original plan, why changed, new approach)
-5. Add links to related questions (only if question exists for this entry):
-   - Format: `QX.Y in @*_QUESTIONS.md`
-6. Update index by phases/steps:
-   - Add entry to index section
-   - Format: `- Step X.Y: [Name] (line ~N)`
+**Entry location:** Add immediately after `## 📜 Change History` heading
 
-**Formatting rules:**
-- Use exact entry format as defined in "Entry Format" section above
-- Date format: YYYY-MM-DD
-- File paths in Changes section: use backticks `file.[ext]`
-- Links use `@[ARTIFACT_NAME]` notation
-- Entry types use icons: ✅ ❌ 🔧
+**Index format:** `- Step X.Y: [Name] → [link](#anchor)`
 
-**Technical Update Procedures:**
-
-When updating this artifact, especially for long lists of entries, follow these technical procedures:
-
-1. **Determine if list is "long":**
-   - Count elements: more than 3-5 entries
-   - Estimate content size: more than 50-100 lines of content for all entries OR more than 3-5 KB of data
-   - If matches ANY of these criteria → use sequential filling
-
-2. **Sequential filling for CHANGELOG:**
-   - Create entries one at a time (one entry per iteration) via `search_replace`
-   - **MANDATORY:** After each entry, verify success via `read_file`
-   - Example: If need to add 5 entries → create entry 1, verify, create entry 2, verify, etc.
-
-3. **Success verification after each element:**
-   - `read_file` to verify file exists
-   - Verify that file is not empty
-   - Verify that entry was added correctly (file contains the new entry, structure is preserved)
-   - If verification fails → retry with the same entry (maximum 1-2 times)
-   - If after 1-2 attempts entry not added → continue with next entry (do not block entire process)
-
-**For detailed information:** See "Sequential Content Filling for Long Lists" section in system prompt (planning agent or execution agent) or PROMPT_ENGINEERING_KNOWLEDGE_BASE.md
-
-**When to use this file:**
-- When checking history of completed changes
-- When understanding decision rationale
-- When searching for examples of completed steps
-- When checking related questions
-- When documenting completed work
+**Technical procedures (for long lists):**
+- Create entries one at a time via `search_replace`
+- Verify success via `read_file` after each entry
+- If > 3-5 entries → use sequential filling
 
 **Related artifacts:**
-- `*_PLAN.md` - for understanding current state and next steps
-- `*_QUESTIONS.md` - for checking active questions mentioned in entries
-- `*_SESSION_CONTEXT.md` - for current session context
+- `*_PLAN.md` - current state and next steps
+- `*_QUESTIONS.md` - active questions
+- `*_SESSION_CONTEXT.md` - session context

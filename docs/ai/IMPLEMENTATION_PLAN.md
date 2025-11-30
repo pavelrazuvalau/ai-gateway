@@ -3,15 +3,12 @@
 ## 📊 Metadata
 
 **Artifact Version:** 0.2.0  
-**Last Adaptation Date:** YYYY-MM-DD  
 **Purpose:** [Purpose of this plan]  
-**Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.
-
 **Status:** 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | 🔵 READY FOR WORK | ⚪ PENDING  
 **Current Phase:** Phase X  
 **Current Step:** Step X.Y  
 **Last Update:** YYYY-MM-DD  
-**How to use:** See section "🤖 Instructions for you" at the end of this document
+**How to use:** See "🤖 Instructions for you" at the end
 
 ---
 
@@ -28,8 +25,6 @@
 [Brief description of the task, goals, and business value]
 
 ## 🚦 Quick Navigation
-
-**Quick Reference:** This artifact is part of a 4-artifact system (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT). For full instructions on working with this artifact, see "🤖 Instructions for you" section at the end of this document.
 
 - **Start here:** Phase X, Step Y
 - **Blockers:** See @*_QUESTIONS.md (section [X])
@@ -82,9 +77,13 @@
 
 ---
 
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🤖 AI REFERENCE SECTION - Formats, rules, and instructions below            -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
 ## 📐 Formatting Reference
 
-This section defines all formatting rules, icons, and structure for PLAN artifacts. Use these definitions when creating or updating PLAN artifacts.
+> **Note:** This section contains formatting rules for AI. For humans, see Implementation Phases above.
 
 ### Status Icons
 
@@ -208,60 +207,32 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 ## 🤖 Instructions for you
 
-**Important:** This section is part of the template (View layer). When creating actual artifacts (Model layer), **COPY this instruction section** into the artifact at the end of the document. This ensures that instructions for working with the artifact are always available within the artifact itself, making it self-sufficient and independent of external prompts or templates.
+> **Quick Reference:** Phases and steps go in "Implementation Phases" section. Status icons and step format are in "📐 Formatting Reference" section above.
 
-**⚠️ IMPORTANT FOR CREATION AGENT (planning agent):**
-
-These instructions are for FUTURE USE by the execution agent.
-DO NOT try to execute these instructions while creating the artifact.
-Your job is to COPY this entire section into the artifact as-is, at the end of the document.
-These instructions will be used later when working with the artifact during execution phase.
-Do NOT follow "How to update" or "When to update" instructions during artifact creation.
-
-**Contract Definition:**
-- This template defines the contract for working with artifacts
+**Template Contract:**
 - Template (View layer) = Structure and formatting rules
 - Artifact (Model layer) = Data + Copied instructions (self-sufficient)
-- Instructions in this section define how to work with artifacts
-- Model follows contract: uses artifacts according to instructions, generates responses in expected format
+- When creating artifacts: COPY this entire section into the artifact at the end
 
-**Artifact System Overview:**
+**Artifact System (4 artifacts):**
 
-This artifact is part of a system of 4 required artifacts that work together:
+| Artifact | Purpose | Key Content |
+|----------|---------|-------------|
+| PLAN | Execution roadmap | Phases, steps, status |
+| CHANGELOG | Change history | What, why, result |
+| QUESTIONS | Blockers & solutions | Active/resolved questions |
+| SESSION_CONTEXT | Current state | Temporary notes, decisions |
 
-1. **PLAN** (`*_PLAN.md`) - Execution roadmap with phases and steps. Contains current status, blockers references, and navigation.
-2. **CHANGELOG** (`*_CHANGELOG.md`) - History of completed changes. Contains chronological entries with what, why, and results.
-3. **QUESTIONS** (`*_QUESTIONS.md`) - Repository for doubts and solutions. Contains active questions (blockers) and resolved questions.
-4. **SESSION_CONTEXT** (`*_SESSION_CONTEXT.md`) - Current work state. Contains temporary notes, intermediate decisions, and active context.
+**⚠️ CRITICAL Execution Rule:**
+- Work step-by-step with stops after each step/phase
+- Wait for explicit user confirmation before proceeding
 
-**Artifact Relationships:**
-- PLAN references blockers in QUESTIONS and recent changes in CHANGELOG
-- CHANGELOG entries link to PLAN steps and related questions in QUESTIONS
-- QUESTIONS link to PLAN steps and CHANGELOG entries where solutions were applied
-- SESSION_CONTEXT tracks current PLAN phase/step and active questions
+**When to update:**
+- When step status changes
+- When starting/completing steps
+- When blocked
 
-**Execution:**
-
-**CRITICAL:** Work step-by-step with stops after each step/phase. Wait for explicit user confirmation before proceeding to the next step.
-
-**Step-by-Step Execution:**
-- Stop after each step/phase
-- Wait for explicit user confirmation before proceeding to the next step
-- Provide clear final results and indicate next step from PLAN
-- Update PLAN metadata after each step completion
-
-**When to update artifacts:**
-- **PLAN**: When step status changes, when starting/completing steps, when blocked
-- **CHANGELOG**: When step completes, when question is resolved, when approach changes
-- **QUESTIONS**: When creating new question, when answering question
-- **SESSION_CONTEXT**: When starting step, when discovering blocker, when completing step, when making intermediate decisions
-
-**How to read artifacts (created from this template):**
-1. Start with section "🚦 Quick Navigation" to understand current state (blockers are referenced here)
-2. Study current step in section "Implementation Phases"
-3. Follow the instructions in this section for working with the artifact
-
-**How to update artifacts (created from this template):**
+**How to update:**
 1. When step status changes → update metadata at the beginning of file:
    - Update "Status" field
    - Update "Current Phase" and "Current Step" if changed

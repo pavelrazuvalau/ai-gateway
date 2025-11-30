@@ -75,7 +75,11 @@ Knowledge base as input context is a document or set of documents provided to an
 37. [Prompt Chaining Patterns](#prompt-chaining-patterns)
 38. [Error Recovery and Graceful Degradation](#error-recovery-and-graceful-degradation)
 39. [Multi-turn Conversation Management](#multi-turn-conversation-management)
-40. [Sources](#sources)
+40. [System Prompt Audit Framework](#system-prompt-audit-framework)
+41. [Multi-Prompt System Design](#multi-prompt-system-design)
+42. [Checkpoint and Control Flow Design](#checkpoint-and-control-flow-design)
+43. [Requirements-to-Prompt Translation](#requirements-to-prompt-translation)
+44. [Sources](#sources)
 
 ---
 
@@ -186,20 +190,36 @@ KNOWLEDGE BASE
 │   ├── Prompt Chaining Patterns ← NEW
 │   └── Other techniques
 │
-├── DECISION GUIDANCE ← NEW CATEGORY
+├── DECISION GUIDANCE
 │   ├── Instruction Hierarchy and Priority
 │   ├── Nudging (defaults, criteria, escape hatches)
 │   └── Conflict Resolution
 │
-├── CONTEXT MANAGEMENT ← NEW CATEGORY
+├── CONTEXT MANAGEMENT
 │   ├── Context Window Management
 │   ├── Multi-turn Conversation Management
 │   └── State Tracking
 │
-├── ERROR HANDLING ← NEW CATEGORY
+├── ERROR HANDLING
 │   ├── Error Recovery Patterns
 │   ├── Graceful Degradation
 │   └── Assumption Declaration
+│
+├── AUDIT & QUALITY ← NEW CATEGORY
+│   ├── System Prompt Audit Framework (6 dimensions)
+│   ├── Audit Scoring Matrix
+│   └── Audit Report Template
+│
+├── SYSTEM ARCHITECTURE ← NEW CATEGORY
+│   ├── Multi-Prompt System Design
+│   ├── Checkpoint and Control Flow Design
+│   ├── State Machine Design
+│   └── Shared Contract Design
+│
+├── REQUIREMENTS ENGINEERING ← NEW CATEGORY
+│   ├── Requirements-to-Prompt Translation
+│   ├── Requirement Classification
+│   └── Translation Rules
 │
 ├── SECURITY
 │   ├── Prompt Injection
@@ -3613,6 +3633,931 @@ Proceeding with next step..."
 
 ---
 
+## System Prompt Audit Framework
+
+**Purpose:** Structured framework for evaluating and auditing system prompts against quality criteria
+**When to use:** Before deploying prompts, during reviews, when improving existing prompts
+**Related sections:** [System Prompt Consistency Checklist](#system-prompt-consistency-checklist), [Style Guide](#style-guide-for-system-prompts)
+**Research basis:** Based on evaluation frameworks from Anthropic, OpenAI, and academic research on prompt quality
+
+---
+
+### Audit Dimensions
+
+System prompt quality is evaluated across **6 dimensions** based on established evaluation criteria:
+
+| Dimension | Description | Weight |
+|-----------|-------------|--------|
+| **Clarity** | Instructions are unambiguous and specific | Critical |
+| **Completeness** | All necessary information is included | Critical |
+| **Consistency** | No contradictions, uniform terminology | Critical |
+| **Structure** | Well-organized, navigable, hierarchical | High |
+| **Efficiency** | Minimal redundancy, optimal token usage | Medium |
+| **Robustness** | Handles edge cases, includes fallbacks | High |
+
+---
+
+### Dimension 1: Clarity Audit
+
+**Criteria checklist:**
+
+| ID | Criterion | Pass/Fail |
+|----|-----------|-----------|
+| CL-1 | All instructions use specific, actionable language | |
+| CL-2 | No vague terms ("appropriate", "as needed", "properly") without definition | |
+| CL-3 | Conditions are objective and verifiable | |
+| CL-4 | Examples provided for complex behaviors | |
+| CL-5 | Technical terms are defined or commonly understood | |
+
+**Clarity anti-patterns to detect:**
+
+```text
+❌ "Handle errors appropriately" → ✅ "On error: log message, return null, notify user"
+❌ "If needed, ask for clarification" → ✅ "If input lacks X, Y, or Z, ask user to specify"
+❌ "Keep responses concise" → ✅ "Limit responses to 3-5 sentences for simple questions"
+```
+
+**Measurement:**
+- Count of vague terms per 1000 tokens
+- Percentage of instructions with objective conditions
+- Example coverage ratio (complex behaviors with examples / total complex behaviors)
+
+---
+
+### Dimension 2: Completeness Audit
+
+**Criteria checklist:**
+
+| ID | Criterion | Pass/Fail |
+|----|-----------|-----------|
+| CP-1 | Role and identity clearly defined | |
+| CP-2 | All expected input types have handling instructions | |
+| CP-3 | Output format fully specified | |
+| CP-4 | Edge cases explicitly addressed | |
+| CP-5 | Error handling instructions present | |
+| CP-6 | Scope boundaries defined (what NOT to do) | |
+| CP-7 | Success criteria stated | |
+
+**Completeness gap analysis:**
+
+```text
+For each user intent the prompt should handle:
+1. Is there an explicit instruction? □ Yes □ No
+2. Is there an example? □ Yes □ No □ N/A
+3. Is there error handling? □ Yes □ No
+4. Are edge cases covered? □ Yes □ No □ N/A
+```
+
+**Measurement:**
+- Coverage ratio: handled intents / expected intents
+- Gap count: missing instructions for expected behaviors
+
+---
+
+### Dimension 3: Consistency Audit
+
+**Criteria checklist:**
+
+| ID | Criterion | Pass/Fail |
+|----|-----------|-----------|
+| CS-1 | Terminology is uniform throughout | |
+| CS-2 | No contradictory instructions | |
+| CS-3 | Tone and style consistent | |
+| CS-4 | Formatting conventions followed uniformly | |
+| CS-5 | Priority rules don't conflict | |
+
+**Consistency detection procedure:**
+
+```text
+1. Extract all key terms → build terminology map
+2. Find synonyms used for same concept → flag inconsistencies
+3. Extract all rules → check for logical contradictions
+4. Compare instruction tone → flag mismatches
+```
+
+**Common consistency issues:**
+
+| Issue Type | Example | Detection Method |
+|------------|---------|------------------|
+| Term drift | "user" vs "customer" vs "client" | Term frequency analysis |
+| Rule conflict | "Always X" + "Never X in case Y" without priority | Logical analysis |
+| Tone mismatch | Formal instructions, casual examples | Style analysis |
+
+---
+
+### Dimension 4: Structure Audit
+
+**Criteria checklist:**
+
+| ID | Criterion | Pass/Fail |
+|----|-----------|-----------|
+| ST-1 | Clear section hierarchy (H1 → H2 → H3) | |
+| ST-2 | Table of contents present for long prompts | |
+| ST-3 | Related information grouped together | |
+| ST-4 | Navigation aids present (anchors, cross-references) | |
+| ST-5 | Logical flow (role → workflow → details → examples) | |
+| ST-6 | Consistent section formatting | |
+
+**Structure quality indicators:**
+
+```text
+Good structure:
+├── Clear hierarchy depth (2-4 levels)
+├── Section sizes balanced (no 1000-line monoliths)
+├── Cross-references present
+├── Navigation aids (ToC, anchors)
+└── Logical grouping by function
+
+Poor structure:
+├── Flat hierarchy (all H2)
+├── Unbalanced sections
+├── No cross-references
+├── No navigation
+└── Mixed concerns in same section
+```
+
+**Measurement:**
+- Hierarchy depth consistency
+- Section size variance (standard deviation)
+- Cross-reference density
+- Navigation aid presence
+
+---
+
+### Dimension 5: Efficiency Audit
+
+**Criteria checklist:**
+
+| ID | Criterion | Pass/Fail |
+|----|-----------|-----------|
+| EF-1 | No redundant instructions (same thing said twice) | |
+| EF-2 | No unnecessary verbosity | |
+| EF-3 | Examples are minimal but sufficient | |
+| EF-4 | Boilerplate minimized | |
+| EF-5 | Token budget appropriate for task complexity | |
+
+**Efficiency analysis:**
+
+```text
+Redundancy detection:
+1. Find semantically similar paragraphs
+2. Identify repeated instructions
+3. Check for over-explanation of simple concepts
+
+Token optimization:
+- Critical instructions: keep
+- Helpful context: evaluate ROI
+- Redundant examples: consolidate
+- Verbose explanations: compress
+```
+
+**Measurement:**
+- Redundancy ratio: duplicate content / total content
+- Token efficiency: essential tokens / total tokens
+- Example efficiency: behaviors covered / examples provided
+
+---
+
+### Dimension 6: Robustness Audit
+
+**Criteria checklist:**
+
+| ID | Criterion | Pass/Fail |
+|----|-----------|-----------|
+| RB-1 | Edge cases explicitly handled | |
+| RB-2 | Fallback behaviors defined | |
+| RB-3 | Error recovery instructions present | |
+| RB-4 | Ambiguous input handling specified | |
+| RB-5 | Graceful degradation paths exist | |
+| RB-6 | Security considerations addressed | |
+
+**Robustness test scenarios:**
+
+```text
+Test prompt against:
+1. Empty input → expected behavior defined?
+2. Malformed input → error handling present?
+3. Out-of-scope request → boundary response defined?
+4. Conflicting instructions → priority resolution clear?
+5. Missing context → clarification procedure defined?
+6. Adversarial input → security measures present?
+```
+
+---
+
+### Audit Scoring Matrix
+
+**Scoring scale:**
+
+| Score | Description |
+|-------|-------------|
+| 0 | Not addressed |
+| 1 | Partially addressed, significant gaps |
+| 2 | Mostly addressed, minor gaps |
+| 3 | Fully addressed |
+
+**Aggregate scoring:**
+
+```text
+Dimension Score = (Σ criterion scores) / (max possible score) × 100%
+
+Overall Score = Weighted average of dimension scores
+- Clarity: 20%
+- Completeness: 20%
+- Consistency: 20%
+- Structure: 15%
+- Efficiency: 10%
+- Robustness: 15%
+
+Quality gates:
+- Production ready: ≥85% overall, no dimension <70%
+- Acceptable: ≥70% overall, no dimension <50%
+- Needs work: <70% overall or any dimension <50%
+```
+
+---
+
+### Audit Report Template
+
+```markdown
+# System Prompt Audit Report
+
+**Prompt:** [Name/identifier]
+**Version:** [Version]
+**Audit Date:** [Date]
+**Auditor:** [Human/Agent identifier]
+
+## Summary
+- **Overall Score:** [X]%
+- **Quality Gate:** [Production ready / Acceptable / Needs work]
+- **Critical Issues:** [Count]
+- **Recommendations:** [Count]
+
+## Dimension Scores
+| Dimension | Score | Status |
+|-----------|-------|--------|
+| Clarity | X% | ✅/⚠️/❌ |
+| Completeness | X% | ✅/⚠️/❌ |
+| Consistency | X% | ✅/⚠️/❌ |
+| Structure | X% | ✅/⚠️/❌ |
+| Efficiency | X% | ✅/⚠️/❌ |
+| Robustness | X% | ✅/⚠️/❌ |
+
+## Critical Issues
+1. [Issue description + location + impact]
+2. ...
+
+## Recommendations
+1. [Recommendation + priority + effort estimate]
+2. ...
+
+## Detailed Findings
+[Per-dimension detailed findings]
+```
+
+---
+
+## Multi-Prompt System Design
+
+**Purpose:** Patterns for designing systems of multiple interconnected prompts
+**When to use:** When single prompt is insufficient, when different agents need to collaborate
+**Related sections:** [Prompt Chaining](#prompt-chaining-patterns), [Agent Loop Patterns](#agent-loop-patterns)
+**Research basis:** Based on multi-agent systems research and production system architectures
+
+---
+
+### When to Use Multi-Prompt Systems
+
+**Single prompt sufficient when:**
+- Task is self-contained
+- Single workflow covers all cases
+- Context fits in one prompt
+- No need for specialized agents
+
+**Multi-prompt system needed when:**
+- Different phases require different expertise (planning vs execution)
+- Workflow has distinct modes with different behaviors
+- Context would exceed single prompt limits
+- Separation of concerns improves maintainability
+- Different agents need to hand off work
+
+---
+
+### Multi-Prompt Architecture Patterns
+
+#### Pattern 1: Pipeline Architecture
+
+**Structure:** Sequential handoff between specialized prompts.
+
+```text
+[Prompt A: Analyzer] → artifacts → [Prompt B: Planner] → artifacts → [Prompt C: Executor]
+```
+
+**Characteristics:**
+- Clear input/output contracts between stages
+- Each prompt has focused responsibility
+- Artifacts serve as communication medium
+- Unidirectional flow
+
+**Use when:**
+- Workflow has distinct sequential phases
+- Each phase has different context needs
+- Specialization improves quality
+
+<example>
+**Code review pipeline:**
+1. **Analyzer prompt**: Reads code, identifies issues → produces issue list
+2. **Prioritizer prompt**: Ranks issues by severity → produces prioritized list
+3. **Suggester prompt**: Generates fix suggestions → produces recommendations
+</example>
+
+---
+
+#### Pattern 2: Controller-Worker Architecture
+
+**Structure:** One prompt orchestrates, others execute.
+
+```text
+                    ┌→ [Worker A: Planning]
+[Controller Prompt] ─┼→ [Worker B: Execution]
+                    └→ [Worker C: Documentation]
+```
+
+**Characteristics:**
+- Controller decides which worker to invoke
+- Workers are specialized and focused
+- Controller maintains overall state
+- Bidirectional communication through artifacts
+
+**Use when:**
+- Different task types need different handling
+- Central coordination is valuable
+- Workers can operate independently
+
+---
+
+#### Pattern 3: Peer Architecture (Your System)
+
+**Structure:** Equal prompts with defined handoff points.
+
+```text
+[Prompt A: impl-planner] ←→ artifacts ←→ [Prompt B: vibe-coder]
+         ↓                                      ↓
+    Creates artifacts                   Executes & updates
+```
+
+**Characteristics:**
+- Prompts are peers, not hierarchical
+- Shared artifact format is critical
+- Clear boundaries of responsibility
+- Can iterate between prompts
+
+**Use when:**
+- Phases are conceptually equal (planning = execution)
+- Iterative workflow (plan → execute → replan → execute)
+- Both prompts need full context access
+
+---
+
+### Shared Contract Design
+
+**Critical for multi-prompt systems:** Define explicit contracts between prompts.
+
+#### Contract Components
+
+```text
+1. ARTIFACT SCHEMA
+   - Required fields
+   - Optional fields
+   - Field types and constraints
+   - Validation rules
+
+2. STATE TRANSITIONS
+   - Valid status values
+   - Allowed transitions
+   - Transition conditions
+
+3. HANDOFF PROTOCOL
+   - When to hand off
+   - What to include in handoff
+   - Confirmation requirements
+
+4. ERROR PROTOCOL
+   - Error reporting format
+   - Recovery procedures
+   - Escalation paths
+```
+
+#### Contract Example
+
+```yaml
+# Shared contract between impl-planner and vibe-coder
+
+artifacts:
+  PLAN:
+    required_fields: [metadata, phases, steps]
+    status_values: [NOT_STARTED, IN_PROGRESS, COMPLETED, BLOCKED]
+    transitions:
+      NOT_STARTED: [IN_PROGRESS]
+      IN_PROGRESS: [COMPLETED, BLOCKED]
+      BLOCKED: [IN_PROGRESS]
+    owner: 
+      creation: impl-planner
+      updates: vibe-coder
+
+handoff:
+  planner_to_executor:
+    trigger: PLAN.status == CREATED && SESSION_CONTEXT.filled
+    required_artifacts: [PLAN, SESSION_CONTEXT]
+    optional_artifacts: [QUESTIONS, CHANGELOG]
+    
+  executor_to_planner:
+    trigger: needs_replanning || major_blocker
+    required_artifacts: [PLAN, SESSION_CONTEXT, CHANGELOG]
+    context: [blocker_description, proposed_changes]
+```
+
+---
+
+### Consistency Rules for Multi-Prompt Systems
+
+| Rule | Description | Enforcement |
+|------|-------------|-------------|
+| **Shared terminology** | Same terms mean same things across all prompts | Glossary in each prompt |
+| **Compatible workflows** | Workflows connect without gaps | Explicit handoff points |
+| **Artifact compatibility** | All prompts read/write same artifact format | Shared schema |
+| **Status alignment** | Status values consistent across prompts | Enum definition |
+| **Tool consistency** | Same tools described same way | Tool glossary |
+
+---
+
+### Anti-Patterns in Multi-Prompt Systems
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Hidden state** | State not in artifacts, lost on handoff | All state in artifacts |
+| **Implicit handoff** | Unclear when/how to switch prompts | Explicit handoff triggers |
+| **Schema drift** | Prompts evolve, artifacts become incompatible | Versioned schemas |
+| **Responsibility overlap** | Multiple prompts can do same thing | Clear ownership rules |
+| **Missing error protocol** | Errors cause system to halt | Defined error handling |
+
+---
+
+## Checkpoint and Control Flow Design
+
+**Purpose:** Patterns for designing checkpoints, stops, and control flow in system prompts
+**When to use:** When designing prompts that need human oversight, verification points, or complex workflows
+**Related sections:** [Agent Loop Patterns](#agent-loop-patterns), [Nudging Techniques](#nudging-techniques-guiding-models-toward-correct-decisions)
+**Research basis:** Based on human-in-the-loop AI systems research and production agent architectures
+
+---
+
+### Why Checkpoints Matter
+
+**Without checkpoints:**
+- Agent may go deep in wrong direction
+- Errors compound without early detection
+- User loses visibility into agent's work
+- Recovery from mistakes is expensive
+
+**With checkpoints:**
+- Early course correction possible
+- Progress is visible and verifiable
+- Context can be enriched by user
+- Mistakes are caught before propagating
+
+---
+
+### Checkpoint Types
+
+| Type | Purpose | When to Use |
+|------|---------|-------------|
+| **Verification checkpoint** | Confirm understanding before proceeding | After analysis, before action |
+| **Approval checkpoint** | Get explicit permission for action | Before destructive/irreversible actions |
+| **Progress checkpoint** | Report progress, allow guidance | After completing logical unit |
+| **Quality checkpoint** | Verify output meets standards | Before finalizing deliverable |
+| **Handoff checkpoint** | Transfer to different agent/phase | At workflow phase boundaries |
+
+---
+
+### Checkpoint Design Patterns
+
+#### Pattern 1: Mandatory Stop
+
+**Use when:** Proceeding without confirmation is risky.
+
+```text
+**MANDATORY STOP POINT**
+After completing [action]:
+1. Summarize what was done
+2. Present findings/results
+3. State proposed next action
+4. STOP and wait for confirmation
+5. Do NOT proceed without explicit "continue" or "proceed"
+```
+
+<example>
+"After analyzing the codebase (Step 1):
+1. Summarize: files analyzed, patterns found, architecture understood
+2. Present: key findings that affect the plan
+3. Propose: 'Based on analysis, I propose focusing on X'
+4. **STOP** - Wait for confirmation before proceeding to Step 2"
+</example>
+
+---
+
+#### Pattern 2: Conditional Stop
+
+**Use when:** Stop only if certain conditions are met.
+
+```text
+**CONDITIONAL STOP**
+After [action], STOP if any of:
+- [ ] Uncertainty > threshold
+- [ ] Found blocker
+- [ ] Deviation from plan needed
+- [ ] User input required
+
+Otherwise, proceed to next step.
+```
+
+<example>
+"After implementing a step, STOP if:
+- Tests fail
+- Implementation differs significantly from plan
+- New questions arose
+- Blocker discovered
+
+If none of above, proceed to next step."
+</example>
+
+---
+
+#### Pattern 3: Progress Report Stop
+
+**Use when:** User needs visibility but approval not required.
+
+```text
+**PROGRESS CHECKPOINT**
+After completing [unit of work]:
+1. Update artifacts with progress
+2. Provide brief summary:
+   - Completed: [what]
+   - Status: [on track / deviation noted]
+   - Next: [planned action]
+3. STOP for acknowledgment (brief pause, not full approval)
+```
+
+---
+
+### State Machine Design for Workflows
+
+**Principle:** Model workflow as explicit state machine for clarity.
+
+#### State Machine Components
+
+```text
+STATES:
+- Defined set of valid states
+- Each state has clear meaning
+- Entry/exit conditions
+
+TRANSITIONS:
+- Valid moves between states
+- Transition triggers (events/conditions)
+- Actions on transition
+
+GUARDS:
+- Conditions that must be true for transition
+- Prevent invalid state changes
+```
+
+#### State Machine Example
+
+```text
+PLAN State Machine:
+
+     ┌─────────────────────────────────────┐
+     │                                     │
+     ▼                                     │
+[NOT_STARTED] ──create──▶ [DRAFT] ──approve──▶ [APPROVED]
+                           │                      │
+                           │ reject               │ start
+                           ▼                      ▼
+                      [REVISION]            [IN_PROGRESS]
+                           │                      │
+                           │ resubmit             │ complete/block
+                           ▼                      ▼
+                        [DRAFT]            [COMPLETED]/[BLOCKED]
+                                                  │
+                                             unblock
+                                                  │
+                                                  ▼
+                                            [IN_PROGRESS]
+
+Transitions:
+- NOT_STARTED → DRAFT: Plan created
+- DRAFT → APPROVED: User approves (checkpoint)
+- DRAFT → REVISION: User requests changes (checkpoint)
+- APPROVED → IN_PROGRESS: Execution begins
+- IN_PROGRESS → COMPLETED: All steps done
+- IN_PROGRESS → BLOCKED: Blocker found (checkpoint)
+- BLOCKED → IN_PROGRESS: Blocker resolved
+```
+
+---
+
+### Control Flow Patterns
+
+#### Pattern 1: Sequential with Stops
+
+```text
+Step 1 → STOP → Step 2 → STOP → Step 3 → STOP → Done
+
+Each STOP:
+- Summarize step results
+- Verify with user
+- Get confirmation to proceed
+```
+
+#### Pattern 2: Phased with Phase Gates
+
+```text
+Phase 1 (Steps 1-3) → PHASE GATE → Phase 2 (Steps 4-6) → PHASE GATE → Done
+
+Phase gate:
+- More thorough review than step stop
+- Phase summary and validation
+- Explicit approval for next phase
+```
+
+#### Pattern 3: Branching with Checkpoints
+
+```text
+Analysis → CHECKPOINT → Decision Point
+                            ├── Path A → STOP → Action A
+                            └── Path B → STOP → Action B
+```
+
+---
+
+### Stop Rule Specification Format
+
+**Standard format for stop rules:**
+
+```text
+**STOP RULE: [identifier]**
+- **Trigger:** [when this stop activates]
+- **Required output:** [what to provide at stop]
+- **Resume condition:** [what allows continuation]
+- **Timeout behavior:** [what happens if no response]
+```
+
+<example>
+**STOP RULE: PHASE_COMPLETE**
+- **Trigger:** All steps in current phase marked COMPLETED
+- **Required output:** Phase summary, artifacts updated, next phase preview
+- **Resume condition:** User says "continue", "proceed", or "next phase"
+- **Timeout behavior:** Remain stopped, send reminder after 24h
+</example>
+
+---
+
+### Checkpoint Anti-Patterns
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Stop fatigue** | Too many stops, user ignores them | Consolidate stops, use conditional stops |
+| **Vague stops** | "Stop if needed" - when is "needed"? | Explicit trigger conditions |
+| **No resume path** | Stopped but unclear how to continue | Clear resume conditions |
+| **Missing context** | Stop without enough info to decide | Required output specification |
+| **Inconsistent stops** | Different stop behaviors in same prompt | Standardized stop format |
+
+---
+
+## Requirements-to-Prompt Translation
+
+**Purpose:** Systematic approach for translating project requirements into system prompt instructions
+**When to use:** When creating new prompts from requirements documents, specifications, or design docs
+**Related sections:** [Style Guide](#style-guide-for-system-prompts), [System Prompt Audit Framework](#system-prompt-audit-framework)
+
+---
+
+### Translation Process Overview
+
+```text
+Requirements Document
+        ↓
+[1. EXTRACT] → Functional requirements, constraints, behaviors
+        ↓
+[2. CLASSIFY] → By type: role, workflow, rules, outputs, guards
+        ↓
+[3. PRIORITIZE] → Critical vs important vs nice-to-have
+        ↓
+[4. TRANSLATE] → Convert to prompt instruction format
+        ↓
+[5. ORGANIZE] → Structure into prompt sections
+        ↓
+[6. VALIDATE] → Verify coverage and consistency
+        ↓
+System Prompt
+```
+
+---
+
+### Step 1: Requirements Extraction
+
+**Extract from requirements document:**
+
+| Category | What to Extract | Example |
+|----------|-----------------|---------|
+| **Functional** | What system should do | "Create plans with phases and steps" |
+| **Behavioral** | How system should behave | "Stop after each phase for review" |
+| **Constraints** | Limitations and boundaries | "Never modify files without approval" |
+| **Quality** | Standards and criteria | "All outputs must be validated" |
+| **Integration** | How it connects to other systems | "Uses shared artifact format" |
+
+**Extraction template:**
+
+```text
+REQUIREMENT: [ID]
+Source: [Document section/line]
+Type: [Functional/Behavioral/Constraint/Quality/Integration]
+Description: [What is required]
+Acceptance criteria: [How to verify]
+Priority: [Critical/High/Medium/Low]
+```
+
+---
+
+### Step 2: Requirement Classification
+
+**Classify extracted requirements into prompt components:**
+
+| Requirement Type | Maps To | Prompt Section |
+|------------------|---------|----------------|
+| Identity/purpose | Role definition | Role and Context |
+| Capabilities | Key responsibilities | Role and Context |
+| Workflow steps | Procedures | Workflow |
+| Decision logic | Conditional rules | Procedures / Rules |
+| Output specs | Format requirements | Output Management |
+| Constraints | Guard rails | Rules / Restrictions |
+| Quality standards | Validation criteria | Quality Criteria |
+
+---
+
+### Step 3: Prioritization Matrix
+
+**Prioritize requirements for prompt inclusion:**
+
+| Priority | Criteria | Token budget |
+|----------|----------|--------------|
+| **P0: Critical** | Core functionality, safety, must-have | Include fully |
+| **P1: High** | Important behaviors, common cases | Include fully |
+| **P2: Medium** | Edge cases, optimizations | Include if space |
+| **P3: Low** | Nice-to-have, rare cases | Reference or omit |
+
+**Decision framework:**
+
+```text
+For each requirement:
+1. What happens if not in prompt?
+   - System fails → P0
+   - Common case fails → P1
+   - Edge case fails → P2
+   - Minor inconvenience → P3
+
+2. How often is it needed?
+   - Every interaction → +1 priority
+   - Frequently → keep priority
+   - Rarely → -1 priority
+```
+
+---
+
+### Step 4: Translation Rules
+
+**Convert requirements to prompt instructions:**
+
+#### Rule 1: Requirement → Imperative
+
+```text
+Requirement: "System should validate inputs"
+         ↓
+Instruction: "Validate all inputs before processing:
+             - Check required fields present
+             - Verify format matches expected
+             - Reject invalid inputs with specific error"
+```
+
+#### Rule 2: Constraint → Guard Rail
+
+```text
+Requirement: "Must not modify production data"
+         ↓
+Guard rail: "NEVER modify files matching patterns:
+            - */prod/*
+            - *.production.*
+            - Any file user marks as protected
+            If uncertain, ASK before modifying."
+```
+
+#### Rule 3: Quality Standard → Validation Checklist
+
+```text
+Requirement: "Outputs must be complete and accurate"
+         ↓
+Checklist: "Before delivering output, verify:
+           - [ ] All required sections present
+           - [ ] No placeholder content remaining
+           - [ ] Examples are accurate and tested
+           - [ ] Cross-references are valid"
+```
+
+#### Rule 4: Workflow → Procedure
+
+```text
+Requirement: "Analyze codebase before planning"
+         ↓
+Procedure: "PHASE 1: Codebase Analysis
+           Step 1: Read project structure (list_dir)
+           Step 2: Identify key files (grep, search)
+           Step 3: Understand architecture (read key files)
+           Step 4: Document findings in SESSION_CONTEXT
+           STOP: Present findings, wait for confirmation"
+```
+
+---
+
+### Step 5: Organization into Prompt Structure
+
+**Map translated instructions to standard structure:**
+
+```text
+1. ROLE AND CONTEXT
+   ← Identity requirements
+   ← Capability requirements
+   ← Context requirements
+
+2. WORKFLOW AND PROCEDURES
+   ← Workflow requirements
+   ← Process requirements
+   ← Step-by-step requirements
+
+3. RULES AND CONSTRAINTS
+   ← Constraint requirements
+   ← Guard rail requirements
+   ← Boundary requirements
+
+4. OUTPUT MANAGEMENT
+   ← Output format requirements
+   ← Artifact requirements
+   ← Delivery requirements
+
+5. QUALITY CRITERIA
+   ← Quality requirements
+   ← Validation requirements
+   ← Acceptance criteria
+```
+
+---
+
+### Step 6: Validation
+
+**Verify translation completeness:**
+
+```text
+COVERAGE CHECK:
+For each requirement in source document:
+- [ ] Translated to instruction(s)
+- [ ] Placed in appropriate section
+- [ ] Testable/verifiable
+- [ ] Consistent with other instructions
+
+CONSISTENCY CHECK:
+- [ ] No contradictions between translated instructions
+- [ ] Terminology matches source document
+- [ ] Priority reflected in prompt structure
+
+TRACEABILITY:
+- [ ] Each instruction traceable to requirement
+- [ ] Changes can be traced back to source
+```
+
+---
+
+### Translation Anti-Patterns
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| **Literal translation** | Copy-paste doesn't work as instruction | Rephrase as imperative |
+| **Lost context** | Instruction without rationale | Include "why" when helpful |
+| **Over-specification** | Every detail included | Focus on actionable |
+| **Under-specification** | Vague translation | Make specific and testable |
+| **Orphan requirements** | Requirement not in prompt | Traceability matrix |
+
+---
+
 ## Sources
 
 ### Official Documentation
@@ -3639,8 +4584,9 @@ Proceeding with next step..."
 ## End of Knowledge Base
 
 *Last updated: November 2025*
-*Version: 1.2*
+*Version: 1.3*
 
 ### Version History
+- **1.3** (Nov 2025): Added 4 audit-focused sections: System Prompt Audit Framework, Multi-Prompt System Design, Checkpoint & Control Flow Design, Requirements-to-Prompt Translation. Added 3 new categories: AUDIT & QUALITY, SYSTEM ARCHITECTURE, REQUIREMENTS ENGINEERING. Structured for MCP server integration.
 - **1.2** (Nov 2025): Added 6 new sections: Nudging Techniques, Context Window Management, Instruction Hierarchy, Prompt Chaining, Error Recovery, Multi-turn Management. Added 3 new categories to Map.
 - **1.1** (Nov 2025): Initial structured knowledge base

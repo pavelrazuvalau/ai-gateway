@@ -1814,7 +1814,8 @@ Step 6: Instructions copied are for future use when working with artifacts
      * **Verify success after each part** using `read_file`
 4. Create PLAN with all phases and steps (critical - permanent memory)
    - Include all required information: phases, steps (What, Where, Why, How, IMPACT), completion criteria
-   - Set initial status: All steps PENDING
+   - Set initial status: All steps ⚪ PENDING, PLAN status 🟡 IN PROGRESS (plan is ready for execution)
+   - If blockers identified → set affected steps to 🔴 BLOCKED, PLAN status to 🔴 BLOCKED
    - Include navigation/overview section
    - Add instructions section ("🤖 Instructions for AI agent") - AFTER creating all content (see Section 3: Artifact Creation Procedures → Template Handling Rules)
      * Copy instructions AS-IS, do NOT modify or execute them (these are for future use when working with artifacts)
@@ -1827,7 +1828,7 @@ Step 6: Instructions copied are for future use when working with artifacts
      - Specify concrete final result: PLAN artifact created with [N] phases and [M] steps
      - Specify concrete artifacts: PLAN artifact created/updated (with specific phases and steps)
      - Specify concrete checks: All required information included (phases, steps with What, Where, Why, How, IMPACT, completion criteria)
-     - Specify concrete statuses: All steps set to PENDING
+     - Specify concrete statuses: PLAN status 🟡 IN PROGRESS (ready for execution), all steps ⚪ PENDING (or 🔴 BLOCKED if blockers identified)
    - **What can be done next FROM PLAN:**
      - **CRITICAL:** Next steps MUST be from PLAN artifact (if PLAN contains next steps) or from workflow (if PLAN creation is complete)
      - If PLAN creation is complete: Next steps are creating additional artifacts (QUESTIONS if questions exist, CHANGELOG if needed) or proceeding to validation
@@ -2194,15 +2195,26 @@ Step 6: Instructions copied are for future use when working with artifacts
 
 **Important**: These statuses are set when creating PLAN artifact. During planning itself (Steps 1-8), steps are not assigned statuses - they are all PENDING until PLAN is created.
 
-**For Steps and Phases** (initial state when PLAN is created):
-- **PENDING**: Not started yet (default status for all steps when PLAN is created)
-- **IN PROGRESS**: Currently being worked on (used during execution phase, not during planning)
-- **COMPLETED**: All criteria met (used during execution phase, not during planning)
-- **BLOCKED**: Cannot proceed due to blocker (may be set if blocker identified during planning)
+**For PLAN artifact (overall status):**
+- **🟡 IN PROGRESS**: Plan is active and ready for execution (default when plan is created and ready)
+- **🔴 BLOCKED**: Plan execution blocked by unresolved question (at least one step is BLOCKED)
+- **🟢 COMPLETED**: All steps completed
+- **⚪ PENDING**: Plan creation not complete or prerequisites not met (rarely used - plan should be IN PROGRESS when ready)
 
-**For Questions**:
-- **Pending**: Question created, waiting for answer
-- **Resolved**: Question answered (not applicable during initial planning)
+**For Steps and Phases:**
+- **⚪ PENDING**: Not started yet, no blockers (default status for steps that haven't begun)
+- **🟡 IN PROGRESS**: Currently being worked on
+- **🟢 COMPLETED**: All criteria met
+- **🔴 BLOCKED**: Cannot proceed due to blocker - question created in QUESTIONS, waiting for answer
+
+**For Questions:**
+- **⏳ Pending**: Question created, waiting for answer
+- **✅ Resolved**: Question answered (not applicable during initial planning)
+
+**Key clarification:**
+- When plan is created and ready for work → PLAN status = 🟡 IN PROGRESS (not PENDING!)
+- When waiting for question answer → Step status = 🔴 BLOCKED (not PENDING!)
+- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for question"
 
 **Note**: These definitions describe the semantic meaning and logic of statuses. For specific formatting rules and visual representation of statuses (icons, colors, etc.), see [Template Handling: Quick Reference](#template-handling-quick-reference). Template files are the exclusive source of formatting rules. If template files are not provided, wait for them before proceeding.
 
@@ -2238,7 +2250,10 @@ Step 6: Instructions copied are for future use when working with artifacts
    - Where to make changes (files, functions, classes)
    - Completion criteria (measurable checkpoints)
 5. Identify blockers (if any) and their context
-6. Set initial status: All steps PENDING
+6. Set initial status:
+   - All steps: ⚪ PENDING (not started yet)
+   - PLAN-level status: 🟡 IN PROGRESS (plan is ready for execution)
+   - If blockers identified during planning: set affected steps to 🔴 BLOCKED, PLAN status to 🔴 BLOCKED
 7. **Before creating PLAN**: Save PLAN content to SESSION_CONTEXT (MANDATORY - for state preservation - allows recovery if file doesn't get created)
 8. **Apply multi-level file creation strategy (IN PRIORITY ORDER)**:
    - **FIRST STEP**: Priority 1: Try copying template through terminal

@@ -1362,17 +1362,26 @@ Follow this workflow for every task:
 
 ### Status Definitions
 
-**For Steps and Phases**:
+**For PLAN artifact (overall status in Metadata section):**
+- **🟡 IN PROGRESS**: Plan is active and ready for execution (default when plan is created and ready)
+- **🔴 BLOCKED**: Plan execution blocked by unresolved question (at least one step is BLOCKED)
+- **🟢 COMPLETED**: All steps completed
+- **⚪ PENDING**: Plan creation not complete or prerequisites not met (rarely used)
 
-- **COMPLETED** (Done): All completion criteria met, changes documented in CHANGELOG, no blocking issues
-- **IN PROGRESS** (In Progress): Actively working on this step, some criteria may be incomplete
-- **BLOCKED**: Cannot proceed due to blocking issue, question created in QUESTIONS, waiting for resolution
-- **PENDING**: Not started yet, waiting for prerequisites or previous steps
+**For Steps and Phases:**
+- **⚪ PENDING**: Not started yet, no blockers, waiting for prerequisites or previous steps
+- **🟡 IN PROGRESS**: Actively working on this step, some criteria may be incomplete
+- **🔴 BLOCKED**: Cannot proceed due to blocking issue, question created in QUESTIONS, waiting for resolution
+- **🟢 COMPLETED**: All completion criteria met, changes documented in CHANGELOG, no blocking issues
 
-**For Questions**:
+**Key clarification:**
+- When plan is ready for work → PLAN status = 🟡 IN PROGRESS (not PENDING!)
+- When waiting for question answer → Step status = 🔴 BLOCKED (not PENDING!)
+- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for question"
 
-- **Pending**: Question created, waiting for answer
-- **Resolved**: Question answered, solution documented, moved to resolved/answered questions section
+**For Questions:**
+- **⏳ Pending**: Question created, waiting for answer
+- **✅ Resolved**: Question answered, solution documented, moved to resolved/answered questions section
 
 ### Status Transition Rules
 

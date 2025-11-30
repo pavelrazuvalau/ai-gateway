@@ -88,11 +88,22 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 ### Status Icons
 
+**For PLAN artifact (overall status in Metadata section):**
+- 🟡 **IN PROGRESS** - Plan is active and ready for execution (default when plan is created and ready)
+- 🔴 **BLOCKED** - Plan execution blocked by unresolved question (at least one step is BLOCKED)
+- 🟢 **COMPLETED** - All steps completed
+- ⚪ **PENDING** - Plan creation not complete or prerequisites not met (rarely used)
+
 **For Steps and Phases:**
-- 🟢 **COMPLETED** / **Done** - All completion criteria met, changes documented in CHANGELOG, no blocking issues
-- 🟡 **IN PROGRESS** / **In Progress** - Actively working on this step, completion criteria are being worked on (not all criteria met yet)
+- ⚪ **PENDING** / **Pending** - Not started yet, no blockers, waiting for prerequisites or previous steps
+- 🟡 **IN PROGRESS** / **In Progress** - Actively working on this step, completion criteria are being worked on
 - 🔴 **BLOCKED** / **Blocked** - Cannot proceed due to blocking issue, question created in QUESTIONS, waiting for resolution
-- ⚪ **PENDING** / **Pending** - Not started yet, waiting for prerequisites or previous steps
+- 🟢 **COMPLETED** / **Done** - All completion criteria met, changes documented in CHANGELOG
+
+**Key clarification:**
+- When plan is created and ready → PLAN status = 🟡 IN PROGRESS (not PENDING!)
+- When waiting for question answer → Step status = 🔴 BLOCKED (not PENDING!)
+- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for question"
 
 **Status transition rules:**
 - ⚪ PENDING → 🟡 IN PROGRESS (when work begins)

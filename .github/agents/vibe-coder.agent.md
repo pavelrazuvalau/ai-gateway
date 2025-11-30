@@ -1373,15 +1373,18 @@ Follow this workflow for every task:
 - **⚪ PENDING**: Plan creation not complete or prerequisites not met (rarely used)
 
 **For Steps and Phases:**
-- **⚪ PENDING**: Not started yet, no blockers, waiting for prerequisites or previous steps
+- **⚪ PENDING**: Future step, not yet reached in workflow (prerequisites not met, previous steps not completed)
+- **🔵 READY FOR WORK**: Next step, prerequisites met, ready to start work (previous step completed)
 - **🟡 IN PROGRESS**: Actively working on this step, some criteria may be incomplete
 - **🔴 BLOCKED**: Cannot proceed due to blocking issue, question created in QUESTIONS, waiting for resolution
 - **🟢 COMPLETED**: All completion criteria met, changes documented in CHANGELOG, no blocking issues
 
 **Key clarification:**
 - When plan is ready for work → PLAN status = 🟡 IN PROGRESS (not PENDING!)
-- When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING!)
-- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for something"
+- When step is next and ready to start → Step status = 🔵 READY FOR WORK (not PENDING!)
+- When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING or READY FOR WORK!)
+- ⚪ PENDING for steps means "future step, prerequisites not met", NOT "ready to work"
+- 🔵 READY FOR WORK for steps means "next step, can start immediately"
 
 **Types of blockers (all result in 🔴 BLOCKED):**
 - Waiting for question answer (question in QUESTIONS artifact)
@@ -1397,16 +1400,18 @@ Follow this workflow for every task:
 ### Status Transition Rules
 
 1. **Starting Work** (all updates BEFORE STOP):
-   - PENDING → IN PROGRESS (when work begins)
+   - READY FOR WORK → IN PROGRESS (when work begins on next step)
+   - PENDING → READY FOR WORK (when prerequisites met, previous step completed)
    - Must update PLAN metadata
    - **Must update "🎯 Current Focus" section** → show current step with 🟡 IN PROGRESS
    - Must update SESSION_CONTEXT
 
 2. **Completing Work** (all updates BEFORE STOP):
    - IN PROGRESS → COMPLETED (when all criteria met)
+   - **Next step: PENDING → READY FOR WORK** (prerequisites now met)
    - Must create CHANGELOG entry before marking complete
    - Must update PLAN metadata
-   - **Must update "🎯 Current Focus" section** → show NEXT step (or "All steps completed")
+   - **Must update "🎯 Current Focus" section** → show NEXT step with 🔵 READY FOR WORK status (or "All steps completed")
    - **STOP** - Wait for confirmation before proceeding to next step
 
 3. **Blocking** (all updates BEFORE STOP):

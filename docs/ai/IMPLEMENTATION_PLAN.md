@@ -7,7 +7,7 @@
 **Purpose:** [Purpose of this plan]  
 **Note:** This is a template file (View layer). Instructions below are for creating artifacts. Final artifacts (Model layer) contain data AND copied instructions (for self-sufficiency). Instructions section will be copied from this template.
 
-**Status:** 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | ⚪ PENDING  
+**Status:** 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | 🔵 READY FOR WORK | ⚪ PENDING  
 **Current Phase:** Phase X  
 **Current Step:** Step X.Y  
 **Last Update:** YYYY-MM-DD  
@@ -18,7 +18,7 @@
 ## 🎯 Current Focus
 
 > **Current Step:** [Phase X, Step Y: Step Name](#phase-x-step-xy-step-name)  
-> **Status:** 🟡 IN PROGRESS | 🔴 BLOCKED | ⚪ PENDING  
+> **Status:** 🟡 IN PROGRESS | 🔴 BLOCKED | 🔵 READY FOR WORK | ⚪ PENDING  
 > **Action Required:** [No action required | Answer question in @*_QUESTIONS.md (QX.Y) | Review and approve plan | Other specific action]
 
 ---
@@ -43,7 +43,7 @@
 
 **Context:** [Context of related tasks in this phase]  
 **Goal:** [Expected outcome]  
-**Status:** 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | ⚪ PENDING
+**Status:** 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | 🔵 READY FOR WORK | ⚪ PENDING
 
 #### Step X.Y: [Step Name]
 
@@ -95,15 +95,19 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 - ⚪ **PENDING** - Plan creation not complete or prerequisites not met (rarely used)
 
 **For Steps and Phases:**
-- ⚪ **PENDING** / **Pending** - Not started yet, no blockers, waiting for prerequisites or previous steps
+- ⚪ **PENDING** / **Pending** - Future step, not yet reached in workflow (prerequisites not met, previous steps not completed)
+- 🔵 **READY FOR WORK** / **Ready for Work** - Next step, prerequisites met, ready to start work (previous step completed)
 - 🟡 **IN PROGRESS** / **In Progress** - Actively working on this step, completion criteria are being worked on
 - 🔴 **BLOCKED** / **Blocked** - Cannot proceed due to blocking issue, question created in QUESTIONS, waiting for resolution
 - 🟢 **COMPLETED** / **Done** - All completion criteria met, changes documented in CHANGELOG
 
 **Key clarification:**
 - When plan is created and ready → PLAN status = 🟡 IN PROGRESS (not PENDING!)
-- When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING!)
-- ⚪ PENDING for steps means "hasn't started yet and no blockers", NOT "waiting for something"
+- When step is next and ready to start → Step status = 🔵 READY FOR WORK (not PENDING!)
+- When cannot proceed (any blocker) → Step status = 🔴 BLOCKED (not PENDING or READY FOR WORK!)
+- ⚪ PENDING for steps means "future step, prerequisites not met", NOT "ready to work"
+- 🔵 READY FOR WORK for steps means "next step, can start immediately"
+- First step of a new plan should be 🔵 READY FOR WORK (plan is ready, first step can start)
 
 **Types of blockers (all result in 🔴 BLOCKED):**
 - Waiting for question answer (question in QUESTIONS artifact)
@@ -113,8 +117,9 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 - Missing information that requires clarification
 
 **Status transition rules:**
-- ⚪ PENDING → 🟡 IN PROGRESS (when work begins)
-- 🟡 IN PROGRESS → 🟢 COMPLETED (when all criteria met)
+- ⚪ PENDING → 🔵 READY FOR WORK (when prerequisites met, previous step completed)
+- 🔵 READY FOR WORK → 🟡 IN PROGRESS (when work begins on next step)
+- 🟡 IN PROGRESS → 🟢 COMPLETED (when all criteria met) + next step: PENDING → READY FOR WORK
 - 🟡 IN PROGRESS → 🔴 BLOCKED (when blocker discovered)
 - 🔴 BLOCKED → 🟡 IN PROGRESS (when question answered)
 
@@ -142,7 +147,7 @@ This section defines all formatting rules, icons, and structure for PLAN artifac
 
 **Metadata section:**
 - Must include: Artifact Version, Last Adaptation Date, Purpose, Status, Current Phase, Current Step, Last Update
-- Status values: 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | ⚪ PENDING
+- Status values: 🟢 COMPLETED | 🟡 IN PROGRESS | 🔴 BLOCKED | 🔵 READY FOR WORK | ⚪ PENDING
 
 **Phase structure:**
 - Format: `### Phase X: [Phase Name]`
@@ -284,7 +289,7 @@ This artifact is part of a system of 4 required artifacts that work together:
 **Simple rule:** Show the highest priority active step (first step that is not completed).
 
 **Procedure:**
-1. Find the first step with status: 🟡 IN PROGRESS, 🔴 BLOCKED, or ⚪ PENDING (in order of phases and steps)
+1. Find the first step with status: 🟡 IN PROGRESS, 🔴 BLOCKED, 🔵 READY FOR WORK, or ⚪ PENDING (in order of phases and steps)
 2. Update "🎯 Current Focus" section with that step's link and status
 3. If step is BLOCKED and needs user input → set "Action Required: [specific action]" (e.g., "Answer question in @*_QUESTIONS.md (QX.Y)")
 4. If all steps completed → show "All steps completed"

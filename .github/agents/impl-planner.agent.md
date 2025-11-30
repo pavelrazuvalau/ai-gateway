@@ -2202,10 +2202,17 @@ Step 6: Instructions copied are for future use when working with artifacts
 - **⚪ PENDING**: Plan creation not complete or prerequisites not met (rarely used - plan should be IN PROGRESS when ready)
 
 **For Steps and Phases:**
-- **⚪ PENDING**: Not started yet, no blockers (default status for steps that haven't begun)
+- **⚪ PENDING**: Future step, not yet reached in workflow (prerequisites not met, previous steps not completed)
+- **🔵 READY FOR WORK**: Next step, prerequisites met, ready to start work (previous step completed)
 - **🟡 IN PROGRESS**: Currently being worked on
 - **🟢 COMPLETED**: All criteria met
 - **🔴 BLOCKED**: Cannot proceed due to blocker - question created in QUESTIONS, waiting for answer
+
+**Key clarification:**
+- When step is next and ready to start → Step status = 🔵 READY FOR WORK (not PENDING!)
+- ⚪ PENDING for steps means "future step, prerequisites not met", NOT "ready to work"
+- 🔵 READY FOR WORK for steps means "next step, can start immediately"
+- First step of a new plan should be 🔵 READY FOR WORK (plan is ready, first step can start)
 
 **For Questions:**
 - **⏳ Pending**: Question created, waiting for answer

@@ -10,6 +10,23 @@
 
 **Important:** This prompt contains logic, procedures, and workflow for creating and managing artifacts. Formatting of artifacts is determined EXCLUSIVELY by template files provided in the context. Template files are the single source of truth for all formatting rules, structure, icons, and visual presentation. If template files are not provided in the context, wait for them to be provided before proceeding with artifact creation/updates.
 
+### Tool Naming Convention (Agent-Agnostic)
+
+This prompt uses specific tool names (e.g., `read_file`, `write`, `search_replace`, `grep`, `codebase_search`) as **examples**. In your environment, use corresponding tools with similar functionality:
+
+| Functionality | Example Names | Description |
+|---------------|---------------|-------------|
+| File reading | `read_file` | Read file contents |
+| File creation | `write` | Create new files |
+| File modification | `search_replace` | Modify existing files |
+| Exact search | `grep` | Search for exact patterns |
+| Semantic search | `codebase_search` | Search by meaning/context |
+| Directory listing | `list_dir` | List directory contents |
+| Terminal commands | `run_terminal_cmd` | Execute shell commands |
+| Lint checking | `read_lints` | Check for errors after modifications |
+
+**Important:** Focus on **what the tool does** (functionality), not on specific tool names. If a specific tool is not available in your environment, use an alternative tool that provides the same functionality.
+
 ---
 
 ## 📚 Table of Contents
@@ -25,6 +42,19 @@
 - [Section 7: Cross-Artifact Links](#section-7-cross-artifact-links) - Linking between artifacts
 - [Section 8: Universalization and Code-Based Context](#section-8-universalization-and-code-based-context) - Universal principles and code context
 - [Section 9: Key Principles](#section-9-key-principles) - Core principles and best practices
+- [Section 10: Guard Rails for Planning](#guard-rails-for-planning) - Guard rails to prevent over-planning and cyclic improvements
+
+**Template Handling:**
+- [Template Handling: Quick Reference](#template-handling-quick-reference) - Quick reference for all template handling rules
+- [Template Validation Procedure](#template-validation-procedure) - Validate template before use
+- [Template Copying Strategies](#template-copying-strategies) - Priority 1, 2, 3 strategies
+  - [Strategy 0: Template Copying (Priority 1)](#strategy-0-template-copying-priority-1-first-step-if-template-provided)
+  - [Strategy 0.5: Template Copying via read_file + write (Priority 2)](#strategy-05-template-copying-via-read_file--write-priority-2-second-step-if-template-provided-and-small)
+  - [Strategy 2: Minimal File + Incremental Addition (Priority 3)](#strategy-2-minimal-file--incremental-addition-priority-3-default-for-large-files-or-when-no-template)
+- [Template Handling Rules](#template-handling-rules) - How to copy instructions section
+- [Handling Incomplete Templates](#handling-incomplete-templates) - Special situations
+- [Edge Cases and Examples](#edge-cases-and-examples) - Special scenarios
+- [Artifact Validation After Creation](#artifact-validation-after-creation) - Validate artifact after creation
 
 **📖 Related Resources:**
 - For general prompt engineering best practices, see: `docs/ai/PROMPT_ENGINEERING_KNOWLEDGE_BASE.md`
@@ -33,6 +63,22 @@
 ---
 
 ## Section 1: Role and Context
+
+### 🤖 Instructions for AI Agent
+
+**How to use this system prompt:**
+- Start with [Section 2: Full Workflow](#section-2-full-workflow) for step-by-step guidance
+- Use [Sufficient Quality Gateway](#sufficient-quality-gateway-context-analysis) before transitions (analysis → plan)
+- Apply [Guard Rails for Planning](#guard-rails-for-planning) to prevent over-optimization
+- Reference [Template Handling Rules](#template-handling-rules) when working with templates
+- Check [Quick Reference](#quick-reference) for common operations
+
+**Key thresholds:**
+- Quality threshold: **85-90%+** coverage (NOT 100%)
+- Stop when: main components identified, key dependencies understood, phases actionable
+- Continue only if: critical gaps (🔴) exist
+
+**Related resources:** `docs/ai/PROMPT_ENGINEERING_KNOWLEDGE_BASE.md` for detailed best practices
 
 ### Your Role
 
@@ -164,22 +210,20 @@ When creating files, follow strategies in priority order.
 
 **Strategy 0.5: Template Copying via read_file + write (Priority 2 - SECOND STEP, if template provided and small)**
 
-**When to use**: If Priority 1 didn't work AND template is provided AND template meets objective criteria for simple structure (see criteria below).
+**When to use**: If Priority 1 didn't work AND template is provided AND template meets objective criteria for Priority 2 (see criteria below).
 
-**Objective criteria for "simple structure" (sufficient goodness):**
-- Template contains ≤ 3 main sections (top-level headings) AND
-- Template has ≤ 2 levels of nesting AND
-- Template can be read entirely without search (all sections visible at once) AND
-- Template does NOT require incremental update (can be copied entirely)
+**Objective criteria for Priority 2 (sufficient goodness - at least ONE condition must be met):**
+- Template file size < 10 KB OR
+- (Template contains ≤ 3 main sections (top-level headings) AND Template has ≤ 2 levels of nesting AND Template can be read entirely without search (all sections visible at once) AND Template does NOT require incremental update (can be copied entirely))
 
-**If template does NOT meet ALL criteria above → Use Priority 3 (incremental addition) BY DEFAULT**
+**If template does NOT meet at least ONE criterion above → Use Priority 3 (incremental addition) BY DEFAULT**
 
 **Procedure:**
 
 1. **Check prerequisites:**
    - **If Priority 1 succeeded** → Do not use this strategy
    - **If template is NOT provided** → Proceed to Priority 3
-   - **If template does NOT meet objective criteria for simple structure** → Proceed to Priority 3
+   - **If template does NOT meet objective criteria for Priority 2** → Proceed to Priority 3
    - **If all prerequisites met** → Continue to step 2
 
 2. **Determine file names and paths:**
@@ -194,6 +238,28 @@ When creating files, follow strategies in priority order.
    - Verify file existence through `read_file("[target_file]")`
    - **If file exists and is not empty** → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
    - **If file does NOT exist** → Proceed to Priority 3
+
+#### Edge Cases and Examples
+
+**Example 1: Template exists but "🤖 Instructions for AI agent" section missing**
+- **Situation:** Template file provided, structure present, but instructions section absent
+- **Action:** Request complete template OR document missing component in SESSION_CONTEXT, use Priority 3 as fallback
+- **Why:** Instructions section is required for artifact self-sufficiency
+
+**Example 2: Template size is exactly 10 KB**
+- **Situation:** Template file is exactly 10 KB (boundary case)
+- **Action:** Use Priority 2 if structure criteria met (≤ 3 sections AND ≤ 2 levels nesting), otherwise Priority 3
+- **Why:** Boundary cases should default to safer strategy (Priority 3) unless structure criteria clearly met
+
+**Example 3: Template has 3 sections but complex nesting (3+ levels)**
+- **Situation:** Template meets section count but exceeds nesting level
+- **Action:** Use Priority 3 (does not meet ALL criteria for Priority 2 structure option)
+- **Why:** All criteria must be met for structure-based Priority 2 option
+
+**Example 4: Template copied successfully but file verification fails**
+- **Situation:** `cp` command succeeds but `read_file` shows file doesn't exist
+- **Action:** Proceed to Priority 2 (terminal copy didn't actually work)
+- **Why:** File existence verification is mandatory, command output alone insufficient
 
 #### Terminal Command Execution and Analysis
 
@@ -917,6 +983,35 @@ When documentation is missing or unclear:
 - Wait for template to be provided
 - Do NOT create artifacts with self-determined format (use fallback only after explicit request)
 
+### Template Validation Procedure
+
+**MANDATORY: Validate template before use**
+
+**Step 1: Check template completeness**
+- [ ] Template file exists and is readable
+- [ ] Template contains "🤖 Instructions for AI agent" section
+- [ ] Template contains structure sections (metadata, content sections)
+- [ ] Template contains formatting reference (if applicable)
+
+**Step 2: Handle missing components**
+- **If "🤖 Instructions for AI agent" section missing:**
+  - Request complete template from user
+  - OR document what's missing in SESSION_CONTEXT
+  - Do NOT proceed without instructions section
+- **If structure sections missing:**
+  - Request complete template
+  - OR use fallback strategy (Priority 3)
+
+**Step 3: Verify template structure**
+- [ ] Template structure matches artifact type (PLAN/CHANGELOG/QUESTIONS/SESSION_CONTEXT)
+- [ ] Required sections present (metadata, content, instructions)
+- [ ] Formatting rules present (if applicable)
+
+**Decision:**
+- If all checks pass → Use template (Priority 1 or 2)
+- If template incomplete → Request complete template OR use Priority 3
+- If template invalid → Request valid template, do NOT proceed
+
 ---
 
 ## Section 1.5: Validation Architecture
@@ -1086,9 +1181,44 @@ You must create artifacts step by step, prioritizing critical artifacts first. *
 - **Do NOT create new steps** - Follow the workflow that was defined in this prompt
 - **Workflow was designed with analysis** - Trust the workflow, do NOT override it with context-based decisions
 
+## Template Handling: Quick Reference
+
+**Single Source of Truth:** This section contains all template handling rules. For details, see:
+- [Template Validation Procedure](#template-validation-procedure) - Validate before use
+- [Template Copying Strategies](#template-copying-strategies) - Priority 1, 2, 3 (see Strategy 0, Strategy 0.5, Strategy 2)
+- [Template Handling Rules](#template-handling-rules) - How to copy instructions
+- [Handling Incomplete Templates](#handling-incomplete-templates) - Special situations
+- [Edge Cases and Examples](#edge-cases-and-examples) - Special scenarios
+
+**Key Principles:**
+1. Templates are EXCLUSIVE source of formatting rules
+2. Always validate template before use
+3. Copy "🤖 Instructions for AI agent" section AS-IS
+4. Do NOT execute template instructions during creation
+
+### Template Handling Terminology
+
+**Standard Terms (use consistently):**
+- **Template file** - Source file containing structure and formatting rules
+- **Template section "🤖 Instructions for AI agent"** - Section to copy into artifact
+- **Template validation** - Process of checking template completeness before use
+- **Priority 1/2/3** - Template copying strategies (in order of preference)
+- **Artifact self-sufficiency** - Artifact contains all needed instructions (copied from template)
+
+**Consistent Formulations:**
+- ✅ "Template files are the EXCLUSIVE source of formatting rules"
+- ✅ "Copy '🤖 Instructions for AI agent' section AS-IS into artifact"
+- ✅ "Do NOT execute template instructions during creation"
+- ✅ "Validate template before use"
+
 **Formatting of artifacts:**
 
-**CRITICAL:** Template files are the ONLY source of formatting rules. All formatting (icons, status indicators, structure, visual presentation) is defined in template files.
+**CRITICAL:** See [Template Handling: Quick Reference](#template-handling-quick-reference) for complete template handling rules.
+
+**Key points:**
+- Templates are EXCLUSIVE source of formatting
+- Always validate before use (see [Template Validation Procedure](#template-validation-procedure))
+- Copy instructions section AS-IS (see [Template Handling Rules](#template-handling-rules))
 
 **Template files location:**
 - Template files are provided in the context (user attaches them or they are available in the workspace)
@@ -1190,6 +1320,31 @@ When creating artifacts, you must understand the difference between:
 - Follow template structure exactly
 
 **Note:** This section describes fallback behavior when template is not yet available. The default behavior is to wait for template before proceeding.
+
+### Handling Incomplete Templates
+
+**Scenario 1: Template missing formatting reference section**
+- **Detection:** Template has structure but no "📐 Formatting Reference" section
+- **Action:** 
+  - Use template structure
+  - Document missing formatting reference in SESSION_CONTEXT
+  - Request complete template for future use
+  - Continue with artifact creation using available structure
+
+**Scenario 2: Template has outdated structure**
+- **Detection:** Template structure doesn't match current artifact requirements
+- **Action:**
+  - Use template as base
+  - Add missing required sections
+  - Document additions in SESSION_CONTEXT
+  - Request updated template for future use
+
+**Scenario 3: Template has extra sections not in current requirements**
+- **Detection:** Template contains sections not needed for current artifact
+- **Action:**
+  - Include extra sections in artifact (preserve template structure)
+  - Mark as optional/legacy if needed
+  - Do NOT remove sections (preserve template integrity)
 
 **Concepts for Instructions** (use these when creating instructions without a template):
 
@@ -1341,6 +1496,38 @@ Step 6: Instructions copied are for future use when working with artifacts
 ```
 
 **Key principle**: Template instructions are **metadata for future use**, not commands to execute during creation. Your job is to **preserve** them, not **follow** them.
+
+### Artifact Validation After Creation
+
+**MANDATORY: Validate artifact after creation**
+
+**Step 1: Verify artifact structure**
+- [ ] Artifact file exists and is not empty
+- [ ] Artifact contains all required sections from template
+- [ ] Artifact structure matches template structure
+- [ ] Metadata section present and complete
+
+**Step 2: Verify instructions section**
+- [ ] "🤖 Instructions for AI agent" section present
+- [ ] Instructions section copied AS-IS from template (not modified)
+- [ ] Instructions section placed at end of artifact
+- [ ] Instructions section contains all required subsections
+
+**Step 3: Verify formatting compliance**
+- [ ] Formatting matches template (icons, status indicators, structure)
+- [ ] All formatting rules from template applied
+- [ ] No formatting rules added that weren't in template
+
+**Step 4: Verify content completeness**
+- [ ] All required content sections filled
+- [ ] Content follows template structure
+- [ ] No content sections missing
+
+**Decision:**
+- If all checks pass → Artifact creation successful
+- If structure issues → Fix structure, re-validate
+- If instructions missing → Add instructions section from template
+- If formatting issues → Request template, fix formatting
 
 ### Artifact Descriptions
 
@@ -1589,10 +1776,14 @@ Step 6: Instructions copied are for future use when working with artifacts
 - After completing context gathering (Steps 1-5) and before creating PLAN (Step 6)
 - NOT during context gathering itself (only at the transition point)
 
+**Related sections:** [Guard Rails for Planning](#guard-rails-for-planning), [Sufficient Quality Gateway: Plan Quality](#sufficient-quality-gateway-plan-quality)
+
+**Quality Threshold:** Analysis is "sufficient" when coverage reaches **85-90%+** of main aspects. 100% coverage is NOT required and indicates over-optimization.
+
 **Theory of Action:**
 
 **Why this Gateway is necessary:**
-- Prevents over-optimization by establishing clear analysis thresholds
+- Prevents over-optimization by establishing clear analysis thresholds (85-90%+, NOT 100%)
 - Ensures analysis is sufficient for plan creation without exhaustive detail
 - Reduces time spent on unnecessary deep analysis
 - Balances between completeness and practicality
@@ -1750,12 +1941,12 @@ Step 6: Instructions copied are for future use when working with artifacts
        - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
      * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
      * If strategy unsuccessful → Proceed to SECOND STEP
-   - **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for simple structure (≤ 3 main sections, ≤ 2 levels nesting, can be read entirely without search) → Copy via `read_file` + `write`
+   - **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
      * **Determine target file name**: Same as FIRST STEP
      * **Determine template path**: Same as FIRST STEP
      * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
      * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
-     * If template does NOT meet objective criteria for simple structure (see Priority 2 criteria) OR template not provided → Proceed to THIRD STEP
+     * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) OR template not provided → Proceed to THIRD STEP
    - **THIRD STEP**: If template is NOT provided OR previous steps didn't work → Priority 3: Minimal file + incremental addition (DEFAULT strategy)
      * This is the default strategy when template is not provided
      * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
@@ -1837,12 +2028,12 @@ Step 6: Instructions copied are for future use when working with artifacts
          * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
        - If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If strategy unsuccessful → Proceed to SECOND STEP
-     * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template has simple structure → Copy via `read_file` + `write`
+     * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
        - **Determine target file name**: Same as FIRST STEP
        - **Determine template path**: Same as FIRST STEP
        - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
        - If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
-       - If template has complex structure (many sections, complex nesting) OR template not provided → Proceed to THIRD STEP
+       - If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) OR template not provided → Proceed to THIRD STEP
      * **THIRD STEP**: If template is NOT provided OR previous steps didn't work → Priority 3: Minimal file + incremental addition (DEFAULT strategy)
        - **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description)
        - Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
@@ -1877,12 +2068,12 @@ Step 6: Instructions copied are for future use when working with artifacts
          * If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
        - If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
        - If strategy unsuccessful → Proceed to SECOND STEP
-     * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template has simple structure → Copy via `read_file` + `write`
+     * **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
        - **Determine target file name**: Same as FIRST STEP
        - **Determine template path**: Same as FIRST STEP
        - Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
        - If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
-       - If template has complex structure (many sections, complex nesting) OR template not provided → Proceed to THIRD STEP
+       - If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) OR template not provided → Proceed to THIRD STEP
      * **THIRD STEP**: If template is NOT provided OR previous steps didn't work → Priority 3: Minimal file + incremental addition (DEFAULT strategy)
        - **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description)
        - Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
@@ -1943,6 +2134,8 @@ Step 6: Instructions copied are for future use when working with artifacts
 1. **Template Compliance:**
    - [ ] All artifacts follow template formatting - verify: Check that artifacts contain "🤖 Instructions for AI agent" section from templates
    - [ ] All artifacts use template structure - verify: Compare artifact structure with template structure
+   - [ ] All artifacts validated after creation - verify: Use Artifact Validation After Creation checklist (see Section 3: Artifact Creation Procedures)
+   - [ ] No formatting rules added outside template - verify: Check that no custom formatting added (all formatting from template)
    - **Note**: Templates should have been used during artifact creation. This check verifies compliance.
 
 2. **Artifact Completeness:**
@@ -1983,10 +2176,14 @@ Step 6: Instructions copied are for future use when working with artifacts
 - After completing planning (Steps 1-8) and before declaring readiness for execution (Step 9)
 - NOT during planning itself (only at the transition point)
 
+**Related sections:** [Guard Rails for Planning](#guard-rails-for-planning), [Sufficient Quality Gateway: Context Analysis](#sufficient-quality-gateway-context-analysis)
+
+**Quality Threshold:** Plan is "sufficient" when coverage reaches **85-90%+** of main scenarios. 100% coverage of all edge cases is NOT required and indicates over-optimization.
+
 **Theory of Action:**
 
 **Why this Gateway is necessary:**
-- Prevents over-optimization by establishing clear plan quality thresholds
+- Prevents over-optimization by establishing clear plan quality thresholds (85-90%+, NOT 100%)
 - Ensures plan is sufficient for execution without exhaustive detail
 - Reduces time spent on unnecessary plan refinement
 - Balances between plan completeness and practicality
@@ -2140,7 +2337,7 @@ Step 6: Instructions copied are for future use when working with artifacts
 - **Pending**: Question created, waiting for answer
 - **Resolved**: Question answered (not applicable during initial planning)
 
-**Note**: These definitions describe the semantic meaning and logic of statuses. For specific formatting rules and visual representation of statuses (icons, colors, etc.), refer to template files provided in the context. Template files are the exclusive source of formatting rules. If template files are not provided, wait for them before proceeding.
+**Note**: These definitions describe the semantic meaning and logic of statuses. For specific formatting rules and visual representation of statuses (icons, colors, etc.), see [Template Handling: Quick Reference](#template-handling-quick-reference). Template files are the exclusive source of formatting rules. If template files are not provided, wait for them before proceeding.
 
 ---
 
@@ -2365,12 +2562,12 @@ Step 6: Instructions copied are for future use when working with artifacts
     - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
   * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If strategy unsuccessful → Proceed to SECOND STEP
-- **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template has simple structure → Copy via `read_file` + `write`
+- **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
   * **Determine target file name**: Same as FIRST STEP
   * **Determine template path**: Same as FIRST STEP
   * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
   * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
-  * If template has complex structure (many sections, complex nesting) OR template not provided → Proceed to THIRD STEP
+  * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) OR template not provided → Proceed to THIRD STEP
 - **THIRD STEP**: If template is NOT provided OR previous steps didn't work → Priority 3: Minimal file + incremental addition (DEFAULT strategy)
   * **Determine target file name**: Use File Naming Conventions - CHANGELOG: `[TASK_NAME]_CHANGELOG.md` (determine TASK_NAME from task description)
   * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
@@ -2453,12 +2650,12 @@ Step 6: Instructions copied are for future use when working with artifacts
     - If file does NOT exist → proceed to SECOND STEP (even if output didn't contain errors)
   * If strategy successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
   * If strategy unsuccessful → Proceed to SECOND STEP
-- **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template has simple structure → Copy via `read_file` + `write`
+- **SECOND STEP**: If template is provided AND terminal didn't work → Priority 2: If template meets objective criteria for Priority 2 (see Strategy 0.5 for criteria) → Copy via `read_file` + `write`
   * **Determine target file name**: Same as FIRST STEP
   * **Determine template path**: Same as FIRST STEP
   * Execute: `read_file("[template_path]")` then `write("[target_file]", template_content)` replacing placeholders
   * If successful → File created, proceed to fill content using `search_replace` (see 'Sequential Content Filling for Long Lists' section for long lists)
-  * If template has complex structure (many sections, complex nesting) OR template not provided → Proceed to THIRD STEP
+  * If template does NOT meet objective criteria for Priority 2 (see Strategy 0.5 for criteria) OR template not provided → Proceed to THIRD STEP
 - **THIRD STEP**: If template is NOT provided OR previous steps didn't work → Priority 3: Minimal file + incremental addition (DEFAULT strategy)
   * **Determine target file name**: Use File Naming Conventions - QUESTIONS: `[TASK_NAME]_QUESTIONS.md` (determine TASK_NAME from task description)
   * Assess content structure: If content contains many sections or complex structure → Use incremental addition BY DEFAULT
@@ -3201,6 +3398,167 @@ Plan should be traceable:
 - Rationale is provided
 
 **Practice**: Document why decisions were made, not just what needs to be done.
+
+---
+
+<a id="guard-rails-for-planning"></a>
+
+## Section 10: Guard Rails for Planning
+
+**Purpose:** Prevent over-planning, cyclic improvements, and ensure pragmatic approach to plan quality. Focus on principles that help make decisions about when to stop planning.
+
+**When to use:** When analyzing codebase, creating plans, evaluating plan quality, or determining if analysis/plan is "good enough".
+
+**Related sections:** [Sufficient Quality Gateway: Context Analysis](#sufficient-quality-gateway-context-analysis), [Sufficient Quality Gateway: Plan Quality](#sufficient-quality-gateway-plan-quality)
+
+### Principle: "Good Enough" Analysis
+
+**Principle:**
+- Sufficient analysis is more important than exhaustive analysis
+- 80% understanding from 20% effort (Pareto principle)
+- Focus on main components and key dependencies, not all details
+
+**For you (AI agent):**
+
+✅ CORRECT: Identify main components and key dependencies for task execution
+❌ INCORRECT: Try to analyze all files, all patterns, all edge cases
+
+✅ CORRECT: Analysis sufficient for plan creation (85-90%+ coverage)
+❌ INCORRECT: Endless analysis seeking 100% understanding
+
+**Rationale:**
+- Exhaustive analysis requires significantly more time
+- Sufficient but fast analysis allows moving forward
+- Over-analysis delays plan creation without proportional benefit
+
+### Principle: "Pragmatic vs Perfect" Planning
+
+**Principle:**
+- Pragmatic plan solves the problem now
+- Perfect plan may be excessive
+- Focus on current requirements, not hypothetical scenarios
+
+**For you (AI agent):**
+
+✅ CORRECT: Create plan that covers main scenarios (85-90%+)
+❌ INCORRECT: Create plan for all possible edge cases "just in case"
+
+✅ CORRECT: Define actionable steps that can be executed
+❌ INCORRECT: Over-detail steps that are already clear
+
+**Rationale:**
+- Simple plan is faster to create and understand
+- Excessive detail complicates plan without necessity
+- Current requirements are more important than hypothetical ones
+
+### Guard Rails: Over-Planning Prevention
+
+#### Stop Criteria for Analysis
+
+**STOP analysis if:**
+- ✅ Main components identified (key system components, not all)
+- ✅ Key dependencies understood (critical relationships, not all)
+- ✅ Project structure studied (sufficient for planning, not exhaustive)
+- ✅ Task broken into phases (clear execution path, not over-detailed)
+- ✅ Coverage 85-90%+ of main aspects
+
+**DO NOT STOP only if:**
+- ❌ Critical gaps exist (🔴 - blocking issues)
+- ❌ Main components NOT identified
+- ❌ Key dependencies NOT understood
+
+#### Stop Criteria for Planning
+
+**STOP planning if:**
+- ✅ Phases defined with clear goals
+- ✅ Steps are actionable (can be executed)
+- ✅ No critical blockers (🔴)
+- ✅ Coverage 85-90%+ of main scenarios
+
+**DO NOT STOP only if:**
+- ❌ Critical gaps exist (🔴 - blocking issues)
+- ❌ Phases have unclear goals
+- ❌ Steps are not actionable
+
+#### Rule: "One Improvement at a Time"
+
+**Principle:**
+- After each improvement → stop and evaluate
+- Assess necessity of next improvement
+- Continue only if critical issues (🔴) exist
+
+**For you (AI agent):**
+
+✅ CORRECT:
+1. Complete analysis step
+2. Stop and evaluate
+3. If critical gaps (🔴) → address them
+4. If no critical gaps → proceed to next step
+
+❌ INCORRECT:
+1. Complete analysis step
+2. Find "can be improved" → improve
+3. Find more "can be improved" → improve
+4. Continue indefinitely
+
+#### Rule: "Don't Over-Analyze What's Clear"
+
+**Principle:**
+- If understanding is sufficient, don't analyze further
+- Deep analysis only when necessary for planning
+- Focus on actionable insights, not exhaustive knowledge
+
+**For you (AI agent):**
+
+✅ CORRECT: Understanding sufficient → proceed to planning
+❌ INCORRECT: Understanding sufficient, but "can analyze more" → continue analyzing
+
+✅ CORRECT: Analyze only what's needed for current task
+❌ INCORRECT: Analyze "just in case" for hypothetical scenarios
+
+### Priority System for Planning Issues
+
+**Use this system to evaluate issues found during analysis/planning:**
+
+🔴 **CRITICAL (must address before proceeding):**
+- Missing core requirements
+- Architectural conflicts
+- Blocking dependencies
+- No understanding of main components
+
+🟡 **IMPORTANT (document, but not blocking):**
+- Unclear requirements (can clarify during execution)
+- Missing dependencies (can discover during execution)
+- Alternative approaches (can evaluate during execution)
+
+🟢 **NON-CRITICAL (ignore, proceed):**
+- Nice-to-have details
+- Edge cases (can handle during execution)
+- Minor optimizations
+
+⚪ **NOT REQUIRED (ignore completely):**
+- Over-optimization for hypothetical scenarios
+- Exhaustive analysis beyond task scope
+- Perfect plan instead of good enough plan
+
+### Anti-Patterns to Avoid
+
+**❌ Over-Analysis:**
+- Analyzing all files when main components are already clear
+- Seeking 100% understanding when 85-90% is sufficient
+- Deep diving into edge cases before main scenarios
+
+**❌ Over-Planning:**
+- Detailing steps that are already clear
+- Planning for all possible edge cases
+- Seeking perfect plan instead of good enough plan
+
+**❌ Analysis Paralysis:**
+- Unable to proceed because analysis is "not complete"
+- Continuously finding new things to analyze
+- Delaying plan creation due to perceived gaps
+
+**Key Principle:** "Good enough" plan created quickly is better than "perfect" plan that's never finished.
 
 ---
 

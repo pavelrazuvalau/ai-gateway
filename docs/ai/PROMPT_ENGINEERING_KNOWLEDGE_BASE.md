@@ -86,7 +86,10 @@ Knowledge base as input context is a document or set of documents provided to an
 48. [Prompt Testing and Evaluation](#prompt-testing-and-evaluation)
 49. [Grounding Techniques](#grounding-techniques)
 50. [Prompt Debugging](#prompt-debugging)
-51. [Sources](#sources)
+51. [Persona Design Patterns](#persona-design-patterns)
+52. [Output Format Optimization](#output-format-optimization)
+53. [Prompt Compression Techniques](#prompt-compression-techniques)
+54. [Sources](#sources)
 
 ---
 
@@ -274,6 +277,26 @@ KNOWLEDGE BASE
 │   ├── Instruction Ablation
 │   ├── Contrastive Testing
 │   └── Common Fixes Reference
+│
+├── PERSONA DESIGN ← NEW CATEGORY
+│   ├── Persona Components (Role, Expertise, Voice, Boundaries)
+│   ├── Persona Patterns (Expert, Teacher, Partner, Analyst, Agent)
+│   ├── Expertise Calibration
+│   ├── Voice Consistency Techniques
+│   └── Multi-Persona Systems
+│
+├── OUTPUT FORMATTING ← NEW CATEGORY
+│   ├── Format Specification Levels
+│   ├── JSON Output Patterns
+│   ├── Markdown Output Patterns
+│   ├── Format Enforcement Techniques
+│   └── Length Control
+│
+├── PROMPT OPTIMIZATION ← NEW CATEGORY
+│   ├── Compression Techniques (9 techniques)
+│   ├── Compression Hierarchy
+│   ├── Token Reduction Strategies
+│   └── When NOT to Compress
 │
 ├── SECURITY
 │   ├── Prompt Injection
@@ -6322,6 +6345,859 @@ After identifying the issue:
 
 ---
 
+## Persona Design Patterns
+
+**Purpose:** Systematic approaches to defining agent roles and personalities for consistent, effective behavior
+**When to use:** When creating system prompts, when agent behavior needs to be predictable, when domain expertise is required
+**Related sections:** [Role Definition](#role-definition-in-system-prompts-structure-and-components), [Style Guide](#style-guide-for-system-prompts)
+
+---
+
+### Why Persona Matters
+
+**Without clear persona:**
+- Inconsistent tone and behavior
+- Model defaults to generic assistant mode
+- Domain expertise not activated
+- User experience varies unpredictably
+
+**With well-designed persona:**
+- Consistent voice and expertise level
+- Appropriate domain knowledge activation
+- Predictable interaction patterns
+- Better alignment with use case
+
+---
+
+### Persona Components
+
+| Component | Purpose | Example |
+|-----------|---------|---------|
+| **Role** | What the agent IS | "Senior software architect" |
+| **Expertise** | What the agent KNOWS | "Expert in distributed systems, 15 years experience" |
+| **Perspective** | HOW the agent thinks | "Prioritizes maintainability over cleverness" |
+| **Voice** | HOW the agent communicates | "Direct, technical, avoids jargon with non-experts" |
+| **Boundaries** | What the agent WON'T do | "Does not provide legal advice" |
+| **Values** | What the agent PRIORITIZES | "User safety above task completion" |
+
+---
+
+### Persona Design Template
+
+```text
+PERSONA DEFINITION:
+
+ROLE:
+You are a [specific role] with [qualifications/experience].
+
+EXPERTISE:
+- Primary domain: [main area of expertise]
+- Secondary domains: [supporting knowledge areas]
+- Experience level: [junior/mid/senior/expert]
+
+PERSPECTIVE:
+- You approach problems by [methodology]
+- You prioritize [priority 1] over [priority 2]
+- You believe [core belief relevant to domain]
+
+COMMUNICATION STYLE:
+- Tone: [formal/casual/technical/friendly]
+- Detail level: [concise/thorough/adaptive]
+- When uncertain: [acknowledge/ask/research]
+
+BOUNDARIES:
+- You DO: [list of acceptable actions]
+- You DON'T: [list of restricted actions]
+- When asked to exceed boundaries: [how to respond]
+
+VALUES:
+- Primary: [most important value]
+- Secondary: [supporting values]
+```
+
+---
+
+### Persona Patterns
+
+#### Pattern 1: Expert Consultant
+
+**Use when:** Users need authoritative guidance
+
+```text
+"You are a senior [domain] consultant with 20+ years of experience.
+You've worked with Fortune 500 companies and startups alike.
+You provide actionable advice based on industry best practices.
+You're direct about trade-offs and don't oversimplify complex issues."
+```
+
+**Characteristics:**
+- Authoritative but not arrogant
+- Acknowledges complexity
+- Provides reasoned recommendations
+- Shares relevant experience (generalized)
+
+#### Pattern 2: Helpful Teacher
+
+**Use when:** Users need to learn, not just get answers
+
+```text
+"You are a patient educator who believes in learning by doing.
+You explain concepts at the appropriate level for the learner.
+You use analogies and examples to make abstract ideas concrete.
+You encourage questions and celebrate progress."
+```
+
+**Characteristics:**
+- Scaffolds learning
+- Checks understanding
+- Adapts to learner level
+- Encourages rather than judges
+
+#### Pattern 3: Collaborative Partner
+
+**Use when:** Users are peers, need a thought partner
+
+```text
+"You are a collaborative partner, not an authority figure.
+You think alongside the user, building on their ideas.
+You ask clarifying questions when helpful.
+You offer alternatives without dismissing user's approach."
+```
+
+**Characteristics:**
+- Equal footing
+- Builds on user input
+- Offers, doesn't dictate
+- Respects user expertise
+
+#### Pattern 4: Careful Analyst
+
+**Use when:** Accuracy and thoroughness are paramount
+
+```text
+"You are a meticulous analyst who values accuracy above speed.
+You verify information before presenting it.
+You clearly distinguish between facts, inferences, and opinions.
+You acknowledge uncertainty and knowledge gaps."
+```
+
+**Characteristics:**
+- Emphasizes verification
+- Labels confidence levels
+- Thorough but not verbose
+- Comfortable saying "I don't know"
+
+#### Pattern 5: Task-Focused Agent
+
+**Use when:** Efficiency is priority, minimal interaction needed
+
+```text
+"You are a focused execution agent.
+You complete tasks with minimal unnecessary dialogue.
+You ask for clarification only when essential.
+You report results concisely and move on."
+```
+
+**Characteristics:**
+- Minimal small talk
+- Direct communication
+- Action-oriented
+- Results-focused
+
+---
+
+### Expertise Calibration
+
+**Matching expertise to audience:**
+
+```text
+FOR BEGINNERS:
+"Explain concepts as if to someone new to [domain].
+Use analogies from everyday life.
+Avoid jargon; when technical terms are necessary, define them.
+Break complex topics into digestible pieces."
+
+FOR INTERMEDIATE:
+"Assume familiarity with basic [domain] concepts.
+Use standard terminology without extensive definitions.
+Focus on nuances and best practices.
+Reference common patterns they likely know."
+
+FOR EXPERTS:
+"Assume deep [domain] expertise.
+Use precise technical terminology.
+Focus on edge cases, trade-offs, and advanced patterns.
+Engage at peer level without unnecessary explanation."
+
+ADAPTIVE:
+"Assess the user's expertise level from their questions.
+Start at intermediate and adjust based on their responses.
+If they use advanced terminology correctly, match that level.
+If they seem confused, simplify without condescension."
+```
+
+---
+
+### Voice Consistency Techniques
+
+**Technique 1: Voice Anchors**
+```text
+"Your communication style:
+- Start responses with action or insight, never 'I'd be happy to...'
+- Use short sentences for clarity
+- One idea per paragraph
+- Technical when needed, plain when possible"
+```
+
+**Technique 2: Phrase Libraries**
+```text
+"Preferred phrases:
+- Instead of 'I think': 'Based on [evidence]...'
+- Instead of 'You should': 'Consider...' or 'One approach is...'
+- Instead of 'I can't': 'That's outside my scope because...'
+
+Avoid:
+- 'As an AI language model...'
+- 'I don't have personal opinions, but...'
+- Excessive hedging and qualifiers"
+```
+
+**Technique 3: Response Starters**
+```text
+"How to begin responses:
+- Questions: Answer first, then explain
+- Tasks: State what you'll do, then do it
+- Problems: Identify the core issue first
+- Opinions requested: Give clear position with reasoning"
+```
+
+---
+
+### Multi-Persona Systems
+
+**When multiple personas interact:**
+
+```text
+PERSONA ROUTING:
+- Technical questions → Technical Expert persona
+- Emotional support → Empathetic Listener persona
+- Creative tasks → Creative Partner persona
+
+HANDOFF PROTOCOL:
+"When a query falls outside your persona's expertise:
+1. Acknowledge the query
+2. Explain why another perspective is more appropriate
+3. Transition smoothly: 'Let me approach this from a [X] perspective...'"
+```
+
+---
+
+### Persona Anti-Patterns
+
+| Anti-Pattern | Problem | Better Approach |
+|--------------|---------|-----------------|
+| **Overly rigid role** | Can't handle edge cases | Allow flexibility within bounds |
+| **Too many traits** | Confusing, inconsistent | 3-5 core traits maximum |
+| **Contradictory values** | Unpredictable behavior | Prioritize clearly |
+| **Unrealistic expertise** | Hallucinations likely | Match to model's actual capabilities |
+| **No boundaries** | Scope creep, inappropriate responses | Explicit limits |
+| **Fake personality** | Feels artificial | Functional traits, not quirks |
+
+---
+
+### Persona Validation Checklist
+
+```text
+Before deploying a persona:
+
+□ Role is specific enough to guide behavior
+□ Expertise matches actual model capabilities
+□ Voice is consistent and maintainable
+□ Boundaries are clear and appropriate
+□ Values don't conflict with each other
+□ Can handle requests outside core competency
+□ Doesn't require "acting" that feels forced
+□ Serves the user's actual needs
+```
+
+---
+
+## Output Format Optimization
+
+**Purpose:** Techniques for specifying and achieving desired output formats
+**When to use:** When specific formats are required, when outputs feed into other systems, when consistency matters
+**Related sections:** [Structured Output](#structured-output), [Prompt Testing](#prompt-testing-and-evaluation)
+
+---
+
+### Why Format Matters
+
+**Format impacts:**
+- Parseability by downstream systems
+- User comprehension
+- Token efficiency
+- Consistency across responses
+
+**Common format requirements:**
+- JSON for APIs and data processing
+- Markdown for documentation
+- Plain text for simple displays
+- Structured text for human reading
+- Code blocks for executable content
+
+---
+
+### Format Specification Levels
+
+| Level | Precision | Use When |
+|-------|-----------|----------|
+| **Implicit** | Low | Format doesn't matter much |
+| **Descriptive** | Medium | General structure needed |
+| **Example-based** | High | Specific format required |
+| **Schema-enforced** | Very High | Parsing must not fail |
+
+---
+
+### Level 1: Implicit Format
+
+**Minimal specification:**
+```text
+"List the main points."
+```
+
+**Result:** Model chooses format (bullets, numbers, prose)
+
+**When to use:** Informal contexts, human reading only
+
+---
+
+### Level 2: Descriptive Format
+
+**Specify structure in words:**
+```text
+"Provide your answer as:
+1. A one-sentence summary
+2. Three bullet points with key details
+3. A brief recommendation"
+```
+
+**When to use:** Human-readable output, moderate consistency needs
+
+---
+
+### Level 3: Example-Based Format
+
+**Show exact desired format:**
+```text
+"Format your response exactly like this example:
+
+ANALYSIS:
+[Brief analysis of the situation]
+
+RECOMMENDATION:
+[Clear recommendation]
+
+RATIONALE:
+- [Reason 1]
+- [Reason 2]
+- [Reason 3]"
+```
+
+**When to use:** Consistency important, human consumption
+
+---
+
+### Level 4: Schema-Enforced Format
+
+**Machine-parseable specification:**
+```text
+"Return valid JSON matching this schema:
+{
+  'summary': string (max 100 chars),
+  'confidence': number (0-1),
+  'findings': [
+    {
+      'issue': string,
+      'severity': 'low' | 'medium' | 'high',
+      'recommendation': string
+    }
+  ]
+}"
+```
+
+**When to use:** Programmatic consumption, strict requirements
+
+---
+
+### JSON Output Patterns
+
+**Pattern 1: Simple JSON**
+```text
+"Return only valid JSON, no other text:
+{'key': 'value'}"
+```
+
+**Pattern 2: JSON with reasoning**
+```text
+"Think through the problem, then provide JSON.
+Format:
+REASONING: [your thinking]
+RESULT:
+```json
+{'answer': ...}
+```"
+```
+
+**Pattern 3: Streaming-friendly JSON**
+```text
+"Return results as JSON lines (one object per line):
+{'id': 1, 'result': ...}
+{'id': 2, 'result': ...}"
+```
+
+**Pattern 4: Nested structure**
+```text
+"Structure your response as:
+{
+  'metadata': {'timestamp': '...', 'version': '...'},
+  'data': {...},
+  'errors': [...] or null
+}"
+```
+
+---
+
+### Markdown Output Patterns
+
+**Pattern 1: Document structure**
+```text
+"Format as a markdown document:
+# Title
+## Section 1
+[content]
+## Section 2
+[content]"
+```
+
+**Pattern 2: Table output**
+```text
+"Present the comparison as a markdown table:
+| Feature | Option A | Option B |
+|---------|----------|----------|
+| ... | ... | ... |"
+```
+
+**Pattern 3: Mixed content**
+```text
+"Use appropriate markdown:
+- Headers for main sections
+- Bullet points for lists
+- Code blocks for code
+- Bold for emphasis on key terms"
+```
+
+---
+
+### Structured Text Patterns
+
+**Pattern 1: Labeled sections**
+```text
+"Format with clear labels:
+SUMMARY: [one sentence]
+DETAILS: [main content]
+NEXT STEPS: [action items]"
+```
+
+**Pattern 2: Hierarchical**
+```text
+"Use indentation to show hierarchy:
+Main Point 1
+  - Sub-point A
+  - Sub-point B
+    - Detail
+Main Point 2
+  - Sub-point C"
+```
+
+**Pattern 3: Key-Value**
+```text
+"Format as key-value pairs:
+Name: [value]
+Status: [value]
+Priority: [value]"
+```
+
+---
+
+### Format Enforcement Techniques
+
+**Technique 1: Explicit instruction**
+```text
+"Your response MUST be valid JSON.
+Do not include any text before or after the JSON.
+Do not use markdown code blocks."
+```
+
+**Technique 2: Start the format**
+```text
+"Complete this JSON:
+{"
+```
+(Model continues from where you left off)
+
+**Technique 3: Validation instruction**
+```text
+"Before responding, verify your output:
+1. Is it valid JSON?
+2. Does it match the schema?
+3. Are all required fields present?"
+```
+
+**Technique 4: Error handling**
+```text
+"If you cannot provide the exact format requested, return:
+{'error': 'reason', 'partial_result': ...}"
+```
+
+---
+
+### Length Control
+
+**Explicit limits:**
+```text
+"Keep your response under 100 words."
+"Provide exactly 3 bullet points."
+"Limit to 2-3 sentences."
+```
+
+**Adaptive length:**
+```text
+"Adjust detail level based on complexity:
+- Simple questions: 1-2 sentences
+- Moderate complexity: 1 paragraph
+- Complex topics: structured response with sections"
+```
+
+**Minimum requirements:**
+```text
+"Ensure your response includes at least:
+- One specific example
+- One potential drawback
+- One actionable recommendation"
+```
+
+---
+
+### Format Troubleshooting
+
+| Issue | Likely Cause | Fix |
+|-------|--------------|-----|
+| **Extra text around JSON** | Instructions unclear | "Return ONLY JSON, nothing else" |
+| **Wrong structure** | No example provided | Add concrete example |
+| **Missing fields** | Fields not emphasized | List required fields explicitly |
+| **Inconsistent format** | Too much flexibility | Stricter specification |
+| **Format breaks on edge cases** | Not all scenarios covered | Add edge case handling |
+| **Too verbose** | No length constraint | Add explicit limits |
+
+---
+
+### Format Selection Guide
+
+```text
+Choose format based on:
+
+FOR API CONSUMPTION:
+→ JSON with strict schema
+→ Validate before sending
+
+FOR HUMAN READING:
+→ Markdown or structured text
+→ Headers and bullets for scannability
+
+FOR LOGGING:
+→ JSON lines or structured text
+→ Include timestamps and IDs
+
+FOR MIXED USE:
+→ Structured text with parseable sections
+→ Clear delimiters between parts
+
+FOR CODE:
+→ Code blocks with language tags
+→ Comments for context
+```
+
+---
+
+## Prompt Compression Techniques
+
+**Purpose:** Methods to reduce token usage while maintaining prompt effectiveness
+**When to use:** Long context needed, cost optimization, approaching context limits
+**Related sections:** [Context Window Management](#context-window-management), [Instruction Hierarchy](#instruction-hierarchy-and-priority)
+
+---
+
+### Why Compress Prompts
+
+**Benefits:**
+- Lower costs (fewer input tokens)
+- Faster responses (less to process)
+- More room for context/output
+- Stay within context window limits
+
+**Risks of over-compression:**
+- Loss of clarity
+- Ambiguity increases
+- Important nuances dropped
+- Performance degradation
+
+**Goal:** Minimum tokens for maximum effectiveness
+
+---
+
+### Compression Hierarchy
+
+| Priority | Compress First | Compress Last |
+|----------|----------------|---------------|
+| 1 | Redundant content | Core instructions |
+| 2 | Verbose phrasing | Safety constraints |
+| 3 | Examples (if pattern clear) | Format specifications |
+| 4 | Explanations (for capable models) | Critical context |
+| 5 | Nice-to-have context | Required context |
+
+---
+
+### Technique 1: Remove Redundancy
+
+**Before:**
+```text
+"You are a helpful assistant. Your job is to help users. 
+You should be helpful and assist users with their questions.
+When users ask questions, help them by providing helpful answers."
+```
+
+**After:**
+```text
+"You are a helpful assistant."
+```
+
+**Savings:** ~80% token reduction
+
+---
+
+### Technique 2: Concise Phrasing
+
+**Before:**
+```text
+"When the user asks you a question about programming, you should 
+provide them with a detailed explanation that includes code examples 
+whenever it would be helpful to illustrate the concepts being discussed."
+```
+
+**After:**
+```text
+"For programming questions: explain with code examples."
+```
+
+**Savings:** ~75% token reduction
+
+---
+
+### Technique 3: List Compression
+
+**Before:**
+```text
+"You can help with the following types of tasks:
+- Writing code in various programming languages
+- Debugging existing code to find and fix problems
+- Explaining how code works
+- Suggesting improvements to code
+- Converting code from one language to another"
+```
+
+**After:**
+```text
+"Capabilities: code writing, debugging, explanation, improvement, conversion."
+```
+
+**Savings:** ~60% token reduction
+
+---
+
+### Technique 4: Structured Compression
+
+**Before (verbose):**
+```text
+"When you provide an answer, first give a brief summary of what you're 
+going to explain. Then provide the detailed explanation. After that, 
+give some examples if they would be helpful. Finally, summarize the 
+key points at the end."
+```
+
+**After (structured):**
+```text
+"Response format:
+1. Summary (1 sentence)
+2. Details
+3. Examples (if helpful)
+4. Key takeaways"
+```
+
+**Savings:** ~50% token reduction
+
+---
+
+### Technique 5: Implicit vs Explicit
+
+**Modern models understand implicit instructions:**
+
+**Explicit (verbose):**
+```text
+"When writing code, make sure to include comments that explain what 
+the code does. Also make sure the code follows best practices and 
+is well-formatted according to the conventions of the language."
+```
+
+**Implicit (compressed):**
+```text
+"Write clean, commented code."
+```
+
+**Note:** Test implicit instructions; explicitness sometimes needed for reliability
+
+---
+
+### Technique 6: Reference Instead of Repeat
+
+**Before (repetition):**
+```text
+"When analyzing documents, look for key themes. 
+When summarizing documents, mention key themes.
+When comparing documents, compare their key themes."
+```
+
+**After (reference):**
+```text
+"For all document tasks: focus on key themes."
+```
+
+---
+
+### Technique 7: Abbreviation Systems
+
+**For repeated terms, define abbreviations:**
+
+```text
+"Definitions: U=user, S=system, R=response, Q=query
+
+Rules:
+- When U sends Q, validate first
+- S generates R based on Q
+- R must address U's intent"
+```
+
+**Use sparingly:** Can reduce readability if overused
+
+---
+
+### Technique 8: Example Minimization
+
+**When few-shot needed, use minimal examples:**
+
+**Verbose:**
+```text
+"Example 1:
+Input: What is the capital of France?
+Output: The capital of France is Paris. Paris is located in the 
+north-central part of the country and has been the capital since...
+
+Example 2:
+Input: What is the capital of Japan?
+Output: The capital of Japan is Tokyo. Tokyo is located on the 
+eastern coast of Honshu island and became the capital when..."
+```
+
+**Minimal:**
+```text
+"Examples:
+Q: Capital of France? → Paris
+Q: Capital of Japan? → Tokyo"
+```
+
+---
+
+### Technique 9: Progressive Detail Loading
+
+**Instead of full context upfront:**
+
+```text
+"Base instructions: [minimal set]
+
+If needed for complex cases:
+[additional context loaded on demand]"
+```
+
+**Implementation:**
+- Start with compressed core
+- Expand context only when task requires it
+- Use retrieval to load relevant sections
+
+---
+
+### Compression Checklist
+
+```text
+Before compressing, for each section ask:
+
+□ Is this repeated elsewhere? → Remove duplicate
+□ Can this be said in fewer words? → Compress
+□ Will the model understand without this? → Consider removing
+□ Is this example necessary? → Minimize or remove
+□ Is this explanation vs instruction? → Convert to instruction
+□ Can I reference instead of repeat? → Use reference
+□ Is verbose form more reliable? → Keep if needed
+
+After compression, verify:
+
+□ Core functionality preserved
+□ Critical constraints intact
+□ Format requirements clear
+□ Output quality maintained
+```
+
+---
+
+### Compression Metrics
+
+**Track these when optimizing:**
+
+```text
+METRICS:
+- Token count: [before] → [after]
+- Reduction: [percentage]
+- Quality impact: [none/minor/significant]
+- Failure rate: [before] → [after]
+
+TARGET:
+- 30-50% reduction achievable without quality loss
+- Beyond 50%: test carefully for degradation
+```
+
+---
+
+### When NOT to Compress
+
+**Preserve full verbosity for:**
+- Safety-critical instructions
+- Complex conditional logic
+- Ambiguity-prone specifications
+- First-time prompt development (optimize later)
+- Cases where explicitness improved reliability
+
+**Rule:** Optimize for clarity first, compress second
+
+---
+
 ## Sources
 
 ### Official Documentation
@@ -6357,9 +7233,10 @@ After identifying the issue:
 ## End of Knowledge Base
 
 *Last updated: November 2025*
-*Version: 1.5*
+*Version: 1.6*
 
 ### Version History
+- **1.6** (Nov 2025): Added Tier 3 specialized sections: Persona Design Patterns (5 patterns, expertise calibration, voice consistency, multi-persona systems), Output Format Optimization (4 specification levels, JSON/Markdown patterns, enforcement techniques), Prompt Compression Techniques (9 compression methods, hierarchy, metrics). Added 3 new categories: PERSONA DESIGN, OUTPUT FORMATTING, PROMPT OPTIMIZATION.
 - **1.5** (Nov 2025): Added Tier 2 practical sections: Prompt Testing & Evaluation (test case design, evaluation methods, A/B testing, metrics), Grounding Techniques (anti-hallucination, citation requirements, RAG, confidence calibration), Prompt Debugging (debugging process, minimal reproduction, instruction ablation, common fixes). Added 3 new categories: TESTING & EVALUATION, GROUNDING, DEBUGGING.
 - **1.4** (Nov 2025): Added Tier 1 foundational sections based on research: Agentic Patterns (ReAct, Plan-and-Execute, MRKL, Hierarchical), Self-Reflection & Self-Correction (Reflexion, Self-Refine, Constitutional), Tool Use Patterns, Deep Investigation Patterns. Added 4 new categories: AGENTIC PATTERNS, SELF-IMPROVEMENT, TOOL INTEGRATION, INVESTIGATION. Updated Sources with research papers.
 - **1.3** (Nov 2025): Added 4 audit-focused sections: System Prompt Audit Framework, Multi-Prompt System Design, Checkpoint & Control Flow Design, Requirements-to-Prompt Translation. Added 3 new categories: AUDIT & QUALITY, SYSTEM ARCHITECTURE, REQUIREMENTS ENGINEERING. Structured for MCP server integration.

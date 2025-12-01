@@ -9,6 +9,7 @@
 
 **Purpose:** Define the conceptual foundation and purpose of this knowledge base
 **When to use:** Read first to understand how to use this KB effectively
+**Related sections:** [Instructions for You](#instructions-for-you-ai-reading-this), [Glossary](#glossary-of-terms), [Quality Control](#quality-control-and-stopping-criteria)
 
 ### Knowledge Base as "Guard Rails"
 
@@ -34,6 +35,29 @@ Knowledge base as input context is a document or set of documents provided to an
 - Knowledge base can be attached entirely or partially
 - Relevant sections are selected based on task type
 - Searching by categories and tags speeds up relevant information retrieval
+
+---
+
+## Instructions for You (AI Reading This)
+
+**This section is for YOU — the AI model currently reading this document.**
+
+If you are processing this knowledge base to help with a task:
+
+1. **This KB is your guide** — treat these principles as guidance for your decisions
+2. **Start with [Quick Navigation](#quick-navigation-by-task)** to find the most relevant section for your current task
+3. **Read the relevant section completely** before applying its recommendations
+4. **Apply principles, not rigid rules** — use judgment within the guard rails
+5. **Reference specific sections** when explaining your decisions to users
+6. **Check your output** against guidelines before responding
+
+**How to search this KB efficiently:**
+- Use section headers (##, ###) as search anchors
+- Look for `**Purpose:**` to understand what each section provides
+- Look for `**When to use:**` to check if the section applies to your task
+- Follow `**Related sections:**` links to find connected information
+
+**Key principle:** This KB provides guard rails — boundaries within which you have freedom to operate. Stay within the boundaries, but be creative inside them.
 
 ---
 
@@ -89,6 +113,10 @@ Knowledge base as input context is a document or set of documents provided to an
 
 ## Knowledge Base Categories Map
 
+**Purpose:** Visual overview of KB structure and categories
+**When to use:** To understand how information is organized and find the right category
+**Related sections:** [Quick Navigation](#quick-navigation-by-task), [Table of Contents](#table-of-contents)
+
 ```
 KNOWLEDGE BASE
 ├── META (KB Structure)
@@ -142,6 +170,10 @@ KNOWLEDGE BASE
 
 ## Criteria for Adding Information to Knowledge Base
 
+**Purpose:** Decision framework for what information belongs in this KB
+**When to use:** When considering adding new content to the knowledge base
+**Related sections:** [Categories Map](#knowledge-base-categories-map), [Definitions](#definitions)
+
 ### Information SHOULD be Added if:
 
 1. **Proven in practice**: Used successfully in real projects
@@ -178,6 +210,7 @@ Is the information related to prompt engineering?
 
 **Purpose:** Ensure uniform terminology throughout the knowledge base
 **When to use:** When creating or updating knowledge base sections for consistent use of terms
+**Related sections:** [Definitions](#definitions), [Style Guide](#style-guide-for-system-prompts)
 
 **⚠️ IMPORTANT:** The glossary defines the language of communication between humans and AI agents. All terms used in the knowledge base should be defined here. Read the glossary first to understand the terminology.
 
@@ -1124,6 +1157,10 @@ Just answer the question. (without structuring reasoning process)
 
 ## Prompt Security
 
+**Purpose:** Protect prompts from attacks and prevent data leakage
+**When to use:** When designing prompts that handle user input or sensitive data
+**Related sections:** [Top-10 Mistakes (#8 Ignoring Security)](#8-ignoring-security-), [Anti-patterns](#anti-patterns), [Best Practices (#8 Security Check)](#8-security-check)
+
 ### Prompt Injection
 
 **Problem**: Malicious input that overrides system instructions.
@@ -1193,6 +1230,10 @@ You are a helpful assistant. Follow these rules strictly:
 
 ## Structured Output
 
+**Purpose:** Ensure model outputs conform to specific formats (JSON, schemas)
+**When to use:** When integrating with APIs or when output format must be machine-readable
+**Related sections:** [Best Practices (#5 Defining Output Format)](#5-defining-output-format), [Prompt Engineering Techniques](#prompt-engineering-techniques)
+
 ### JSON Mode
 
 **Description**: Forcing model to output valid JSON.
@@ -1227,6 +1268,10 @@ Text: 'John paid $150 on March 15, 2024'"
 ---
 
 ## Anti-patterns
+
+**Purpose:** Patterns to avoid when writing prompts — common mistakes with names
+**When to use:** When reviewing prompts for quality or learning what NOT to do
+**Related sections:** [Top-10 Common Mistakes](#top-10-common-mistakes), [Best Practices](#best-practices), [Quality Control](#quality-control-and-stopping-criteria)
 
 ### The "Kitchen Sink" Anti-pattern
 
@@ -2489,12 +2534,15 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 4. **Include edge case handling**
 5. **Test with adversarial inputs**
 
-### For AI Agents Working with This Knowledge Base
+### When You Use This Knowledge Base
 
-1. **Reference specific sections** when applying recommendations
-2. **Check for contradictions** between your output and this guide
-3. **Suggest additions** when encountering undocumented patterns
-4. **Use [Quick Navigation](#quick-navigation-by-task)** to find relevant sections
+As the AI reading this, remember to:
+
+1. **Reference specific sections** when explaining your recommendations to users
+2. **Check your output** for contradictions with this guide before responding
+3. **Suggest additions** to users when you encounter undocumented patterns
+4. **Use [Quick Navigation](#quick-navigation-by-task)** to quickly find relevant sections
+5. **Apply guard rails** — stay within boundaries but be creative inside them
 
 ---
 
@@ -2524,7 +2572,13 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 ## End of Knowledge Base
 
 *Last updated: December 2025*
-*Version: 1.3*
+*Version: 1.4*
+
+**v1.4 Changes:**
+- Added "Instructions for You (AI Reading This)" — direct guidance for AI models
+- Converted "For AI Agents" to direct "you" addressing
+- Added Related sections to 7 sections (Definitions, Glossary, Prompt Security, Structured Output, Anti-patterns, Categories Map, Criteria)
+- Added Purpose/When to use metadata to Categories Map and Criteria sections
 
 **v1.3 Changes:**
 - Added Quick Navigation by Task table for fast entry points

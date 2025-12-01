@@ -83,7 +83,10 @@ Knowledge base as input context is a document or set of documents provided to an
 45. [Self-Reflection and Self-Correction](#self-reflection-and-self-correction)
 46. [Tool Use Patterns](#tool-use-patterns)
 47. [Deep Investigation Patterns](#deep-investigation-patterns)
-48. [Sources](#sources)
+48. [Prompt Testing and Evaluation](#prompt-testing-and-evaluation)
+49. [Grounding Techniques](#grounding-techniques)
+50. [Prompt Debugging](#prompt-debugging)
+51. [Sources](#sources)
 
 ---
 
@@ -249,6 +252,28 @@ KNOWLEDGE BASE
 │   ├── Requirements-to-Prompt Translation
 │   ├── Requirement Classification
 │   └── Translation Rules
+│
+├── TESTING & EVALUATION ← NEW CATEGORY
+│   ├── Prompt Testing Frameworks
+│   ├── Test Case Design (Functional, Edge, Adversarial, Regression)
+│   ├── Evaluation Methods (Exact Match, Semantic, LLM-as-Judge)
+│   ├── A/B Testing Prompts
+│   └── Metrics and Reporting
+│
+├── GROUNDING ← NEW CATEGORY
+│   ├── Anti-Hallucination Techniques
+│   ├── Context-Only Responses
+│   ├── Citation Requirements
+│   ├── Confidence Calibration
+│   ├── Multi-Source Verification
+│   └── RAG Integration
+│
+├── DEBUGGING ← NEW CATEGORY
+│   ├── Debugging Process
+│   ├── Minimal Reproduction
+│   ├── Instruction Ablation
+│   ├── Contrastive Testing
+│   └── Common Fixes Reference
 │
 ├── SECURITY
 │   ├── Prompt Injection
@@ -5566,6 +5591,737 @@ If scope needs expansion:
 
 ---
 
+## Prompt Testing and Evaluation
+
+**Purpose:** Methods for systematically testing and measuring prompt quality
+**When to use:** Before deploying prompts, when comparing alternatives, when debugging issues
+**Related sections:** [System Prompt Audit Framework](#system-prompt-audit-framework), [Prompt Debugging](#prompt-debugging)
+**Research basis:** OpenAI Evals, Anthropic evaluation methods, academic benchmarks
+
+---
+
+### Why Test Prompts
+
+**Problems without testing:**
+- Prompts that work in demos fail in production
+- Edge cases discovered by users, not developers
+- No objective basis for comparing alternatives
+- Regressions introduced unknowingly
+
+**Benefits of systematic testing:**
+- Confidence in prompt behavior
+- Objective comparison between versions
+- Early detection of edge case failures
+- Measurable improvement tracking
+
+---
+
+### Testing Dimensions
+
+| Dimension | What it measures | Example metrics |
+|-----------|------------------|-----------------|
+| **Accuracy** | Correctness of outputs | % correct, error rate |
+| **Consistency** | Same input → similar output | Variance across runs |
+| **Robustness** | Handling of edge cases | % edge cases handled |
+| **Safety** | Avoidance of harmful outputs | % safe responses |
+| **Efficiency** | Resource usage | Tokens, latency, cost |
+| **Format compliance** | Following output format | % valid JSON, etc. |
+
+---
+
+### Test Case Design
+
+#### Structure of a Test Case
+
+```text
+TEST CASE: [identifier]
+Category: [functional | edge case | adversarial | regression]
+Input: [exact input to test]
+Expected output: [expected result or criteria]
+Evaluation method: [exact match | contains | semantic | human review]
+Pass criteria: [what constitutes passing]
+```
+
+#### Test Case Categories
+
+**1. Functional tests (happy path)**
+```text
+Purpose: Verify core functionality works
+Coverage: Main use cases, typical inputs
+Example: "Given a standard request, does it respond correctly?"
+```
+
+**2. Edge case tests**
+```text
+Purpose: Verify behavior at boundaries
+Coverage: Empty inputs, long inputs, special characters, unusual formats
+Example: "What happens with empty input? With 10,000 word input?"
+```
+
+**3. Adversarial tests**
+```text
+Purpose: Verify robustness against misuse
+Coverage: Prompt injection, jailbreak attempts, confusing inputs
+Example: "Does it resist 'ignore previous instructions' attacks?"
+```
+
+**4. Regression tests**
+```text
+Purpose: Verify previously working cases still work
+Coverage: Cases that failed before and were fixed
+Example: "Does the fix for bug #123 still work?"
+```
+
+---
+
+### Evaluation Methods
+
+#### Method 1: Exact Match
+
+**Use when:** Output should be precisely predictable
+**Implementation:** `output == expected`
+**Limitation:** Too strict for natural language
+
+```text
+Input: "What is 2+2?"
+Expected: "4"
+Evaluation: exact_match(output, "4")
+```
+
+#### Method 2: Contains / Pattern Match
+
+**Use when:** Key information must be present
+**Implementation:** `expected in output` or regex match
+**Limitation:** May miss semantic equivalents
+
+```text
+Input: "Summarize the benefits of testing"
+Expected pattern: Contains "reliability" AND "confidence"
+Evaluation: all(keyword in output for keyword in required_keywords)
+```
+
+#### Method 3: Semantic Similarity
+
+**Use when:** Meaning matters more than exact wording
+**Implementation:** Embedding similarity, LLM-as-judge
+**Limitation:** Requires additional model calls
+
+```text
+Input: "Explain photosynthesis"
+Expected: Reference answer about plants converting sunlight
+Evaluation: semantic_similarity(output, reference) > 0.85
+```
+
+#### Method 4: LLM-as-Judge
+
+**Use when:** Complex evaluation criteria
+**Implementation:** Ask another LLM to evaluate
+**Limitation:** Adds cost, potential bias
+
+```text
+Judge prompt:
+"Evaluate if the following response correctly answers the question.
+Question: {question}
+Response: {response}
+Rate from 1-5 and explain your rating."
+```
+
+#### Method 5: Human Evaluation
+
+**Use when:** Subjective quality matters, gold standard needed
+**Implementation:** Human reviewers rate outputs
+**Limitation:** Expensive, slow, potential inconsistency
+
+```text
+Human evaluation rubric:
+- Helpfulness (1-5)
+- Accuracy (1-5)
+- Clarity (1-5)
+- Safety (pass/fail)
+```
+
+---
+
+### Test Suite Structure
+
+```text
+PROMPT TEST SUITE: [prompt name]
+
+FUNCTIONAL TESTS (must pass: 100%)
+├── test_basic_query
+├── test_with_context
+├── test_multi_step
+└── test_format_compliance
+
+EDGE CASE TESTS (must pass: 90%+)
+├── test_empty_input
+├── test_very_long_input
+├── test_special_characters
+├── test_multiple_languages
+└── test_ambiguous_input
+
+ADVERSARIAL TESTS (must pass: 95%+)
+├── test_prompt_injection
+├── test_jailbreak_attempt
+├── test_manipulation
+└── test_off_topic_redirect
+
+REGRESSION TESTS (must pass: 100%)
+├── test_bug_123_fix
+├── test_edge_case_456
+└── test_format_issue_789
+```
+
+---
+
+### A/B Testing Prompts
+
+**Purpose:** Compare two prompt versions objectively
+
+**Process:**
+```text
+1. DEFINE metrics to compare (accuracy, user satisfaction, cost)
+2. SPLIT traffic between version A and B
+3. COLLECT sufficient samples (statistical significance)
+4. ANALYZE results
+5. DECIDE based on data, not intuition
+```
+
+**Sample size guidance:**
+```text
+For detecting 5% difference with 95% confidence:
+- ~400 samples per variant for large effects
+- ~1600 samples per variant for small effects
+Use statistical significance calculators for precision
+```
+
+**Common pitfalls:**
+- Ending test too early (insufficient data)
+- Testing too many variants at once
+- Not controlling for external factors
+- Ignoring statistical significance
+
+---
+
+### Metrics and Reporting
+
+#### Key Metrics
+
+```text
+ACCURACY METRICS:
+- Pass rate: % of tests passing
+- Error rate: % of incorrect outputs
+- Hallucination rate: % of fabricated claims
+
+QUALITY METRICS:
+- Format compliance: % following expected format
+- Completeness: % of required elements present
+- Relevance: % staying on topic
+
+OPERATIONAL METRICS:
+- Latency: Response time (p50, p95, p99)
+- Token usage: Average tokens per request
+- Cost: $ per 1000 requests
+```
+
+#### Test Report Template
+
+```markdown
+# Prompt Test Report
+
+**Prompt:** [name/version]
+**Test Date:** [date]
+**Test Suite Version:** [version]
+
+## Summary
+- **Overall Pass Rate:** X%
+- **Critical Failures:** [count]
+- **Regressions:** [count]
+
+## Results by Category
+| Category | Pass | Fail | Pass Rate |
+|----------|------|------|-----------|
+| Functional | X | Y | Z% |
+| Edge Cases | X | Y | Z% |
+| Adversarial | X | Y | Z% |
+| Regression | X | Y | Z% |
+
+## Failed Tests
+1. [test_name]: [failure reason]
+2. ...
+
+## Recommendations
+- [recommendation 1]
+- [recommendation 2]
+```
+
+---
+
+### Continuous Testing
+
+**Integration into workflow:**
+```text
+1. PRE-COMMIT: Run quick smoke tests
+2. PR REVIEW: Run full test suite
+3. STAGING: Run extended tests + A/B sample
+4. PRODUCTION: Monitor metrics, run regression tests
+5. SCHEDULED: Weekly full evaluation
+```
+
+**Automation tips:**
+- Version control test cases alongside prompts
+- Automate test execution in CI/CD
+- Track metrics over time
+- Alert on significant regressions
+
+---
+
+## Grounding Techniques
+
+**Purpose:** Methods to anchor LLM outputs in provided context and reduce hallucinations
+**When to use:** When accuracy matters, when working with specific documents, when fabrication is unacceptable
+**Related sections:** [Prompt Security](#prompt-security), [Self-Reflection](#self-reflection-and-self-correction)
+**Research basis:** RAG research, citation generation, factual grounding studies
+
+---
+
+### The Hallucination Problem
+
+**What is hallucination?** LLMs generating plausible but false or fabricated information.
+
+**Why it happens:**
+- Models are trained to produce fluent text, not necessarily accurate text
+- Models fill gaps in knowledge with plausible-sounding content
+- Training data contains errors and inconsistencies
+- No inherent mechanism to distinguish known from unknown
+
+**Impact:**
+- Users may trust incorrect information
+- Particularly dangerous in medical, legal, financial domains
+- Erodes trust in AI systems
+
+---
+
+### Grounding Strategy 1: Context-Only Responses
+
+**Principle:** Instruct the model to respond ONLY based on provided context.
+
+**Implementation:**
+```text
+"Answer the question based ONLY on the following context.
+If the answer is not in the context, say 'I cannot find this information in the provided context.'
+
+Context:
+{context}
+
+Question: {question}
+
+Answer based only on the context above:"
+```
+
+**Strength:** Strong constraint against fabrication
+**Weakness:** May miss relevant knowledge the model actually has
+
+---
+
+### Grounding Strategy 2: Citation Requirements
+
+**Principle:** Require explicit citations for claims.
+
+**Implementation:**
+```text
+"When answering, cite your sources using [1], [2], etc.
+Every factual claim must have a citation.
+If you cannot cite a source for a claim, do not make that claim.
+
+Sources:
+[1] {source_1}
+[2] {source_2}
+
+Question: {question}
+
+Provide your answer with citations:"
+```
+
+**Citation formats:**
+```text
+Inline: "The project started in 2020 [1] and completed in 2023 [2]."
+Footnote: "The project timeline^1 shows three phases^2."
+Quoted: "According to the report: 'The initiative launched in Q1 2020'"
+```
+
+---
+
+### Grounding Strategy 3: Verbatim Extraction
+
+**Principle:** For certain tasks, extract exact quotes rather than paraphrase.
+
+**Implementation:**
+```text
+"Extract the relevant information from the document.
+Use exact quotes when possible.
+Format: 'QUOTE: "[exact text]" (source: [location])'
+Do not paraphrase or interpret. Only extract."
+```
+
+**Use cases:**
+- Legal document analysis
+- Evidence gathering
+- Compliance checking
+
+---
+
+### Grounding Strategy 4: Confidence Calibration
+
+**Principle:** Require explicit confidence levels for claims.
+
+**Implementation:**
+```text
+"For each statement in your answer, indicate confidence:
+
+[VERIFIED] - Directly stated in provided sources
+[INFERRED] - Logically follows from sources
+[UNCERTAIN] - Based on general knowledge, may not be accurate
+[UNKNOWN] - Cannot determine from available information
+
+Always prefer [VERIFIED] statements. Flag anything that is [UNCERTAIN] or [UNKNOWN]."
+```
+
+---
+
+### Grounding Strategy 5: Multi-Source Verification
+
+**Principle:** Require corroboration from multiple sources.
+
+**Implementation:**
+```text
+"For important claims:
+1. Find supporting evidence in the provided sources
+2. If found in multiple sources, note: '(confirmed in sources X and Y)'
+3. If found in only one source, note: '(single source: X)'
+4. If not found in any source, do not include the claim
+
+Prioritize claims supported by multiple sources."
+```
+
+---
+
+### Grounding Strategy 6: Retrieval-Augmented Generation (RAG)
+
+**Principle:** Retrieve relevant context before generating response.
+
+**RAG Pipeline:**
+```text
+1. QUERY: User asks a question
+2. RETRIEVE: Search knowledge base for relevant documents
+3. AUGMENT: Add retrieved documents to prompt context
+4. GENERATE: Model answers based on retrieved context
+5. CITE: Include references to source documents
+```
+
+**RAG prompt pattern:**
+```text
+"You are an assistant that answers questions using the retrieved documents below.
+
+Retrieved documents:
+{retrieved_docs}
+
+User question: {question}
+
+Instructions:
+- Base your answer on the retrieved documents
+- Cite document numbers when making claims
+- If documents don't contain the answer, say so
+- Do not make claims not supported by the documents"
+```
+
+---
+
+### Grounding Strategy 7: Fact-Check Step
+
+**Principle:** Add explicit verification step before finalizing response.
+
+**Implementation:**
+```text
+"Before providing your final answer:
+
+FACT-CHECK:
+1. List each factual claim you're about to make
+2. For each claim, identify the source (context, general knowledge, inference)
+3. Remove or flag claims without clear sources
+
+FINAL ANSWER:
+[Provide answer with unsupported claims removed or flagged]"
+```
+
+---
+
+### Anti-Hallucination Prompting Patterns
+
+**Pattern 1: "If you don't know, say so"**
+```text
+"If you don't know the answer or aren't sure, say 'I don't know' or 
+'I'm not certain.' Never make up information."
+```
+
+**Pattern 2: "Distinguish types of knowledge"**
+```text
+"Clearly distinguish between:
+- What the documents say (cite)
+- What is commonly known (state as general knowledge)
+- What you're inferring (state as inference)
+- What you don't know (acknowledge uncertainty)"
+```
+
+**Pattern 3: "Verify before stating"**
+```text
+"Before stating any fact, verify:
+- Can I point to where this is stated?
+- Is this actually true, or just plausible-sounding?
+- Am I certain, or am I guessing?"
+```
+
+---
+
+### Grounding Validation Checklist
+
+```text
+Before delivering response, verify:
+- [ ] All factual claims are sourced from provided context
+- [ ] Citations are included where required
+- [ ] Uncertain claims are flagged
+- [ ] Nothing was fabricated to fill gaps
+- [ ] "I don't know" used appropriately
+- [ ] General knowledge distinguished from provided context
+```
+
+---
+
+## Prompt Debugging
+
+**Purpose:** Systematic approaches to identify and fix prompt issues
+**When to use:** When prompts produce unexpected results, when behavior is inconsistent, when improving existing prompts
+**Related sections:** [Prompt Testing](#prompt-testing-and-evaluation), [Self-Reflection](#self-reflection-and-self-correction)
+
+---
+
+### Common Prompt Problems
+
+| Problem | Symptoms | Typical Causes |
+|---------|----------|----------------|
+| **Inconsistent output** | Different results for similar inputs | Ambiguous instructions, temperature too high |
+| **Wrong format** | Output doesn't match expected structure | Unclear format specification, missing examples |
+| **Off-topic responses** | Model goes on tangents | Weak task focus, missing constraints |
+| **Hallucinations** | Fabricated information | No grounding, missing "I don't know" instruction |
+| **Ignored instructions** | Model doesn't follow some rules | Instruction buried, contradictions, too many rules |
+| **Truncated output** | Response cuts off | Max tokens too low, verbose prompt |
+| **Refusals** | Model refuses valid requests | Over-restrictive safety instructions |
+
+---
+
+### Debugging Process
+
+```text
+1. REPRODUCE: Get consistent reproduction of the issue
+2. ISOLATE: Find minimal prompt that shows the issue
+3. HYPOTHESIZE: Form theory about the cause
+4. TEST: Modify prompt to test hypothesis
+5. FIX: Apply the fix
+6. VERIFY: Confirm fix works without breaking other cases
+7. DOCUMENT: Record what was learned
+```
+
+---
+
+### Debugging Technique 1: Minimal Reproduction
+
+**Goal:** Find the simplest prompt that still shows the issue.
+
+**Process:**
+```text
+1. Start with the full prompt that has the issue
+2. Remove sections one by one
+3. After each removal, test if issue persists
+4. Stop when removing anything makes issue disappear
+5. The remaining prompt is your minimal reproduction
+```
+
+**Why it helps:**
+- Easier to see what's causing the issue
+- Faster iteration
+- Clearer understanding of the problem
+
+---
+
+### Debugging Technique 2: Instruction Ablation
+
+**Goal:** Identify which instructions are being followed/ignored.
+
+**Process:**
+```text
+1. List all instructions in your prompt
+2. Number each instruction
+3. Ask model to repeat back which instructions it sees
+4. Check which instructions appear in its behavior
+5. Compare intended vs actual instruction following
+```
+
+**Test prompt:**
+```text
+"Before answering, list the instructions you've been given, numbered.
+Then indicate which ones apply to this specific request.
+Then answer the request."
+```
+
+---
+
+### Debugging Technique 3: Thinking Trace
+
+**Goal:** See the model's reasoning process.
+
+**Process:**
+```text
+Add to prompt:
+"Before giving your answer, explain your reasoning step by step:
+1. What am I being asked?
+2. What information do I have?
+3. What approach will I use?
+4. [Then provide answer]"
+```
+
+**What to look for:**
+- Where does reasoning go wrong?
+- What information is the model using/ignoring?
+- Where do misunderstandings occur?
+
+---
+
+### Debugging Technique 4: Contrastive Testing
+
+**Goal:** Understand why similar inputs get different outputs.
+
+**Process:**
+```text
+1. Find two similar inputs with different outputs
+2. Identify exact differences between inputs
+3. Test variations to isolate which difference matters
+4. Adjust prompt to handle the difference appropriately
+```
+
+**Example:**
+```text
+Input A: "Summarize this article" → Good summary
+Input B: "Summarize this" → Hallucinated content
+
+Difference: "article" vs "this"
+Hypothesis: Model needs explicit document reference
+Fix: Always include "Based on the document above..."
+```
+
+---
+
+### Debugging Technique 5: Temperature Variation
+
+**Goal:** Determine if issue is deterministic or probabilistic.
+
+**Process:**
+```text
+1. Run same prompt at temperature 0
+2. If issue persists → deterministic problem (prompt issue)
+3. If issue disappears → probabilistic (may need to constrain more)
+4. Run at temperature 0 multiple times to confirm consistency
+```
+
+---
+
+### Debugging Technique 6: Prompt Diff Analysis
+
+**Goal:** Understand what changed between working and broken versions.
+
+**Process:**
+```text
+1. Get the last known working version
+2. Get the current broken version
+3. Diff the two prompts
+4. For each change:
+   - Test if reverting it fixes the issue
+   - Understand why the change caused the issue
+5. Either revert or fix the change properly
+```
+
+---
+
+### Common Fixes
+
+| Problem | Fix |
+|---------|-----|
+| **Instructions ignored** | Move to beginning, bold/caps, repeat at end |
+| **Wrong format** | Add explicit example of desired format |
+| **Too verbose** | Add length constraints: "In 2-3 sentences..." |
+| **Too brief** | Add detail requirements: "Include X, Y, and Z" |
+| **Inconsistent** | Lower temperature, add more constraints |
+| **Hallucinations** | Add grounding instructions, "If unsure, say so" |
+| **Off-topic** | Strengthen task focus, add "Stay focused on..." |
+| **Refusals** | Review safety constraints, clarify valid use case |
+
+---
+
+### Debugging Checklist
+
+```text
+When prompt isn't working:
+
+□ Can I reproduce the issue consistently?
+□ What is the minimal reproduction?
+□ Is this deterministic (temp=0) or probabilistic?
+□ Which specific instruction is being violated?
+□ Did this work before? What changed?
+□ Is the issue in the prompt or the input?
+□ Am I asking for something the model can't do?
+
+After identifying the issue:
+
+□ What's the hypothesis for the cause?
+□ What's the minimal fix to test the hypothesis?
+□ Does the fix work without breaking other cases?
+□ Is this fix documented for future reference?
+```
+
+---
+
+### Debugging Log Template
+
+```markdown
+## Debugging Session: [Issue Description]
+
+**Date:** [date]
+**Prompt:** [prompt identifier/version]
+
+### Issue
+[Describe the problem]
+
+### Reproduction
+[Minimal steps/prompt to reproduce]
+
+### Investigation
+1. [Step taken] → [result]
+2. [Step taken] → [result]
+
+### Root Cause
+[What was causing the issue]
+
+### Fix
+[What was changed]
+
+### Verification
+[How fix was verified]
+
+### Lessons Learned
+[What to remember for future]
+```
+
+---
+
 ## Sources
 
 ### Official Documentation
@@ -5586,6 +6342,9 @@ If scope needs expansion:
 - Schick et al. "Toolformer: Language Models Can Teach Themselves to Use Tools" (2023)
 - Kojima et al. "Large Language Models are Zero-Shot Reasoners" (2022)
 - Yao et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (2023)
+- Lewis et al. "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (2020)
+- Gao et al. "Retrieval-Augmented Generation for Large Language Models: A Survey" (2023)
+- Ji et al. "Survey of Hallucination in Natural Language Generation" (2023)
 
 ### Community Resources
 
@@ -5598,9 +6357,10 @@ If scope needs expansion:
 ## End of Knowledge Base
 
 *Last updated: November 2025*
-*Version: 1.4*
+*Version: 1.5*
 
 ### Version History
+- **1.5** (Nov 2025): Added Tier 2 practical sections: Prompt Testing & Evaluation (test case design, evaluation methods, A/B testing, metrics), Grounding Techniques (anti-hallucination, citation requirements, RAG, confidence calibration), Prompt Debugging (debugging process, minimal reproduction, instruction ablation, common fixes). Added 3 new categories: TESTING & EVALUATION, GROUNDING, DEBUGGING.
 - **1.4** (Nov 2025): Added Tier 1 foundational sections based on research: Agentic Patterns (ReAct, Plan-and-Execute, MRKL, Hierarchical), Self-Reflection & Self-Correction (Reflexion, Self-Refine, Constitutional), Tool Use Patterns, Deep Investigation Patterns. Added 4 new categories: AGENTIC PATTERNS, SELF-IMPROVEMENT, TOOL INTEGRATION, INVESTIGATION. Updated Sources with research papers.
 - **1.3** (Nov 2025): Added 4 audit-focused sections: System Prompt Audit Framework, Multi-Prompt System Design, Checkpoint & Control Flow Design, Requirements-to-Prompt Translation. Added 3 new categories: AUDIT & QUALITY, SYSTEM ARCHITECTURE, REQUIREMENTS ENGINEERING. Structured for MCP server integration.
 - **1.2** (Nov 2025): Added 6 new sections: Nudging Techniques, Context Window Management, Instruction Hierarchy, Prompt Chaining, Error Recovery, Multi-turn Management. Added 3 new categories to Map.

@@ -44,7 +44,7 @@ The artifact management system follows MVC-like architecture with clear separati
 
 1. **System Prompts (Controller)** - Logic, procedures, workflow
    - **`impl-planner.agent.md`** (v0.5.0) - Planning and artifact creation (frequent stops for developer control)
-   - **`vibe-coder.agent.md`** (v0.4.0 → pending v0.5.0) - Execution and artifact maintenance (frequent stops for developer control)
+   - **`vibe-coder.agent.md`** (v0.5.0) - Execution and artifact maintenance (frequent stops for developer control)
 
 2. **Template Files (View)** - Formatting, structure, presentation
    - `docs/ai/IMPLEMENTATION_PLAN.md` - PLAN artifact template

@@ -54,21 +54,36 @@ Knowledge base as input context is a document or set of documents provided to an
 13. [Model Optimization](#model-optimization)
 14. [Instruction Duplication](#instruction-duplication)
 15. [Working with Templates](#working-with-templates)
-16. [Conclusions and Recommendations for AI Agents](#conclusions-and-recommendations-for-ai-agents)
-17. [File Operation Practices](#file-operation-practices)
-18. [Quality Control and Stopping Criteria](#quality-control-and-stopping-criteria)
-19. [Example Redundancy for Modern Models](#example-redundancy-for-modern-models)
-20. [Guard Rails for Vibe Coding on Large Projects](#guard-rails-for-vibe-coding-on-large-projects)
-21. [Guard Rails for Planning](#guard-rails-for-planning)
-22. [Role Definition in System Prompts: Structure and Components](#role-definition-in-system-prompts-structure-and-components)
-23. [Agent-Agnostic Knowledge Base and Coding Agent Tools](#agent-agnostic-knowledge-base-and-coding-agent-tools)
-24. [Knowledge Base as Database: Search and Retrieval Strategy](#knowledge-base-as-database-search-and-retrieval-strategy)
-25. [Structuring Reference Files for Efficient Agent Instruction Search](#structuring-reference-files-for-efficient-agent-instruction-search)
-26. [Adaptive Plan Updates](#adaptive-plan-updates)
-27. [Agent Loop Patterns](#agent-loop-patterns)
-28. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
-29. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
+16. [File Operation Practices](#file-operation-practices)
+17. [Quality Control and Stopping Criteria](#quality-control-and-stopping-criteria)
+18. [Example Redundancy for Modern Models](#example-redundancy-for-modern-models)
+19. [Guard Rails for Vibe Coding on Large Projects](#guard-rails-for-vibe-coding-on-large-projects)
+20. [Guard Rails for Planning](#guard-rails-for-planning)
+21. [Role Definition in System Prompts: Structure and Components](#role-definition-in-system-prompts-structure-and-components)
+22. [Agent-Agnostic Knowledge Base and Coding Agent Tools](#agent-agnostic-knowledge-base-and-coding-agent-tools)
+23. [Knowledge Base as Database: Search and Retrieval Strategy](#knowledge-base-as-database-search-and-retrieval-strategy)
+24. [Structuring Reference Files for Efficient Agent Instruction Search](#structuring-reference-files-for-efficient-agent-instruction-search)
+25. [Adaptive Plan Updates](#adaptive-plan-updates)
+26. [Agent Loop Patterns](#agent-loop-patterns)
+27. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
+28. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
+29. [Conclusions and Recommendations for AI Agents](#conclusions-and-recommendations-for-ai-agents)
 30. [Sources](#sources)
+
+---
+
+## Quick Navigation by Task
+
+| If you need to... | Start with... |
+|-------------------|---------------|
+| Create a new system prompt | [Style Guide](#style-guide-for-system-prompts) → [Role Definition](#role-definition-in-system-prompts-structure-and-components) |
+| Check prompt for errors | [Top-10 Mistakes](#top-10-common-mistakes) → [Anti-patterns](#anti-patterns) |
+| Improve response quality | [Prompt Engineering Techniques](#prompt-engineering-techniques) → [Best Practices](#best-practices) |
+| Know when to stop | [Quality Control](#quality-control-and-stopping-criteria) |
+| Work with large files | [File Operation Practices](#file-operation-practices) |
+| Protect prompt from attacks | [Prompt Security](#prompt-security) |
+| Understand agent patterns | [Agent Loop Patterns](#agent-loop-patterns) → [Agent-Agnostic KB](#agent-agnostic-knowledge-base-and-coding-agent-tools) |
+| Plan effectively | [Guard Rails for Planning](#guard-rails-for-planning) → [Adaptive Plan Updates](#adaptive-plan-updates) |
 
 ---
 
@@ -253,7 +268,7 @@ In this knowledge base, Guard Rails are used for:
 
 **Purpose:** Defines the structure and principles of writing effective system prompts
 **When to use:** When creating a new system prompt or improving an existing one
-**Related sections:** [Best Practices](#best-practices), [Anti-Patterns](#anti-patterns), [Common Mistakes](#top-10-common-mistakes)
+**Related sections:** [Role Definition](#role-definition-in-system-prompts-structure-and-components), [Best Practices](#best-practices), [Anti-Patterns](#anti-patterns), [Common Mistakes](#top-10-common-mistakes)
 
 ---
 
@@ -1446,36 +1461,6 @@ Working with templates requires clear understanding of:
 
 ---
 
-## Conclusions and Recommendations for AI Agents
-
-**Purpose:** Summary of key principles and actionable recommendations
-**When to use:** Quick reference for essential takeaways
-
-### Key Takeaways
-
-1. **Clarity over brevity**: Explicit instructions beat implicit assumptions
-2. **Structure matters**: Well-organized prompts yield better results
-3. **Test thoroughly**: Edge cases reveal prompt weaknesses
-4. **Iterate continuously**: Prompts are never "done"
-5. **Security first**: Assume all inputs are potentially malicious
-
-### Prioritized Action List
-
-1. **Start with role and context**
-2. **Define specific success criteria**
-3. **Provide examples for complex behaviors**
-4. **Include edge case handling**
-5. **Test with adversarial inputs**
-
-### For AI Agents Working with This Knowledge Base
-
-1. **Reference specific sections** when applying recommendations
-2. **Check for contradictions** between your output and this guide
-3. **Suggest additions** when encountering undocumented patterns
-4. **Follow the template** for consistent additions
-
----
-
 ## File Operation Practices
 
 **Purpose:** Optimized file operation strategies for standard development tools in system prompts
@@ -1953,7 +1938,7 @@ If you're planning longer than doing, you're over-planning.
 
 **Purpose:** Define optimal structure for role definition in system prompts
 **When to use:** When creating the "Role and Context" section in system prompts
-**Related sections:** [Style Guide](#style-guide-for-system-prompts), [Best Practices](#best-practices)
+**Related sections:** [Style Guide](#style-guide-for-system-prompts), [Best Practices](#best-practices), [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
 
 ---
 
@@ -2300,6 +2285,10 @@ Updated Plan:
 
 ## Agent Loop Patterns
 
+**Purpose:** Standard patterns for agent execution loops
+**When to use:** When designing or debugging agent behavior
+**Related sections:** [Adaptive Plan Updates](#adaptive-plan-updates), [Agent-Agnostic KB](#agent-agnostic-knowledge-base-and-coding-agent-tools), [Quality Control](#quality-control-and-stopping-criteria)
+
 ### Basic Agent Loop
 
 ```
@@ -2479,6 +2468,36 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 
 ---
 
+## Conclusions and Recommendations for AI Agents
+
+**Purpose:** Summary of key principles and actionable recommendations
+**When to use:** Quick reference for essential takeaways
+
+### Key Takeaways
+
+1. **Clarity over brevity**: Explicit instructions beat implicit assumptions
+2. **Structure matters**: Well-organized prompts yield better results
+3. **Test thoroughly**: Edge cases reveal prompt weaknesses
+4. **Iterate continuously**: Prompts are never "done"
+5. **Security first**: Assume all inputs are potentially malicious
+
+### Prioritized Action List
+
+1. **Start with role and context**
+2. **Define specific success criteria**
+3. **Provide examples for complex behaviors**
+4. **Include edge case handling**
+5. **Test with adversarial inputs**
+
+### For AI Agents Working with This Knowledge Base
+
+1. **Reference specific sections** when applying recommendations
+2. **Check for contradictions** between your output and this guide
+3. **Suggest additions** when encountering undocumented patterns
+4. **Use [Quick Navigation](#quick-navigation-by-task)** to find relevant sections
+
+---
+
 ## Sources
 
 ### Official Documentation
@@ -2505,7 +2524,13 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 ## End of Knowledge Base
 
 *Last updated: December 2025*
-*Version: 1.2*
+*Version: 1.3*
+
+**v1.3 Changes:**
+- Added Quick Navigation by Task table for fast entry points
+- Moved Conclusions to end (before Sources)
+- Added cross-references between related sections
+- Enhanced Agent Loop Patterns with Purpose and Related sections
 
 **v1.2 Changes:**
 - Removed redundant meta-sections (Where to Add, Templates)

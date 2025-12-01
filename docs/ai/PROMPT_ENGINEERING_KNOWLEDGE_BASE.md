@@ -89,10 +89,12 @@ If you are processing this knowledge base to help with a task:
 24. [Structuring Reference Files for Efficient Agent Instruction Search](#structuring-reference-files-for-efficient-agent-instruction-search)
 25. [Adaptive Plan Updates](#adaptive-plan-updates)
 26. [Agent Loop Patterns](#agent-loop-patterns)
-27. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
-28. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
-29. [Conclusions and Recommendations for AI Agents](#conclusions-and-recommendations-for-ai-agents)
-30. [Sources](#sources)
+27. [Decision Framework Pattern for Agent Prompts](#decision-framework-pattern-for-agent-prompts)
+28. [Related Prompts Pattern (Planning + Execution)](#related-prompts-pattern-planning--execution)
+29. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
+30. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
+31. [Conclusions and Recommendations for AI Agents](#conclusions-and-recommendations-for-ai-agents)
+32. [Sources](#sources)
 
 ---
 
@@ -2394,6 +2396,230 @@ Exit the loop when:
 3. **Skipping evaluation** - not verifying results
 4. **Over-iteration** - continuing after task is complete
 5. **No learning** - repeating failed approaches
+
+---
+
+## Decision Framework Pattern for Agent Prompts
+
+**Purpose:** Provide guidance for adding decision-making frameworks to agent prompts
+**When to use:** When creating agent prompts that need to make architectural or implementation decisions
+**Related sections:** [Role Definition](#role-definition-in-system-prompts-structure-and-components), [Best Practices](#best-practices), [Guard Rails](#guard-rails-for-vibe-coding-on-large-projects)
+
+---
+
+### Why Decision Frameworks in Prompts?
+
+Complex agent prompts often need to make decisions:
+- **Architectural decisions** (planning agents): Which approach to choose? How to structure the solution?
+- **Implementation decisions** (coding agents): How to implement? When to refactor?
+
+Without explicit guidance, agents may:
+- Over-engineer solutions
+- Make inconsistent decisions
+- Spend too much time on minor choices
+- Miss important trade-offs
+
+### Decision Framework Structure
+
+A decision framework in a prompt should contain:
+
+```markdown
+## Decision Framework
+
+### Evaluation Criteria
+| Criterion | Question | Priority |
+|-----------|----------|----------|
+| [Criterion 1] | [Question to ask] | 🔴 High / 🟡 Medium / 🟢 Low |
+| [Criterion 2] | [Question to ask] | Priority |
+
+### Decision Process
+1. IDENTIFY options (2-3 max)
+2. EVALUATE against criteria
+3. CHOOSE simplest that works
+4. DOCUMENT rationale
+
+### Guiding Principles
+**Prefer:**
+- ✅ [Preferred approach]
+- ✅ [Preferred approach]
+
+**Avoid:**
+- ❌ [Anti-pattern]
+- ❌ [Anti-pattern]
+```
+
+### Example: Architectural Decision Framework (for Planning Agents)
+
+**Evaluation Criteria:**
+
+| Criterion | Question | Priority |
+|-----------|----------|----------|
+| **Simplicity** | Which is easier to understand and maintain? | 🔴 High |
+| **Fit** | Which better fits existing codebase patterns? | 🔴 High |
+| **Risk** | Which has fewer unknowns and edge cases? | 🟡 Medium |
+| **Reversibility** | Which is easier to change later if wrong? | 🟡 Medium |
+| **Scope** | Which requires fewer changes? | 🟡 Medium |
+
+**Guiding Principles:**
+- ✅ KISS over clever solutions
+- ✅ Existing patterns over new ones
+- ✅ Minimal changes over extensive refactoring
+- ❌ Over-engineering for hypothetical future needs
+- ❌ Premature abstraction
+
+### Example: Implementation Decision Framework (for Coding Agents)
+
+**Evaluation Criteria:**
+
+| Criterion | Question | Priority |
+|-----------|----------|----------|
+| **Works** | Does it solve the problem correctly? | 🔴 Critical |
+| **Readable** | Can others understand it easily? | 🔴 High |
+| **Consistent** | Does it follow project style/patterns? | 🔴 High |
+| **Simple** | Is it the simplest solution that works? | 🟡 Medium |
+
+**Decision Process:**
+```
+1. MAKE IT WORK first (correct behavior)
+2. MAKE IT READABLE (clear code)
+3. MAKE IT CONSISTENT (match project style)
+4. OPTIMIZE only if needed (not by default)
+```
+
+**When to Refactor:**
+
+| Situation | Action |
+|-----------|--------|
+| Code doesn't work | ✅ Fix it |
+| Code is unreadable | ✅ Clarify it |
+| Code violates project patterns | ✅ Align it |
+| Code "could be cleaner" | ❌ Leave it |
+| Code "not how I'd write it" | ❌ Leave it |
+
+### Integration with Guard Rails
+
+Decision frameworks work together with guard rails:
+- **Guard rails** define boundaries (what NOT to do)
+- **Decision frameworks** guide choices (HOW to decide)
+
+**Usage pattern:**
+1. Check guard rails first (am I within boundaries?)
+2. Apply decision framework (which option is best?)
+3. Document rationale (why this choice?)
+
+### When to Include Decision Framework
+
+| Prompt Type | Include? | Rationale |
+|-------------|----------|-----------|
+| Simple task prompt | ❌ No | Decisions are straightforward |
+| Complex planning prompt | ✅ Yes | Many architectural choices |
+| Complex coding prompt | ✅ Yes | Implementation trade-offs |
+| Data processing prompt | 🟡 Maybe | If multiple valid approaches |
+
+---
+
+## Related Prompts Pattern (Planning + Execution)
+
+**Purpose:** Guidance for designing pairs of related prompts that work together
+**When to use:** When creating prompt systems with distinct phases (e.g., planning + execution)
+**Related sections:** [System Prompt Consistency Checklist](#system-prompt-consistency-checklist), [Decision Framework Pattern](#decision-framework-pattern-for-agent-prompts)
+
+---
+
+### Why Related Prompts?
+
+Complex workflows often benefit from separating concerns into distinct prompts:
+- **Planning prompt**: Analyzes, designs, creates plan
+- **Execution prompt**: Implements, follows plan, updates status
+
+**Benefits:**
+- Clearer responsibilities
+- Easier maintenance
+- Better focus for each phase
+- Reusable patterns
+
+### Related Prompts Structure
+
+**Key principle:** Related prompts should have **mirrored structure** with **role-specific content**.
+
+```
+Planning Prompt              Execution Prompt
+├── Section 1: Role          ├── Section 1: Role
+│   └── (Architect role)     │   └── (Developer role)
+├── Section 2: Workflow      ├── Section 2: Workflow
+│   └── (Analysis steps)     │   └── (Implementation steps)
+├── Section 3: Output        ├── Section 3: Output
+│   └── (Create artifacts)   │   └── (Update artifacts)
+├── Section 4: Quality       ├── Section 4: Quality
+│   └── (Plan validation)    │   └── (Code validation)
+└── Section 5: Reference     └── Section 5: Reference
+```
+
+### Handoff Between Prompts
+
+**Clear handoff** is critical for related prompts:
+
+```markdown
+**🔗 Related Prompts:** (include in both prompts)
+- **Planning prompt (this/other):** Creates artifacts
+- **Execution prompt (this/other):** Implements using artifacts
+- **Handoff:** Planning creates PLAN → User switches → Execution follows PLAN
+```
+
+### Consistency Requirements
+
+| Aspect | Requirement |
+|--------|-------------|
+| **Section numbering** | Same structure (1, 2, 3, 4, 5) |
+| **Terminology** | Identical terms for shared concepts |
+| **Artifact references** | Same names, same formats |
+| **Status indicators** | Same icons and meanings |
+| **Template paths** | Same locations |
+
+### What Should Differ
+
+| Aspect | Planning Prompt | Execution Prompt |
+|--------|-----------------|------------------|
+| **Role** | Architect/Planner | Developer/Implementer |
+| **Primary action** | Analyze, design, plan | Implement, code, test |
+| **Output focus** | Create artifacts | Update artifacts |
+| **Decision framework** | Architectural decisions | Implementation decisions |
+| **Quality focus** | Plan quality | Code quality |
+
+### Common Patterns
+
+**1. Shared Artifacts Pattern:**
+Both prompts work with same artifacts (PLAN, CHANGELOG, etc.)
+- Planning creates them
+- Execution updates them
+
+**2. Status Handoff Pattern:**
+- Planning sets initial status (PENDING, READY)
+- Execution transitions status (IN_PROGRESS, COMPLETED)
+
+**3. Template Sharing Pattern:**
+Both prompts reference same template files for consistency
+
+### Anti-patterns
+
+❌ **Inconsistent structure** - Different section organization
+❌ **Terminology drift** - Different names for same concepts
+❌ **Missing handoff** - No clear transition point
+❌ **Duplicate content** - Copy-pasting large sections (use shared references)
+❌ **Conflicting rules** - Contradictory instructions between prompts
+
+### Checklist for Related Prompts
+
+Before deploying related prompts:
+
+- [ ] Same high-level structure (sections match)
+- [ ] Consistent terminology
+- [ ] Clear handoff documentation
+- [ ] Same artifact definitions
+- [ ] Same template references
+- [ ] Compatible status definitions
+- [ ] No conflicting instructions
+- [ ] Cross-references work both ways
 
 ---
 

@@ -67,6 +67,7 @@ This prompt uses specific tool names (e.g., `read_file`, `write`, `search_replac
 - [Section 6.5: Validation Procedures](#section-65-validation-procedures) - Additional validation procedures
 - [Section 7: Cross-Artifact Links](#section-7-cross-artifact-links) - Linking between artifacts
 - [Section 8: Universalization and Code-Based Context](#section-8-universalization-and-code-based-context) - Universal principles and code context
+- [Section 8.5: Architectural Decision Framework](#section-85-architectural-decision-framework) - How to make architectural decisions
 - [Section 9: Key Principles](#section-9-key-principles) - Core principles and best practices
 - [Section 10: Guard Rails for Planning](#guard-rails-for-planning) - Guard rails to prevent over-planning and cyclic improvements
 
@@ -2306,6 +2307,70 @@ All formulations must work on any project structure. Avoid project-specific assu
 - **If available context (code analysis, user input, documentation, external information sources) cannot answer a question and you might hallucinate an answer** → Better to create a question than to guess incorrectly. Some questions may be resolved through deeper analysis later, but it's safer to document uncertainty.
 
 **Note**: "Available context" includes: code analysis, user input (prompt, requirements, business context), documentation in repository (if available and verified), external information sources (internal resources, APIs, etc.), and current session context.
+
+---
+
+## Section 8.5: Architectural Decision Framework
+
+**Purpose:** Guide decision-making when analyzing codebase and designing plans.
+
+### When Choosing Between Approaches
+
+**Evaluation Criteria:**
+
+| Criterion | Question | Priority |
+|-----------|----------|----------|
+| **Simplicity** | Which is easier to understand and maintain? | 🔴 High |
+| **Fit** | Which better fits existing codebase patterns? | 🔴 High |
+| **Risk** | Which has fewer unknowns and edge cases? | 🟡 Medium |
+| **Reversibility** | Which is easier to change later if wrong? | 🟡 Medium |
+| **Scope** | Which requires fewer changes? | 🟡 Medium |
+| **Performance** | Does it meet performance requirements? | Context-dependent |
+
+### Decision Process
+
+```
+1. IDENTIFY viable approaches (2-3 max)
+2. EVALUATE against criteria above
+3. CHOOSE simplest that meets requirements
+4. DOCUMENT rationale in PLAN (Why this approach?)
+5. NOTE alternatives in QUESTIONS if uncertain
+```
+
+### Guiding Principles
+
+**Prefer:**
+- ✅ **KISS** (Keep It Simple) over clever solutions
+- ✅ **Existing patterns** over introducing new ones
+- ✅ **Proven solutions** over novel experiments
+- ✅ **Minimal changes** over extensive refactoring
+- ✅ **Explicit** over implicit behavior
+
+**Avoid:**
+- ❌ Over-engineering for hypothetical future needs
+- ❌ Introducing new dependencies when existing ones suffice
+- ❌ Breaking changes when additive changes work
+- ❌ Premature abstraction
+
+### Trade-off Analysis Template
+
+When documenting decisions in PLAN:
+```
+**Approach chosen:** [Brief description]
+**Why:** [1-2 sentences on main reason]
+**Alternatives considered:** [List if relevant]
+**Trade-offs accepted:** [What we're giving up]
+```
+
+### Common Decision Scenarios
+
+| Scenario | Default Choice | When to Deviate |
+|----------|---------------|-----------------|
+| New feature | Extend existing pattern | Pattern doesn't fit |
+| Bug fix | Minimal targeted fix | Root cause requires refactor |
+| Refactoring | Don't (unless blocking) | Code is unmaintainable |
+| New dependency | Use existing | Significant benefit |
+| Architecture change | Avoid | Current architecture blocks goals |
 
 ---
 

@@ -65,6 +65,7 @@ This prompt uses specific tool names (e.g., `read_file`, `write`, `search_replac
 - [Section 4.5: Validation Gateways for Critical Transitions](#section-45-validation-gateways-for-critical-transitions) - Validation gateways for code quality
 - [Section 5: Quality Criteria and Validation](#section-5-quality-criteria-and-validation) - Quality checklists and validation procedures
 - [Section 6: Cross-Artifact Links](#section-6-cross-artifact-links) - Linking between artifacts
+- [Section 6.5: Implementation Decision Framework](#section-65-implementation-decision-framework) - How to make implementation decisions
 - [Section 7: Key Principles](#section-7-key-principles) - Core principles and best practices
 - [Section 8: Guard Rails for Vibe Coding](#section-8-guard-rails-for-vibe-coding) - Guard rails to prevent cyclic changes
 
@@ -2339,6 +2340,77 @@ Links between artifacts use `@[ARTIFACT_NAME]` notation to reference other artif
 - In QUESTIONS artifact "Current Focus" section: `[Q2.1: Question Title](#q21-question-title-phase-2-step-1)`
 
 **Important**: Always verify anchor links point to existing headings in the artifact.
+
+---
+
+## Section 6.5: Implementation Decision Framework
+
+**Purpose:** Guide decision-making when implementing code changes.
+
+### When Choosing How to Implement
+
+**Evaluation Criteria:**
+
+| Criterion | Question | Priority |
+|-----------|----------|----------|
+| **Works** | Does it solve the problem correctly? | 🔴 Critical |
+| **Readable** | Can others understand it easily? | 🔴 High |
+| **Consistent** | Does it follow project style/patterns? | 🔴 High |
+| **Simple** | Is it the simplest solution that works? | 🟡 Medium |
+| **Testable** | Can it be tested? | 🟡 Medium |
+| **Performant** | Is performance acceptable? | Context-dependent |
+
+### Decision Process
+
+```
+1. MAKE IT WORK first (correct behavior)
+2. MAKE IT READABLE (clear code)
+3. MAKE IT CONSISTENT (match project style)
+4. OPTIMIZE only if needed (not by default)
+```
+
+### Guiding Principles
+
+**Prefer:**
+- ✅ **Working code** over elegant code
+- ✅ **Readable code** over clever code
+- ✅ **Project conventions** over personal preferences
+- ✅ **Explicit behavior** over implicit magic
+- ✅ **Small, focused changes** over large refactors
+
+**Avoid:**
+- ❌ Premature optimization
+- ❌ Over-abstraction
+- ❌ Changing unrelated code "while I'm here"
+- ❌ Gold-plating (adding unrequested features)
+
+### When to Refactor
+
+| Situation | Action |
+|-----------|--------|
+| Code doesn't work | ✅ Fix it |
+| Code is unreadable | ✅ Clarify it |
+| Code violates project patterns | ✅ Align it |
+| Code "could be cleaner" | ❌ Leave it |
+| Code "not optimal" | ❌ Leave it (unless perf issue) |
+| Code "not how I'd write it" | ❌ Leave it |
+
+### Error Handling Decisions
+
+| Scenario | Approach |
+|----------|----------|
+| Expected error (user input) | Handle gracefully, show message |
+| Unexpected error (bug) | Log, fail fast, don't hide |
+| External service error | Retry with backoff or fail clearly |
+| Should never happen | Assert/throw, don't silently continue |
+
+### Code Quality Checklist (Before Marking Step Complete)
+
+- [ ] Code compiles/runs without errors
+- [ ] Code does what PLAN step requires
+- [ ] Code follows project naming conventions
+- [ ] Code handles obvious error cases
+- [ ] No debug code left behind (console.log, print, etc.)
 
 ---
 

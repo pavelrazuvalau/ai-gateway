@@ -7,6 +7,9 @@
 
 ## Definitions
 
+**Purpose:** Define the conceptual foundation and purpose of this knowledge base
+**When to use:** Read first to understand how to use this KB effectively
+
 ### Knowledge Base as "Guard Rails"
 
 This knowledge base serves as "guard rails" - defining boundaries of best practices and common mistakes. These boundaries:
@@ -37,122 +40,35 @@ Knowledge base as input context is a document or set of documents provided to an
 ## Table of Contents
 
 1. [Definitions](#definitions)
-2. [Where to Add New Information](#where-to-add-new-information-for-ai-agents)
-3. [Template for New Sections](#template-for-new-sections)
-4. [Knowledge Base Categories Map](#knowledge-base-categories-map)
-5. [Criteria for Adding Information to Knowledge Base](#criteria-for-adding-information-to-knowledge-base)
-6. [Glossary of Terms](#glossary-of-terms)
-7. [Style Guide for System Prompts](#style-guide-for-system-prompts)
-8. [Top-10 Common Mistakes](#top-10-common-mistakes)
-9. [Best Practices](#best-practices)
-10. [Prompt Engineering Techniques](#prompt-engineering-techniques)
-11. [Prompt Security](#prompt-security)
-12. [Structured Output](#structured-output)
-13. [Anti-patterns](#anti-patterns)
-14. [Conditional Logic in Prompts](#conditional-logic-in-prompts)
-15. [Model Optimization](#model-optimization)
-16. [Instruction Duplication](#instruction-duplication)
-17. [Working with Templates](#working-with-templates)
-18. [Conclusions and Recommendations for AI Agents](#conclusions-and-recommendations-for-ai-agents)
-19. [File Operation Practices](#file-operation-practices)
-20. [When to Stop: Avoiding Over-optimization](#when-to-stop-avoiding-over-optimization)
-21. [Example Redundancy for Modern Models](#example-redundancy-for-modern-models)
-22. [Sufficient Quality Gateway](#sufficient-quality-gateway)
-23. [Production Code Quality and Refactoring Criteria](#production-code-quality-and-refactoring-criteria)
-24. [Guard Rails for Vibe Coding on Large Projects](#guard-rails-for-vibe-coding-on-large-projects)
-25. [Guard Rails for Planning](#guard-rails-for-planning)
-26. [Role Definition in System Prompts: Structure and Components](#role-definition-in-system-prompts-structure-and-components)
-27. [Agent-Agnostic Knowledge Base and Coding Agent Tools](#agent-agnostic-knowledge-base-and-coding-agent-tools)
-28. [Knowledge Base as Database: Search and Retrieval Strategy](#knowledge-base-as-database-search-and-retrieval-strategy)
-29. [Structuring Reference Files for Efficient Agent Instruction Search](#structuring-reference-files-for-efficient-agent-instruction-search)
-30. [Adaptive Plan Updates](#adaptive-plan-updates)
-31. [Agent Loop Patterns](#agent-loop-patterns)
-32. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
-33. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
-34. [Sources](#sources)
-
----
-
-## Where to Add New Information (for AI Agents)
-
-When you need to add new information to the knowledge base, follow this algorithm:
-
-### Step 1: Determine Category
-
-Check against [Knowledge Base Categories Map](#knowledge-base-categories-map) to determine which category the information belongs to:
-
-- **Style and Formatting** → [Style Guide for System Prompts](#style-guide-for-system-prompts)
-- **Error or Problem** → [Top-10 Common Mistakes](#top-10-common-mistakes) or [Anti-patterns](#anti-patterns)
-- **Recommendation** → [Best Practices](#best-practices)
-- **Technique** → [Prompt Engineering Techniques](#prompt-engineering-techniques)
-- **Security** → [Prompt Security](#prompt-security)
-- **Structured Data** → [Structured Output](#structured-output)
-- **File Operations** → [File Operation Practices](#file-operation-practices)
-- **Templates** → [Working with Templates](#working-with-templates)
-- **Sources** → [Sources](#sources)
-
-### Step 2: Check for Duplicates
-
-Before adding, verify that similar information doesn't already exist:
-- Search by keywords
-- Check related sections
-- Verify that new information doesn't contradict existing
-
-### Step 3: Add Information
-
-Use [template for new sections](#template-for-new-sections) or integrate into existing subsection.
-
-### Step 4: Update Table of Contents
-
-If a new section was added, update the [Table of Contents](#table-of-contents).
-
----
-
-## Template for New Sections
-
-### Basic Template (Recommended)
-
-Use this format for most sections:
-
-```markdown
-### [Section Title]
-
-**Purpose:** [What this section provides]
-**When to use:** [When to apply this information]
-**Related sections:** [Link 1](#anchor), [Link 2](#anchor)
-
-[Content organized with subsections as needed]
-```
-
-### Extended Template (For Anti-patterns and Critical Practices)
-
-Use this format for anti-patterns, critical mistakes, or practices requiring detailed classification:
-
-```markdown
-### [Section Title]
-
-**Category**: [Style | Mistake | Practice | Technique | Security | Anti-pattern]
-**Priority**: [Critical | Important | Recommended]
-**Applicability**: [All models | Specific cases]
-
-#### Problem/Context
-[Problem or situation description]
-
-#### Solution/Recommendation
-[Solution or recommendation description]
-
-#### Example
-<example>
-[Specific example demonstrating the solution]
-</example>
-
-#### Rationale
-[Why this solution works / references to sources]
-
-#### Related
-- [Link to related section 1]
-- [Link to related section 2]
-```
+2. [Knowledge Base Categories Map](#knowledge-base-categories-map)
+3. [Criteria for Adding Information to Knowledge Base](#criteria-for-adding-information-to-knowledge-base)
+4. [Glossary of Terms](#glossary-of-terms)
+5. [Style Guide for System Prompts](#style-guide-for-system-prompts)
+6. [Top-10 Common Mistakes](#top-10-common-mistakes)
+7. [Best Practices](#best-practices)
+8. [Prompt Engineering Techniques](#prompt-engineering-techniques)
+9. [Prompt Security](#prompt-security)
+10. [Structured Output](#structured-output)
+11. [Anti-patterns](#anti-patterns)
+12. [Conditional Logic in Prompts](#conditional-logic-in-prompts)
+13. [Model Optimization](#model-optimization)
+14. [Instruction Duplication](#instruction-duplication)
+15. [Working with Templates](#working-with-templates)
+16. [Conclusions and Recommendations for AI Agents](#conclusions-and-recommendations-for-ai-agents)
+17. [File Operation Practices](#file-operation-practices)
+18. [Quality Control and Stopping Criteria](#quality-control-and-stopping-criteria)
+19. [Example Redundancy for Modern Models](#example-redundancy-for-modern-models)
+20. [Guard Rails for Vibe Coding on Large Projects](#guard-rails-for-vibe-coding-on-large-projects)
+21. [Guard Rails for Planning](#guard-rails-for-planning)
+22. [Role Definition in System Prompts: Structure and Components](#role-definition-in-system-prompts-structure-and-components)
+23. [Agent-Agnostic Knowledge Base and Coding Agent Tools](#agent-agnostic-knowledge-base-and-coding-agent-tools)
+24. [Knowledge Base as Database: Search and Retrieval Strategy](#knowledge-base-as-database-search-and-retrieval-strategy)
+25. [Structuring Reference Files for Efficient Agent Instruction Search](#structuring-reference-files-for-efficient-agent-instruction-search)
+26. [Adaptive Plan Updates](#adaptive-plan-updates)
+27. [Agent Loop Patterns](#agent-loop-patterns)
+28. [System Prompt Consistency Checklist](#system-prompt-consistency-checklist)
+29. [Interactive Questions with Recommendations](#interactive-questions-with-recommendations)
+30. [Sources](#sources)
 
 ---
 
@@ -160,47 +76,51 @@ Use this format for anti-patterns, critical mistakes, or practices requiring det
 
 ```
 KNOWLEDGE BASE
+├── META (KB Structure)
+│   ├── Definitions
+│   ├── Categories Map
+│   ├── Criteria for Adding Information
+│   └── Glossary of Terms
+│
 ├── STYLE AND FORMATTING
-│   ├── Markdown formatting
-│   ├── Instruction structure
-│   └── Language and tone
+│   ├── Style Guide for System Prompts
+│   ├── Role Definition
+│   └── System Prompt Consistency
 │
 ├── MISTAKES (what NOT to do)
-│   ├── Top-10 common mistakes
+│   ├── Top-10 Common Mistakes
 │   └── Anti-patterns
 │
 ├── BEST PRACTICES (what to do)
 │   ├── General recommendations
-│   ├── Context structuring
-│   └── Testing
+│   ├── Prompt Engineering Techniques
+│   └── Structured Output
 │
-├── TECHNIQUES
-│   ├── Zero-shot
-│   ├── Few-shot
-│   ├── Chain-of-Thought
-│   └── Other techniques
+├── QUALITY CONTROL
+│   ├── Quality Control and Stopping Criteria
+│   ├── Example Redundancy
+│   ├── Guard Rails for Vibe Coding
+│   └── Guard Rails for Planning
 │
 ├── SECURITY
 │   ├── Prompt Injection
 │   ├── Jailbreaking
-│   └── Data protection
-│
-├── STRUCTURED OUTPUT
-│   ├── JSON Mode
-│   └── Structured Outputs
+│   └── Data Leakage Prevention
 │
 ├── FILE OPERATIONS
-│   ├── Reading
-│   ├── Searching
-│   └── Modifying
+│   ├── File Operation Practices
+│   └── Working with Templates
 │
-├── TEMPLATES
-│   ├── Template usage
-│   └── Formatting rules
+├── AGENT PATTERNS
+│   ├── Agent-Agnostic Knowledge Base
+│   ├── Knowledge Base as Database
+│   ├── Agent Loop Patterns
+│   ├── Adaptive Plan Updates
+│   └── Interactive Questions
 │
-└── SOURCES
-    ├── Official documentation
-    └── Research
+└── REFERENCE
+    ├── Conclusions and Recommendations
+    └── Sources
 ```
 
 ---
@@ -718,22 +638,30 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 **Problem:**
 
-- No examples of input data
-- No examples of expected results
-- No examples of output format
+- No examples of input data when format is non-standard
+- No examples of expected results for domain-specific tasks
+- Missing examples when model previously misunderstood
 
-**What to include:**
+**When examples ARE needed:**
 
-- Examples of input data
-- Examples of expected output data
-- Examples of format (JSON, table, list)
-- Examples of edge cases
+- Non-standard or domain-specific output format
+- Complex multi-step reasoning (Chain-of-Thought)
+- Model previously made mistakes on similar tasks
+- Specific style/tone that's hard to describe
+
+**When examples are NOT needed:**
+
+- Standard formats (JSON, Markdown, code)
+- Task is clearly described
+- Simple classification or extraction tasks
 
 **Recommendations:**
 
-- Always provide examples for complex tasks
-- Show expected result format
-- Include examples of boundary cases
+- Provide examples for tasks with non-standard output
+- Show expected result format for complex structures
+- Include examples of boundary cases when relevant
+
+**Related:** See [Example Redundancy for Modern Models](#example-redundancy-for-modern-models) for the Decision Matrix on when examples are truly needed vs. wasteful.
 
 ---
 
@@ -781,7 +709,7 @@ If task seems complex → use Full Workflow (without clear criteria)
 - Ignoring tool limitations when creating files
 - No alternative strategies for large files
 
-**Critical Tool Limitation:** See [Working with Tools and File Creation](#9-working-with-tools-and-file-creation) for detailed description.
+**Critical Tool Limitation:** See [File Operation Practices](#file-operation-practices) for detailed strategies.
 
 **Recommendations:**
 
@@ -868,31 +796,21 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ### 2. Providing Context
 
-**Purpose:** Provide the model with sufficient context to complete the task
-**When to use:** When creating prompts for tasks requiring understanding of project context or environment
+Provide sufficient context: programming language, project structure, libraries, relevant files.
 
-- Specify programming language
-- Describe project structure
-- Mention libraries used
-- Include relevant files
+**Related:** See [Lack of Context](#2-lack-of-context-) for common mistakes to avoid.
 
 ### 3. Breaking Down Complex Tasks
 
-**Purpose:** Simplify complex task execution through decomposition
-**When to use:** When working with complex or multi-step tasks
+Divide large tasks into small, specific steps. Solve sequentially.
 
-- Divide large tasks into small ones
-- Solve tasks sequentially
-- Each step should be specific
+**Related:** See [Complex or Multi-task Requests](#3-complex-or-multi-task-requests-) for anti-patterns.
 
 ### 4. Using Examples
 
-**Purpose:** Demonstrate expected behavior and output format
-**When to use:** When creating prompts for tasks where specific formats or behavior patterns are important
+Use examples for non-standard formats or when model previously misunderstood.
 
-- Provide input data examples
-- Show expected results
-- Include output format examples
+**Related:** See [Example Redundancy for Modern Models](#example-redundancy-for-modern-models) for Decision Matrix on when examples are needed vs. wasteful.
 
 ### 5. Defining Output Format
 
@@ -916,12 +834,9 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ### 7. Iterative Approach
 
-**Purpose:** Gradually improve prompt quality through iterations and refinements
-**When to use:** When creating and optimizing prompts to achieve better results
+Experiment with wording, clarify requests, improve based on results.
 
-- Experiment with wording
-- Clarify requests
-- Improve based on results
+**Related:** See [No Iterative Approach](#10-no-iterative-approach-) for the inverse mistake.
 
 ### 8. Security Check
 
@@ -934,91 +849,11 @@ If task seems complex → use Full Workflow (without clear criteria)
 
 ### 9. Working with Tools and File Creation
 
-**Purpose:** Ensure reliable file creation and modification considering tool limitations
-**When to use:** When creating system prompts that use tools for creating/modifying files
+**Key principle:** Use multi-level file creation strategy with verification after each step.
 
-**Note:** Tool names in this section (`read_file`, `write`, `search_replace`, `run_terminal_cmd`) are examples. Actual names may differ in your environment.
+**Critical limitation:** In some environments, failed tool calls terminate the session — plan alternative strategies BEFORE errors, not after.
 
-#### Critical Tool Limitation
-
-**Important:** In some development environments, when a tool call fails (e.g., `write` returns an error), the entire chat session terminates and the agent stops working. This means:
-
-- ❌ **Error handling after the fact does NOT work** - agent cannot execute error handling instructions
-- ❌ **Retry mechanism won't work** - agent won't be able to retry
-- ❌ **Alternative strategies AFTER error don't work** - agent has already stopped working
-- ✅ **Success verification CAN work** - if file was created, can verify via `read_file`
-- ✅ **Alternative strategies BEFORE error CAN work** - use different approach instead of problematic one
-- ✅ **Saving content to context works** - user can create file manually
-
-#### Multi-level File Creation Strategy
-
-**Principle:** Use strategies in priority order, starting with the most reliable.
-
-**Priority 1: Template copying via terminal (if template provided)**
-
-**When to use:** If user provided a file template.
-
-**Procedure:**
-1. **FIRST STEP:** Check if template is provided by user
-2. **If template provided:**
-   - Try copying via terminal: `run_terminal_cmd("cp [template_path] [target_file]")`
-   - If successful → file created, supplement via `search_replace`
-   - If terminal not available/not working → proceed to Priority 2
-3. **If template NOT provided** → proceed to Priority 3
-
-**Priority 2: Copying via read_file + write (if template provided and small)**
-
-**When to use:** If Priority 1 didn't work AND template is provided AND template is read via `read_file` AND content length ≤ threshold (e.g., ≤ 10,000 characters OR ≤ 200 lines).
-
-**Priority 3: Minimal file + incremental additions (default for large files)**
-
-**When to use:** If template is NOT provided OR previous priorities not applicable OR content length (after reading via `read_file`) > 10,000 characters OR > 200 lines.
-
-**Procedure:**
-
-1. **Before creation:** Save full content to context (MANDATORY for critical files)
-2. **Evaluate content size (after reading via `read_file`):**
-   - If > 10,000 characters OR > 200 lines → use this strategy BY DEFAULT
-   - If no template → use this strategy
-3. **Create minimal file:**
-   - Header/metadata
-   - Basic structure (sections, headers)
-   - Empty sections or placeholders
-4. **Add in parts (sequentially):**
-   - Part size: 50-100 lines (one logical section)
-   - Each part via `search_replace`
-   - **Verify success after each part** via `read_file`
-   - If part failed → retry only that part
-5. **Final verification:**
-   - All sections added
-   - File integrity verified
-
-#### Sequential Population of Long Element Lists
-
-**Principle:** When populating content after copying template entirely or when creating documents, long element lists should be populated sequentially, one element at a time.
-
-**"Long list" criteria:**
-- More than 3-5 elements in list OR
-- More than 50-100 lines of content for all list elements (after reading via `read_file`)
-
-**Procedure:**
-
-1. **Determine if list is "long":**
-   - Count number of elements (phases, steps, entries, questions)
-   - Evaluate content size (lines) after reading via `read_file`
-   - If matches ANY criterion (more than 3-5 elements OR more than 50-100 lines) → use sequential population
-   - If DOESN'T match criteria → can populate all at once (but sequential is recommended for reliability)
-
-2. **Sequential population:**
-   - Create first list element via `search_replace`
-   - **MANDATORY:** Verify success via `read_file`
-   - Create next element
-   - Repeat until all elements complete
-
-3. **Success verification after each element:**
-   - `read_file` to verify file exists
-   - Verify file is not empty
-   - Verify element was added correctly (file contains new element, structure preserved)
+**Related:** See [File Operation Practices](#file-operation-practices) for detailed strategies on reading, searching, and modifying large files.
 
 ---
 
@@ -1503,6 +1338,9 @@ Every plan MUST contain:
 
 ## Conditional Logic in Prompts
 
+**Purpose:** Patterns for handling different scenarios within prompts
+**When to use:** When prompts need to handle multiple cases or user input variations
+
 ### IF-THEN Patterns
 
 <example>
@@ -1528,6 +1366,9 @@ For unclear questions: ask clarifying questions before answering."
 
 ## Model Optimization
 
+**Purpose:** Techniques for optimizing model performance and resource usage
+**When to use:** When tuning model parameters or optimizing for latency/cost
+
 ### Temperature and Sampling
 
 - **Temperature 0**: Deterministic, best for factual tasks
@@ -1549,6 +1390,9 @@ For unclear questions: ask clarifying questions before answering."
 ---
 
 ## Instruction Duplication
+
+**Purpose:** Guidelines on when to repeat instructions and when repetition is harmful
+**When to use:** When deciding whether to reinforce critical rules in prompts
 
 ### When Duplication is Appropriate
 
@@ -1603,6 +1447,9 @@ Working with templates requires clear understanding of:
 ---
 
 ## Conclusions and Recommendations for AI Agents
+
+**Purpose:** Summary of key principles and actionable recommendations
+**When to use:** Quick reference for essential takeaways
 
 ### Key Takeaways
 
@@ -1845,15 +1692,13 @@ Section content with identifier
 
 ---
 
-## When to Stop: Avoiding Over-optimization
+## Quality Control and Stopping Criteria
+
+**Purpose:** Define when work is "good enough" and when to stop
+**When to use:** Before shipping, during code review, to prevent over-optimization
+**Related sections:** [Guard Rails for Planning](#guard-rails-for-planning), [Guard Rails for Vibe Coding](#guard-rails-for-vibe-coding-on-large-projects)
 
 ### The "Good Enough" Principle
-
-**Category**: Practice
-**Priority**: Critical
-**Applicability**: All tasks
-
-#### Problem/Context
 
 AI agents can fall into endless optimization loops:
 - Adding more features than needed
@@ -1861,8 +1706,6 @@ AI agents can fall into endless optimization loops:
 - Creating abstractions for single-use cases
 - Improving tests that already pass
 - Perfecting documentation no one reads
-
-#### Solution/Recommendation
 
 **Stop when:**
 1. **Requirements are met** - all acceptance criteria satisfied
@@ -1876,7 +1719,25 @@ AI agents can fall into endless optimization loops:
 - Does this change add measurable value?
 - Would a senior developer approve this as-is?
 
-#### Stopping Criteria Checklist
+### Quality Levels Gateway
+
+A "gateway" is a checkpoint that work must pass before proceeding. It prevents both:
+- Shipping low-quality work (quality floor)
+- Endless polishing (quality ceiling)
+
+| Level | Description | When Appropriate |
+|-------|-------------|------------------|
+| **Prototype** | Works for demo | Proof of concept, exploration |
+| **MVP** | Works for real use | Initial launch, validation |
+| **Production** | Works reliably | Active users, critical paths |
+| **Enterprise** | Works at scale | High traffic, compliance needs |
+
+**Applying the Gateway:**
+1. Define level before starting
+2. Check against criteria
+3. Stop at the gate when requirements met
+
+### Stopping Criteria Checklist
 
 Before continuing to "improve", verify:
 - [ ] All requested features implemented
@@ -1885,7 +1746,37 @@ Before continuing to "improve", verify:
 - [ ] Code follows project conventions
 - [ ] Change is documented (if required)
 
-If all checked - STOP.
+If all checked — **STOP**.
+
+### Production Code Criteria
+
+Code is production-ready when:
+
+| Category | Criteria |
+|----------|----------|
+| **Functionality** | All requirements implemented, edge cases handled, error handling in place |
+| **Reliability** | Tests exist and pass, no known critical bugs, graceful degradation |
+| **Maintainability** | Readable by other developers, follows conventions, documented where non-obvious |
+| **Performance** | Meets requirements, no obvious bottlenecks, acceptable resource usage |
+
+### When to Refactor
+
+| Refactor when | Don't refactor when |
+|---------------|---------------------|
+| Bug fix requires it | "Just to make it cleaner" |
+| New feature requires it | No upcoming changes to that area |
+| Code is actively blocking progress | Working under deadline pressure |
+| Clear ROI | No tests to verify changes |
+
+### Code Smells: Action Required vs. Acceptable
+
+| DO Fix Immediately | DON'T Fix Unless Touching |
+|--------------------|---------------------------|
+| Security vulnerability | Long function (but working) |
+| Data corruption risk | Duplicate code (limited scope) |
+| Memory leak | Imperfect naming |
+| Broken functionality | Missing comments |
+| Failed tests | Old patterns |
 
 ---
 
@@ -1914,92 +1805,20 @@ Modern LLMs have extensive training and sophisticated understanding. Providing e
 - Model demonstrates understanding
 - Token budget is tight
 
----
+### Decision Matrix: When to Use Examples
 
-## Sufficient Quality Gateway
+| Situation | Examples Needed? | Rationale |
+|-----------|------------------|-----------|
+| Non-standard output format | ✅ Yes | Model needs to see expected structure |
+| Domain-specific terminology | ✅ Yes | Reduces ambiguity in specialized fields |
+| Model previously misunderstood | ✅ Yes | Correct misconceptions with concrete examples |
+| Complex multi-step reasoning | ✅ Yes | Show intermediate steps (CoT) |
+| Standard format (JSON, Markdown) | ❌ No | Models are well-trained on standard formats |
+| Task is clearly described | ❌ No | Clear instructions are sufficient |
+| Tight token budget | ❌ No | Prioritize task context over examples |
+| Simple classification/extraction | ❌ No | Usually works with zero-shot |
 
-### Concept
-
-A "gateway" is a checkpoint that work must pass before proceeding. It prevents both:
-- Shipping low-quality work (quality floor)
-- Endless polishing (quality ceiling)
-
-### Quality Levels
-
-| Level | Description | When Appropriate |
-|-------|-------------|------------------|
-| **Prototype** | Works for demo | Proof of concept, exploration |
-| **MVP** | Works for real use | Initial launch, validation |
-| **Production** | Works reliably | Active users, critical paths |
-| **Enterprise** | Works at scale | High traffic, compliance needs |
-
-### Applying the Gateway
-
-1. **Define level before starting**: What quality level does this task require?
-2. **Check against criteria**: Does current work meet level requirements?
-3. **Stop at the gate**: When requirements met, ship it
-
----
-
-## Production Code Quality and Refactoring Criteria
-
-### Production Code Criteria
-
-Code is production-ready when:
-
-1. **Functionality**
-   - All requirements implemented
-   - Edge cases handled
-   - Error handling in place
-
-2. **Reliability**
-   - Tests exist and pass
-   - No known critical bugs
-   - Graceful degradation
-
-3. **Maintainability**
-   - Readable by other developers
-   - Follows project conventions
-   - Documented where non-obvious
-
-4. **Performance**
-   - Meets performance requirements
-   - No obvious bottlenecks
-   - Resource usage acceptable
-
-### When to Refactor
-
-**Refactor when:**
-- Bug fix requires it
-- New feature requires it
-- Code is actively blocking progress
-- Clear ROI (return on investment)
-
-**Don't refactor when:**
-- "Just to make it cleaner"
-- No upcoming changes to that area
-- Working under deadline pressure
-- No tests to verify changes
-
-### Code Smells That DO Require Action
-
-| Smell | Action Required |
-|-------|-----------------|
-| Security vulnerability | Fix immediately |
-| Data corruption risk | Fix immediately |
-| Memory leak | Fix before production |
-| Broken functionality | Fix before shipping |
-| Failed tests | Fix before commit |
-
-### Code Smells That DON'T Require Immediate Action
-
-| Smell | Decision |
-|-------|----------|
-| Long function (but working) | Refactor only if modifying |
-| Duplicate code (limited scope) | Accept if isolated |
-| Imperfect naming | Fix only if confusing |
-| Missing comments | Add only if non-obvious |
-| Old patterns | Modernize only if touching |
+**Related:** See [Lack of Examples](#4-lack-of-examples-) for the inverse problem of missing examples when they ARE needed.
 
 ---
 
@@ -2685,5 +2504,13 @@ Which approach do you prefer? If no preference, I'll go with Option A."
 
 ## End of Knowledge Base
 
-*Last updated: November 2025*
-*Version: 1.1*
+*Last updated: December 2025*
+*Version: 1.2*
+
+**v1.2 Changes:**
+- Removed redundant meta-sections (Where to Add, Templates)
+- Unified Quality Control sections (3→1)
+- Resolved "Examples" contradiction with Decision Matrix
+- Updated Categories Map with Quality Control and Agent Patterns
+- Consolidated File Operations content
+- Added Purpose/When to use to all sections

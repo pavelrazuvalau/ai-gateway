@@ -13,25 +13,25 @@
 
 ### Knowledge Base as "Guard Rails"
 
-This knowledge base serves as "guard rails" - defining boundaries of best practices and common mistakes. These boundaries:
+This knowledge base serves as "guard rails" — defining safe boundaries through documented best practices and common mistakes. These boundaries:
 
 1. **Don't limit creativity**: Inside the guard rails there's complete freedom to experiment
 2. **Prevent known mistakes**: Guard rails are built on documented anti-patterns
 3. **Save time**: No need to rediscover known problems
 4. **Ensure quality**: Minimum standards are guaranteed
 
-**Metaphor**: Highway with guard rails - you can freely choose speed, maneuvers, and route within your lane. Guard rails only prevent going off a cliff.
+**Metaphor**: Highway with guard rails at the edges — you can freely drive across the entire road, choosing your speed and maneuvers. Guard rails only prevent you from going off the road, not from changing lanes or taking different routes within it.
 
-### Knowledge Base as Input Context
+### Knowledge Base as Reference Context
 
-Knowledge base as input context is a document or set of documents provided to an AI agent as additional context along with user request. This approach:
+A knowledge base as reference context is a document or set of documents provided to an AI agent alongside the user request. This approach:
 
-1. **Expands agent's knowledge**: Provides specific domain information
+1. **Provides domain context**: Gives the model specific information relevant to the current task
 2. **Standardizes responses**: Ensures consistency in style and terminology
 3. **Reduces hallucinations**: Provides reliable information sources
-4. **Enables updates**: Allows updating knowledge without retraining the model
+4. **Enables updates**: Allows updating guidance without retraining the model
 
-**Using knowledge base as input context:**
+**Using knowledge base as reference context:**
 - Knowledge base can be attached entirely or partially
 - Relevant sections are selected based on task type
 - Searching by categories and tags speeds up relevant information retrieval
@@ -279,7 +279,7 @@ In this knowledge base, Guard Rails are used for:
 
 **Sufficient Quality Gateway:** A systematic "good enough" check before critical transitions in a workflow.
 
-**"Good Enough":** A principle stating that a solution is considered acceptable upon reaching the target quality level, without needing to achieve perfection. The numbers 85-90% in KB are **empirical guidelines**, not scientifically proven metrics.
+**"Good Enough":** A principle stating that a solution is considered acceptable upon reaching the target quality level, without needing to achieve perfection. Any specific thresholds mentioned in this KB are empirical guidelines, not scientifically proven metrics.
 
 ### Terms for Models and Technologies
 
@@ -2572,7 +2572,14 @@ As the AI reading this, remember to:
 ## End of Knowledge Base
 
 *Last updated: December 2025*
-*Version: 1.4*
+*Version: 1.5*
+
+**v1.5 Changes:**
+- Fixed highway metaphor for guard rails (removed "within your lane" confusion)
+- Corrected "boundaries of best practices" → "boundaries through best practices"
+- Changed "Expands agent's knowledge" → "Provides domain context" (accurate terminology)
+- Simplified "Good Enough" disclaimer (removed specific 85-90% reference)
+- Renamed "Input Context" → "Reference Context" (clearer terminology)
 
 **v1.4 Changes:**
 - Added "Instructions for You (AI Reading This)" — direct guidance for AI models

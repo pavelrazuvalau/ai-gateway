@@ -1,7 +1,7 @@
 # Artifact Management System Prompts
 
-**Version:** 0.3.1  
-**Date:** 2025-01-28  
+**Version:** 0.3.2  
+**Date:** 2025-12-01  
 **Purpose:** Documentation explaining the artifact management system architecture with separation of concerns
 
 ---
@@ -43,8 +43,8 @@
 The artifact management system follows MVC-like architecture with clear separation of concerns:
 
 1. **System Prompts (Controller)** - Logic, procedures, workflow
-   - **`impl-planner.agent.md`** (v0.3.1) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
-   - **`vibe-coder.agent.md`** (v0.3.1) - Execution and artifact maintenance (frequent stops for developer control)
+   - **`impl-planner.agent.md`** (v0.3.2) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
+   - **`vibe-coder.agent.md`** (v0.3.2) - Execution and artifact maintenance (frequent stops for developer control)
 
 2. **Template Files (View)** - Formatting, structure, presentation
    - `docs/ai/IMPLEMENTATION_PLAN.md` - PLAN artifact template
@@ -197,8 +197,8 @@ You can switch between prompts as needed:
 - Detailed structure definitions
 
 **Files:**
-- `impl-planner.agent.md` (v0.3.1) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
-- `vibe-coder.agent.md` (v0.3.1) - Execution and artifact maintenance (frequent stops for developer control)
+- `impl-planner.agent.md` (v0.3.2) - Planning and artifact creation (with two workflow modes, frequent stops for developer control)
+- `vibe-coder.agent.md` (v0.3.2) - Execution and artifact maintenance (frequent stops for developer control)
 
 ### Template Files (View)
 **Responsibility:** Formatting, structure, presentation, examples
@@ -237,7 +237,7 @@ You can switch between prompts as needed:
 
 | Aspect | impl-planner.agent.md | vibe-coder.agent.md |
 |--------|----------------------|---------------------|
-| **Version** | 0.3.1 | 0.3.1 |
+| **Version** | 0.3.2 | 0.3.2 |
 | **Focus** | Analysis and planning | Implementation and execution |
 | **Input** | Task description, codebase (plan draft, Jira ticket, business description) | Existing artifacts (PLAN, CHANGELOG, QUESTIONS, SESSION_CONTEXT) |
 | **Output** | PLAN + artifacts | Code changes + updated artifacts |
@@ -272,7 +272,7 @@ Both prompts share:
 
 ## Key Features
 
-### impl-planner.agent.md (v0.3.1)
+### impl-planner.agent.md (v0.3.2)
 - Code-first analysis approach (repository files as primary source)
 - **MANDATORY Context Gathering**: Steps 1-5 must be completed before creating PLAN
   - Each step requires STOP and summary with standardized format (files analyzed, search queries, key findings, directions explored)
@@ -289,7 +289,7 @@ Both prompts share:
 - Universal and technology-agnostic
 - References template files for formatting (no formatting rules in prompt)
 
-### vibe-coder.agent.md (v0.3.1)
+### vibe-coder.agent.md (v0.3.2)
 - **Core Workflow**: Analysis → Solution → Action → Documentation
 - **Two Workflow Modes**: Works with both Simplified (SESSION_CONTEXT only) and Full (PLAN + artifacts) workflows
 - **Sequential Operations**: Create/modify files ONE at a time, update artifacts sequentially, but context gathering can be parallel
